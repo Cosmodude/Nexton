@@ -30,4 +30,6 @@ MIT
 
 ## For reference:
     
-    https://www.youtube.com/watch?v=5Muo79ZsOIg
+    - video tutorial https://www.youtube.com/watch?v=5Muo79ZsOIg
+    - Official docs https://docs.tact-lang.org/
+                    https://tact-lang.org/

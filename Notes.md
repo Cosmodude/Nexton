@@ -12,3 +12,4 @@
     - All of the variables must be initialised in constructor(init) or declaration
     - There also temporary variables
     - Math is safe by default
+    - Strings are immutable
