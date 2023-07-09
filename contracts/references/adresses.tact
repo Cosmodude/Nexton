@@ -1,5 +1,6 @@
 import "@stdlib/deploy";
 
+// 1000 addresses - 0.189 Ton / year 
 contract Addresses with Deployable {
     // 264 bits for an address
     a1: Address = address("EQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dYvk"); // bouncable

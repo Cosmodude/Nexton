@@ -1,10 +1,10 @@
 import "@stdlib/deploy";
 
 contract Intgers with Deployable {
-    i1: Int as uin256;
-    i2: Int as int257;
+    i1: Int as uin256; 
+    i2: Int as int257;  // 0.184 Ton / year 
     i3: Int as coins; 
-    i4: Int as uint32;
+    i4: Int as int32;   // 0.023 Ton / year 
 
     init(){
         self.i1 = 0x83df;
