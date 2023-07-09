@@ -1,0 +1,27 @@
+import "@stdlib/deploy";
+
+contract Intgers with Deployable {
+    i1: Int as uin256;
+    i2: Int as int257;
+    i3: Int as coins; 
+    i4: Int as uint32;
+
+    init(){
+        self.i1 = 0x83df;
+        self.i2 = -1284847;
+        self.i3 = ton("3.4"); // 34 * 10 ^8
+        self.i4 = pow(3,4);
+    }
+
+    receive(){
+        let it1: Int as uint32 = 32;
+        let it2: Int as uint24 = 10;
+
+        let i = it1/it2; // 32/10 =3 
+        i = it1 % it2; // = 2
+        i = it1 >> 3; // bitwise right shift (see c++)
+        i = min(it1, it2);
+        i = abs( -1 * int2); // = 10
+        i = it1>=30; // true
+    }
+}
