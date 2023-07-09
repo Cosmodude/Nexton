@@ -13,3 +13,5 @@
     - There also temporary variables
     - Math is safe by default
     - Strings are immutable
+    - Get methods are free, but can be called only externally
+    - On-chain interaction only through messages 
