@@ -10,9 +10,9 @@ describe('TACT', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        tACT = blockchain.openContract(await TACT.fromInit(0n));
+        tACT = blockchain.openContract(await TACT.fromInit(10n));
 
-        const deployer = await blockchain.treasury('deployer');
+        const deployer = await blockchain.treasury('deployer'); // returns wallet with 1 million TONCoins
 
         const deployResult = await tACT.send(
             deployer.getSender(),
@@ -38,7 +38,7 @@ describe('TACT', () => {
         // blockchain and tACT are ready to use
     });
 
-    it('should increase counter', async () => {
+    it('should increase with amount', async () => {
         const increaseTimes = 3;
         for (let i = 0; i < increaseTimes; i++) {
             console.log(`increase ${i + 1}/${increaseTimes}`);
@@ -60,7 +60,7 @@ describe('TACT', () => {
                 },
                 {
                     $$type: 'Add',
-                    queryId: 0n,
+                    contractId: 0n,
                     amount: increaseBy,
                 }
             );
