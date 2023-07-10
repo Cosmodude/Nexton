@@ -1,6 +1,6 @@
 import "@stdlib/deploy";
 
-message Add {
+message CounterValue {
     amount: Int as uint32;
 }
 
@@ -21,6 +21,10 @@ contract TACT with Deployable {
         self.counter = self.counter + 1;
     }
     
+    receive("quert"){
+        self.reply(CounterValue{amount: self.counter}.toCell());
+    }
+
     receive(msg: Add) {
         self.counter = (self.counter + msg.amount);
     }
