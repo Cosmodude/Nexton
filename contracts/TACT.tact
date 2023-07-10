@@ -1,18 +1,20 @@
 import "@stdlib/deploy";
 
 message Add {
-    contractId: Int as uint64;
     amount: Int as uint32;
 }
 
 contract TACT with Deployable {
-    id: Int as uint32; 
     counter: Int as uint32;
 
     //constructor
-    init(id: Int) {
-        self.id = id;
+    init() {
         self.counter = 0;
+    }
+
+    // Just receive TONCoins
+    receive(){
+
     }
 
     receive("increment"){
@@ -28,7 +30,4 @@ contract TACT with Deployable {
         return self.counter;
     }
 
-    get fun id(): Int {
-        return self.id;
-    }
 }
