@@ -15,3 +15,5 @@
     - Strings are immutable
     - Get methods are free, but can be called only externally
     - On-chain interaction only through messages 
+    - Text messages have no arguments now
+    - Messages look same as structures
