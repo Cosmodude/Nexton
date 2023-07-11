@@ -1,6 +1,6 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
 import { toNano } from 'ton-core';
-import { Invicore } from '../wrappers/Invicore';
+import { Invicore } from '../wrappers/InviCore';
 import '@ton-community/test-utils';
 
 describe('InviCore', () => {

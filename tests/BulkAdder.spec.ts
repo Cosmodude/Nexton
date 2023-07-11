@@ -1,4 +1,4 @@
-import { Blockchain, SandboxContract } from '@ton-community/sandbox';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
 import { toNano } from 'ton-core';
 import { BulkAdder } from '../wrappers/BulkAdder';
 import { TACT } from '../wrappers/TACT';
@@ -8,7 +8,7 @@ describe('BulkAdder and Counter', () => {
     let blockchain: Blockchain;
     let bulkAdder: SandboxContract<BulkAdder>;
     let counter: SandboxContract<TACT>;
-    let deployer;
+    let deployer: SandboxContract<TreasuryContract>;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
@@ -59,4 +59,21 @@ describe('BulkAdder and Counter', () => {
         // the check is done inside beforeEach
         // blockchain and bulkAdder are ready to use
     });
+
+    it("should increase to target", async () => {
+        const target = 12n;
+        const res = await bulkAdder.send(deployer.getSender(), {
+        value: toNano("0.3")
+        },{
+            $$type: 'Reach',
+            counterContract: counter.address,
+            target
+        }
+        )
+
+        const count = await counter.getCounter();
+        expect(count).toEqual(target);
+        console.log(res.events.length);
+    });
+        
 });

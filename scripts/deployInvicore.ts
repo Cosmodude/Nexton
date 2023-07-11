@@ -1,5 +1,5 @@
 import { toNano } from 'ton-core';
-import { Invicore } from '../wrappers/Invicore';
+import { Invicore } from '../wrappers/InviCore';
 import { NetworkProvider } from '@ton-community/blueprint';
 
 export async function run(provider: NetworkProvider) {
