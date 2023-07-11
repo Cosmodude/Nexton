@@ -4,6 +4,10 @@ message CounterValue {
     amount: Int as uint32;
 }
 
+message Add {
+    amount: Int as uint32;
+}
+
 contract TACT with Deployable {
     counter: Int as uint32;
 
@@ -17,11 +21,14 @@ contract TACT with Deployable {
 
     }
 
+    // step 4
     receive("increment"){
         self.counter = self.counter + 1;
+        self.reply(CounterValue{amount: self.counter}.toCell());
     }
     
-    receive("quert"){
+    // step 2
+    receive("query"){
         self.reply(CounterValue{amount: self.counter}.toCell());
     }
 
