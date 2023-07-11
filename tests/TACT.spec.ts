@@ -10,7 +10,7 @@ describe('TACT', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        tACT = blockchain.openContract(await TACT.fromInit(10n));
+        tACT = blockchain.openContract(await TACT.fromInit());
 
         const deployer = await blockchain.treasury('deployer'); // returns wallet with 1 million TONCoins
 
@@ -60,7 +60,6 @@ describe('TACT', () => {
                 },
                 {
                     $$type: 'Add',
-                    contractId: 0n,
                     amount: increaseBy,
                 }
             );
