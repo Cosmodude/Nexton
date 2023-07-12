@@ -14,6 +14,11 @@ message Add {
     amount: Int as uint32;
 }
 
+message AddResponse {
+    amount: Int as uint32;
+    adr: Address;
+}
+
 message CounterValue {
     amount: Int as uint32;
 }
@@ -60,8 +65,6 @@ contract BulkAdder with Deployable {
         });
     }
 
-    bounced(src: CounterValue){
-       
-    }
+   
 
 }

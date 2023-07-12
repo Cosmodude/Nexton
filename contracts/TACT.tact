@@ -4,6 +4,10 @@ message CounterValue {
     amount: Int as uint32;
 }
 
+message AddResponse {
+    amount: Int as uint32;
+}
+
 message Add {
     amount: Int as uint32;
 }
@@ -38,12 +42,16 @@ contract TACT with Deployable {
             to: sender(),
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
-            body: CounterValue{amount: self.counter}.toCell()
+            body: AddResponse{amount: self.counter}.toCell()
         });
     }
 
+    bounced(src: AddResponse){
+       self.counter = (self.counter - msg.amount);
+    }
+
     // get methods
-    get fun getCounter(): Int {
+    get fun counter(): Int {
         return self.counter;
     }
 
