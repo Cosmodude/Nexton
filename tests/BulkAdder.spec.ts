@@ -61,9 +61,9 @@ describe('BulkAdder and Counter', () => {
     });
 
     it("should increase to target", async () => {
-        const target = 12n;
+        const target = 5n;
         const res = await bulkAdder.send(deployer.getSender(), {
-        value: toNano("0.3")
+        value: toNano("0.2")
         },{
             $$type: 'Reach',
             counterContract: counter.address,
@@ -73,7 +73,22 @@ describe('BulkAdder and Counter', () => {
 
         const count = await counter.getCounter();
         expect(count).toEqual(target);
-        console.log(res.events.length);
+    });
+
+    it("should add", async () => {
+        const amount = 10n;
+        const res = await bulkAdder.send(deployer.getSender(), {
+            value: toNano("0.2")
+            },{
+                $$type: 'CallAdd',
+                counterContract: counter.address,
+                amount
+            }
+            )
+            
+            const count = await counter.getCounter();
+            console.log(res.events);
+            expect(count).toEqual(amount)
     });
         
 });
