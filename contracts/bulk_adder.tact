@@ -5,6 +5,15 @@ message Reach{
     target: Int as uint32;
 }
 
+message CallAdd {
+    counterContract: Address;
+    amount: Int as uint32;
+}
+
+message Add {
+    amount: Int as uint32;
+}
+
 message CounterValue {
     amount: Int as uint32;
 }
@@ -12,12 +21,15 @@ message CounterValue {
 contract BulkAdder with Deployable {
 
     target: Int as uint32;
+
     init() {
         self.target = 0;
     }
 
+    receive(){}
     // step 1
     receive(msg: Reach){
+        require(msg.target<=10, "Target can't be more than 10");
         self.target = msg.target;
         send(SendParameters{
             to: msg.counterContract,
@@ -37,6 +49,19 @@ contract BulkAdder with Deployable {
                 body: "increment".asComment()
         });
         }
+    }
+
+    receive(msg: CallAdd){
+        send(SendParameters{
+            to: msg.counterContract,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            body: Add{amount: msg.amount}.toCell()
+        });
+    }
+
+    bounced(src: CounterValue){
+       
     }
 
 }

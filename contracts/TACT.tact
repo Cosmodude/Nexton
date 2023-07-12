@@ -18,7 +18,7 @@ contract TACT with Deployable {
 
     // Just receive TONCoins
     receive(){
-
+        throw(1);
     }
 
     // step 4
@@ -34,10 +34,16 @@ contract TACT with Deployable {
 
     receive(msg: Add) {
         self.counter = (self.counter + msg.amount);
+        send(SendParameters{
+            to: sender(),
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            body: CounterValue{amount: self.counter}.toCell()
+        });
     }
 
     // get methods
-    get fun counter(): Int {
+    get fun getCounter(): Int {
         return self.counter;
     }
 
