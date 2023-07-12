@@ -22,24 +22,22 @@ message Deposit{
 
 contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
-    stopped: Bool;
+    stopped: Bool = false;
     jettonContractAddress: Address;  // stToken Contract Address
     lSContractAddress: Address;      // Liquidity Staking Contract Address
     count: Int as uint32 = 0;        // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
 
-    balance: Int as coins;
-    stake: map<Address, Int>;
+    balance: Int as coins = 0;
+    stake: map<Address, Int> = emptyMap();
 
     init(_jetton: Address, _liquidStaking: Address) {
         self.owner = sender();
-        self.stopped = false;
         self.jettonContractAddress = _jetton;
         self.lSContractAddress = _liquidStaking;
-        self.stake = emptyMap();
-        self.balance = 0 ;
-
         self.latestStakeBlock = now();  // returns the current BlockNumber
+
+        self.stake = emptyMap();
     }
 
     //Receive functions 
