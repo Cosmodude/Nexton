@@ -1,16 +1,18 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
+import "@stdlib/stoppable";
 
 struct StakeInfo{
     staker: Address;
-    originalLeverageRatio: Int as uint32;
+}
+    /*originalLeverageRatio: Int as uint32;
     leverageRatio: Int as uint32 = 1;
     protocolFee: Int as coins;
     principal: Int as coins;
     lockPeriod: Int as uint256;
     lockStart: Int as uint256;
     isLent: Bool = false;
-}
+}*/
 
 message Deposit{
     principal: Int as coins;
@@ -18,21 +20,26 @@ message Deposit{
     leverage: Int as uint32;
 }
 
-contract Invicore with Deployable, OwnableTransferable {
+contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
+    stopped: Bool;
     jettonContractAddress: Address;  // stToken Contract Address
     lSContractAddress: Address;      // Liquidity Staking Contract Address
+    count: Int as uint32 = 0;        // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
 
-    counter: Int as coins;
-    stake: map<Address, StakeInfo>;
+    balance: Int as coins;
+    stake: map<Address, Int>;
 
     init(_jetton: Address, _liquidStaking: Address) {
-        owner = sender();
-        jettonContractAddress = _jetton;
-        lSContractAddress = _liquidStaking;
+        self.owner = sender();
+        self.stopped = false;
+        self.jettonContractAddress = _jetton;
+        self.lSContractAddress = _liquidStaking;
+        self.stake = emptyMap();
+        self.balance = 0 ;
 
-        latestStakeBlock = now();  // returns the current BlockNumber
+        self.latestStakeBlock = now();  // returns the current BlockNumber
     }
 
     //Receive functions 
@@ -41,18 +48,25 @@ contract Invicore with Deployable, OwnableTransferable {
     receive(){}
 
     receive("deposit"){
-        counter = msg.value;
+        self.count = 1;
     }
 
     receive(msg: Deposit){
-        let _stakeInfo: StakeInfo;
-        _stakeInfo.principal = msg.principal;
-        counter= msg.value;
-        stake[sender()].principal = msg.principal;
+        let _stakeInfo: StakeInfo = StakeInfo{staker: sender() };  // emptyMap()
+        //_stakeInfo.principal = msg.principal;
+        self.balance= msg.principal;
+        self.stake.set(sender(), msg.principal);
+        self.count = self.stake.get(sender())!!; // !! - denaming, error if null
     }
 
     fun mintNFT(stakeInfo: StakeInfo){
         
+        
+    }
+
+    fun notes(){
+       self.requireOwner(); 
+       let hash: Int = sha256("String");
     }
 }
 
