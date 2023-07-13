@@ -1,4 +1,7 @@
+// https://github.com/ton-core/tact/blob/main/stdlib/libs/jetton/master.tact
 import "@stdlib/jetton";
+
+
 
 message Mint {
     amount: Int;
@@ -20,7 +23,7 @@ contract SampleJetton with Jetton {
 
     receive(msg: Mint) {
         let ctx: Context = context();
-        self.mint(ctx.sender, msg.amount, ctx.sender);
+        self.mint(ctx.sender, msg.amount, ctx.sender); // (to, amount, responseAddr)
     }
 
     receive("Mint!") {
