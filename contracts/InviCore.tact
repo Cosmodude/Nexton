@@ -1,7 +1,8 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
-//import "./utils";
+//import "./contracts/NFT.fc";
+//import "./messages.tact";
 
 const day: Int = (24 * 60 * 60);
 const year: Int =  24 * 60 * 60 * 365;
@@ -32,9 +33,10 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     stopped: Bool = false;
     jettonContractAddress: Address;  // stToken Contract Address
     lSContractAddress: Address;      // Liquidity Staking Contract Address
-    NFTContractAddress: Address;
-    count: Int as uint32 = 0;        // Counter of messages to the contract 
+    nFTContractAddress: Address;
+    counter: Int as uint32 = 0;        // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
+    nftCounter: Int as uint32 = 0;
 
     balance: Int as coins = 0;
     stake: map<Address, Int>;
@@ -43,7 +45,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.owner = sender();
         self.jettonContractAddress = _jetton;
         self.lSContractAddress = _liquidStaking;
-        self.NFTContractAddress = _nft;
+        self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
 
         self.stake = emptyMap();
@@ -55,35 +57,52 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     receive(){}
 
     receive("increment"){
-        self.count = (self.count + 1);
+        self.counter = self.counter + 1;
     }
 
     receive(msg: Deposit){
+        let ctx: Context = context();
         let _stakeInfo: StakeInfo = StakeInfo{
-            staker: sender(),
-            principal: context().value,
-            lockStart: now()
+            staker: ctx.sender,
+            principal: ctx.value,
+            lockStart: now() + 600
             }; 
         //_stakeInfo.principal = msg.principal;
         self.balance = (self.balance + msg.principal);
         self.stake.set(sender(), msg.principal);
-        
+        self.mintNFT(_stakeInfo);
     }
 
     bounced(src: bounced<MintNFT>){
 
     }
 
-    fun mintNFT(_stakeInfo: StakeInfo){
 
-        
-        
+    fun setNFTContract(_nft: Address){
+        self.requireOwner();
+        self.nFTContractAddress = _nft;
+    } 
+
+    fun setlSContractAddress(_liquidStaking: Address){
+        self.requireOwner();
+        self.lSContractAddress = _liquidStaking;
+    } 
+
+    fun mintNFT(_stakeInfo: StakeInfo): Bool {
+        send(SendParameters{
+            to: self.nFTContractAddress,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            body: MintNFT{stakeInfo: _stakeInfo}.toCell()
+        });
+        self.nftCounter = self.nftCounter + 1;
+        return true;
     }
 
     fun notes(){
        self.requireOwner(); 
        let hash: Int = sha256("String");
-       self.count = self.stake.get(sender())!!; // !! - denaming, error if null
+       self.counter = self.stake.get(sender())!!; // !! - denaming, error if null
        self.stake.set(sender(), null); // instead of delete
     }
 }
