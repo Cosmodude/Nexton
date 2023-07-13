@@ -2,7 +2,7 @@ import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
 //import "./contracts/NFT.fc";
-//import "./messages.tact";
+import "./imports/messages";
 
 const day: Int = (24 * 60 * 60);
 const year: Int =  24 * 60 * 60 * 365;
@@ -31,18 +31,20 @@ message Deposit{
 contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
     stopped: Bool = false;
+    LPPoolContractAddress: Address;          // Liquidity Pool Provider contract 
     jettonContractAddress: Address;  // stToken Contract Address
     lSContractAddress: Address;      // Liquidity Staking Contract Address
     nFTContractAddress: Address;
-    counter: Int as uint32 = 0;        // Counter of messages to the contract 
+    counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     nftCounter: Int as uint32 = 0;
 
     balance: Int as coins = 0;
     stake: map<Address, Int>;
 
-    init(_jetton: Address, _liquidStaking: Address, _nft: Address) {
+    init(_liquidtyProviderPool: Address, _jetton: Address, _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
+        self.LPPoolContractAddress = _liquidtyProviderPool;
         self.jettonContractAddress = _jetton;
         self.lSContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
@@ -51,6 +53,9 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.stake = emptyMap();
     }
 
+    fun requireLPPool() {
+        nativeThrowUnless(132, context().sender == self.LPPoolContractAddress);
+    }
     // Receive functions 
 
     // Receive TONCoins
@@ -88,7 +93,12 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.lSContractAddress = _liquidStaking;
     } 
 
-    fun mintNFT(_stakeInfo: StakeInfo): Bool {
+    fun setLPPoolContractAddress(_liquidityProviderPool: Address){
+        self.requireOwner();
+        self.lSContractAddress = _liquidityProviderPool;
+    } 
+
+    fun mintNFT(_stakeInfo: StakeInfo){
         send(SendParameters{
             to: self.nFTContractAddress,
             value: 0,
@@ -96,7 +106,6 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
             body: MintNFT{stakeInfo: _stakeInfo}.toCell()
         });
         self.nftCounter = self.nftCounter + 1;
-        return true;
     }
 
     fun notes(){
@@ -105,6 +114,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
        self.counter = self.stake.get(sender())!!; // !! - denaming, error if null
        self.stake.set(sender(), null); // instead of delete
     }
+
 }
 
 
