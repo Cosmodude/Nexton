@@ -2,7 +2,7 @@ import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
 //import "./contracts/NFT.fc";
-import "./imports/messages";
+//import "./imports/messages";
 
 const day: Int = (24 * 60 * 60);
 const year: Int =  24 * 60 * 60 * 365;
@@ -19,13 +19,23 @@ struct StakeInfo{
 }
 
 message MintNFT{
-    stakeInfo: StakeInfo;
+    staker: Address;
+    leverageRatio: Int as uint32 = 1;
+    principal: Int as coins;
+    lockPeriod: Int as uint256 = (24 * 60 * 60 * 1);
+    lockStart: Int as uint256;
+    isLent: Bool = false;
 }
 
-message Deposit{
+message UserDeposit{
     principal: Int as coins;
     lockPeriod: Int as uint256;
     leverage: Int as uint32;
+}
+
+message LPPoolDeposit{
+    amount: Int as coins; 
+    
 }
 
 contract Invicore with Deployable, OwnableTransferable, Resumable {
@@ -65,7 +75,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.counter = self.counter + 1;
     }
 
-    receive(msg: Deposit){
+    receive(msg: UserDeposit){
         let ctx: Context = context();
         let _stakeInfo: StakeInfo = StakeInfo{
             staker: ctx.sender,
@@ -78,9 +88,16 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.mintNFT(_stakeInfo);
     }
 
-    bounced(src: bounced<MintNFT>){
-
+    /*bounced(src: bounced<MintNFT>) {
+        self.balance = (self.balance - src.principal);
+        send(SendParameters{
+            to: src.staker,
+            value: src.principal,
+            mode: SendRemainingValue + SendIgnoreErrors,  // vulnarable for attacks
+            body: "Error: NFT not minted".toString()
+        });
     }
+    */
 
 
     fun setNFTContract(_nft: Address){
@@ -103,7 +120,11 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
             to: self.nFTContractAddress,
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
-            body: MintNFT{stakeInfo: _stakeInfo}.toCell()
+            body: MintNFT{
+                staker: _stakeInfo.staker,
+                principal: _stakeInfo.principal,
+                lockStart: _stakeInfo.lockStart
+            }.toCell()
         });
         self.nftCounter = self.nftCounter + 1;
     }
