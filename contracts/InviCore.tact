@@ -2,7 +2,7 @@ import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
 //import "./contracts/NFT.fc";
-//import "./imports/messages";
+import "./imports/messages";
 
 const day: Int = (24 * 60 * 60);
 const year: Int =  24 * 60 * 60 * 365;
@@ -18,14 +18,6 @@ struct StakeInfo{
     isLent: Bool = false;
 }
 
-message MintNFT{
-    principal: Int as coins;
-    leverageRatio: Int as uint32 = 1;
-    staker: Address;
-    lockPeriod: Int as uint256 = (24 * 60 * 60 * 1);
-    lockStart: Int as uint256;
-    isLent: Bool = false;
-}
 
 message UserDeposit{
     principal: Int as coins;
