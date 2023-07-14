@@ -19,9 +19,9 @@ struct StakeInfo{
 }
 
 message MintNFT{
-    staker: Address;
-    leverageRatio: Int as uint32 = 1;
     principal: Int as coins;
+    leverageRatio: Int as uint32 = 1;
+    staker: Address;
     lockPeriod: Int as uint256 = (24 * 60 * 60 * 1);
     lockStart: Int as uint256;
     isLent: Bool = false;
@@ -88,16 +88,16 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.mintNFT(_stakeInfo);
     }
 
-    /*bounced(src: bounced<MintNFT>) {
+    bounced(src: bounced<MintNFT>) {
         self.balance = (self.balance - src.principal);
         send(SendParameters{
-            to: src.staker,
+            to: sender(),
             value: src.principal,
             mode: SendRemainingValue + SendIgnoreErrors,  // vulnarable for attacks
-            body: "Error: NFT not minted".toString()
+            body: "Error: NFT not minted".asComment()
         });
     }
-    */
+
 
 
     fun setNFTContract(_nft: Address){
