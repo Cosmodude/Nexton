@@ -1,13 +1,12 @@
 // https://github.com/ton-core/tact/blob/main/stdlib/libs/jetton/master.tact
 import "@stdlib/jetton";
-
-
+import "@stdlib/ownable";
 
 message Mint {
     amount: Int;
 }
 
-contract SampleJetton with Jetton {
+contract ILPJetton with Jetton {
 
     totalSupply: Int as coins;
     owner: Address;
