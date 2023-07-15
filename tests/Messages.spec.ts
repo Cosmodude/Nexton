@@ -17,7 +17,7 @@ describe('Messages', () => {
         const deployResult = await messages.send(
             deployer.getSender(),
             {
-                value: toNano('0.05'),
+                value: toNano('0.5'),
             },
             {
                 $$type: 'Deploy',
@@ -37,7 +37,7 @@ describe('Messages', () => {
             {
                 value: toNano("500")
             }, 
-            "null"
+            null
         )
     });
 

@@ -7,6 +7,10 @@ contract Messages with Deployable {
        self.owner = sender(); 
     }
 
+    receive(){
+        
+    }
+
     receive("withdraw all"){
         require(sender()==self.owner, "not the owner");
         send(SendParameters{
@@ -24,10 +28,7 @@ contract Messages with Deployable {
             bounce: true,  // default value
             body: "hello World".asComment()
         });
-        context().bounced;
-        context().sender;
-        context().value;
-        context().raw;
+        
         self.reply("Hello World".asComment());
     }
 
