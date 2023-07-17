@@ -68,4 +68,30 @@ describe('Messages', () => {
         const balanceAfterDeployer = await deployer.getBalance()
         console.log("balance after for deployer: ", fromNano(balanceAfterDeployer))
     })
+
+    it('should withdraw safe', async() => {
+        console.log("Withdraw SAFE!!!")
+        const user = await blockchain.treasury('user');
+        const balanceBeforeUser = await user.getBalance()
+        console.log("Balance before: ", fromNano(balanceBeforeUser))
+        await messages.send(user.getSender(), {
+            value: toNano("0.2")
+        }, 'withdraw safe')
+
+        const balanceAfterUser = await user.getBalance()
+        console.log("balance after: ", fromNano(balanceAfterUser))
+
+        const balanceBeforeDeployer = await deployer.getBalance()
+        console.log("balance before for deployer: ", fromNano(balanceBeforeDeployer))
+        await messages.send(deployer.getSender(), {
+            value: toNano("0.2")
+        }, 'withdraw safe')
+
+        const balanceAfterDeployer = await deployer.getBalance()
+        console.log("balance after for deployer: ", fromNano(balanceAfterDeployer))
+
+        const contractBalance = await messages.getBalance() 
+        expect(contractBalance).toBeGreaterThan(0 )
+        console.log("contract balance: ", fromNano(contractBalance))
+    })
 });

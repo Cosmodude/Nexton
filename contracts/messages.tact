@@ -1,5 +1,9 @@
 import "@stdlib/deploy";
 
+message Withdraw{
+    amount: Int as coins;
+}
+
 contract Messages with Deployable {
     const MinTonForStorage: Int = ton("0.1");  // ~ 1 kB for 2.5 years
     owner: Address;
@@ -42,7 +46,7 @@ contract Messages with Deployable {
         self.reply("Hello World".asComment());
     }
 
-    get fun balance(): String{
-        return myBalance().toCoinsString();
+    get fun balance(): Int{
+        return myBalance();
     }
 }
