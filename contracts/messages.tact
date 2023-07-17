@@ -1,7 +1,7 @@
 import "@stdlib/deploy";
 
 contract Messages with Deployable {
-
+    const MinTonForStorage: Int = ton("0.1");  // ~ 1 kB for 2.5 years
     owner: Address;
     init(){
        self.owner = sender(); 
@@ -18,6 +18,16 @@ contract Messages with Deployable {
             bounce: true,
             value: 0,
             mode: SendRemainingBalance + SendIgnoreErrors
+        });
+    }
+
+    receive("withdraw safe"){
+        require(sender()==self.owner, "not the owner");
+        send(SendParameters{
+            to: sender(),
+            bounce: true,
+            value: myBalance() - context().value - self.MinTonForStorage,
+            mode: SendIgnoreErrors + SendRemainingValue
         });
     }
     receive(msg: String){
