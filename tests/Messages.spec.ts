@@ -1,12 +1,12 @@
-import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { toNano } from 'ton-core';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
+import { fromNano, toNano } from 'ton-core';
 import { Messages } from '../wrappers/Messages';
 import '@ton-community/test-utils';
 
 describe('Messages', () => {
     let blockchain: Blockchain;
     let messages: SandboxContract<Messages>;
-    let deployer;
+    let deployer: SandboxContract<TreasuryContract>;
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
@@ -47,4 +47,25 @@ describe('Messages', () => {
         // the check is done inside beforeEach
         // blockchain and messages are ready to use
     });
+
+    it('should withdraw all', async() => {
+        const user = await blockchain.treasury('user');
+        const balanceBeforeUser = await user.getBalance()
+        console.log("Balance before: ", fromNano(balanceBeforeUser))
+        await messages.send(user.getSender(), {
+            value: toNano("0.2")
+        }, 'withdraw all')
+
+        const balanceAfterUser = await user.getBalance()
+        console.log("balance after: ", fromNano(balanceAfterUser))
+
+        const balanceBeforeDeployer = await deployer.getBalance()
+        console.log("balance before for deployer: ", fromNano(balanceBeforeDeployer))
+        await messages.send(deployer.getSender(), {
+            value: toNano("0.2")
+        }, 'withdraw all')
+
+        const balanceAfterDeployer = await deployer.getBalance()
+        console.log("balance after for deployer: ", fromNano(balanceAfterDeployer))
+    })
 });
