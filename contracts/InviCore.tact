@@ -23,7 +23,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     stopped: Bool = false;
     LPPoolContractAddress: Address;          // Liquidity Pool Provider contract 
     jettonContractAddress: Address;  // stToken Contract Address
-    lSContractAddress: Address;      // Liquidity Staking Contract Address
+    SPContractAddress: Address;      // Liquidity Staking Contract Address
     nFTContractAddress: Address;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
@@ -36,7 +36,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.owner = sender();
         self.LPPoolContractAddress = _liquidtyProviderPool;
         self.jettonContractAddress = _jetton;
-        self.lSContractAddress = _liquidStaking;
+        self.SPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
 
@@ -82,12 +82,30 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         });
     }
 
+    // Command messages
 
-
-    fun setNFTContractAddress(_nft: Address){
+    receive(msg: Addr){
         self.requireOwner();
-        self.nFTContractAddress = _nft;
-    } 
+        if(msg.entity == "nft"){  // NFT
+            self.nFTContractAddress = msg.address;
+        }
+        if(msg.entity == "LPP"){  // Liquidity Provider Pool
+            self.LPPoolContractAddress  = msg.address;
+        }
+        if(msg.entity == "SP"){  // Staking Pool
+            self.SPContractAddress  = msg.address;
+        }
+        if(msg.entity == ""){
+            self.reply("Wrong entity".asComment());
+        }
+
+    }
+
+    
+
+
+
+    
 
     fun setlSContractAddress(_liquidStaking: Address){
         self.requireOwner();
@@ -96,7 +114,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
 
     fun setLPPoolContractAddress(_liquidityProviderPool: Address){
         self.requireOwner();
-        self.lSContractAddress = _liquidityProviderPool;
+        self.LPPoolContractAddress = _liquidityProviderPool;
     } 
 
     fun mintNFT(_stakeInfo: StakeInfo){

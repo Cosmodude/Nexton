@@ -12,3 +12,17 @@ message Deposit{
     lockPeriod: Int as uint256;
     leverage: Int as uint32;
 }
+
+message UserDeposit{
+    lockPeriod: Int as uint256;
+    leverage: Int as uint32;
+}
+
+message LPPoolDeposit{
+    amount: Int as coins; 
+}
+
+message Addr{
+    address: Address;
+    entity: String;
+}
