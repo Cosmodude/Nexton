@@ -86,36 +86,19 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
 
     receive(msg: Addr){
         self.requireOwner();
-        if(msg.entity == "nft"){  // NFT
+        if(msg.entity.asSlice().hash() == "nft".asSlice().hash()){  // NFT
             self.nFTContractAddress = msg.address;
         }
-        if(msg.entity == "LPP"){  // Liquidity Provider Pool
+        if(msg.entity.asSlice().hash() == "LPP".asSlice().hash()){  // Liquidity Provider Pool
             self.LPPoolContractAddress  = msg.address;
         }
-        if(msg.entity == "SP"){  // Staking Pool
+        if(msg.entity.asSlice().hash() == "SP".asSlice().hash()){  // Staking Pool
             self.SPContractAddress  = msg.address;
         }
-        if(msg.entity == ""){
+        else{
             self.reply("Wrong entity".asComment());
         }
-
     }
-
-    
-
-
-
-    
-
-    fun setlSContractAddress(_liquidStaking: Address){
-        self.requireOwner();
-        self.lSContractAddress = _liquidStaking;
-    } 
-
-    fun setLPPoolContractAddress(_liquidityProviderPool: Address){
-        self.requireOwner();
-        self.LPPoolContractAddress = _liquidityProviderPool;
-    } 
 
     fun mintNFT(_stakeInfo: StakeInfo){
         send(SendParameters{
