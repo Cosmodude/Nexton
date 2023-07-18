@@ -18,18 +18,6 @@ struct StakeInfo{
     isLent: Bool = false;
 }
 
-
-message UserDeposit{
-    principal: Int as coins;
-    lockPeriod: Int as uint256;
-    leverage: Int as uint32;
-}
-
-message LPPoolDeposit{
-    amount: Int as coins; 
-    
-}
-
 contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
     stopped: Bool = false;
@@ -55,9 +43,11 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.stake = emptyMap();
     }
 
+    // Modifiers 
     fun requireLPPool() {
         nativeThrowUnless(132, context().sender == self.LPPoolContractAddress);
     }
+
     // Receive functions 
 
     // Receive TONCoins
@@ -68,6 +58,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     }
 
     receive(msg: UserDeposit){
+        self.requireNotStopped();
         let ctx: Context = context();
         let _stakeInfo: StakeInfo = StakeInfo{
             staker: ctx.sender,
@@ -75,13 +66,14 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
             lockStart: now() + 600
             }; 
         //_stakeInfo.principal = msg.principal;
-        self.balance = (self.balance + msg.principal);
-        self.stake.set(sender(), msg.principal);
+        self.balance = (self.balance + ctx.value);
+        self.stake.set(sender(), ctx.value);
         self.mintNFT(_stakeInfo);
     }
 
     bounced(src: bounced<MintNFT>) {
         self.balance = (self.balance - src.principal);
+        self.stopped = true;
         send(SendParameters{
             to: sender(),
             value: src.principal,
@@ -92,7 +84,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
 
 
 
-    fun setNFTContract(_nft: Address){
+    fun setNFTContractAddress(_nft: Address){
         self.requireOwner();
         self.nFTContractAddress = _nft;
     } 
