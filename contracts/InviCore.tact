@@ -13,7 +13,7 @@ struct StakeInfo{
     leverageRatio: Int as uint32 = 1;
     protocolFee: Int as coins = ton("0.1");
     principal: Int as coins;
-    lockPeriod: Int as uint256 = (24 * 60 * 60 * 1);
+    lockPeriod: Int as uint256 = (10 * 60 * 1);
     lockEnd: Int as uint256;
     isLent: Bool = false;
 }
@@ -30,7 +30,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     nftCounter: Int as uint32 = 0;
 
     balance: Int as coins = 0;
-    stake: map<Address, Int>;
+    
 
     init(_liquidtyProviderPool: Address, _jetton: Address, _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
@@ -40,7 +40,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
 
-        self.stake = emptyMap();
+        emptyMap();
     }
 
     // Modifiers 
@@ -63,11 +63,10 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         let _stakeInfo: StakeInfo = StakeInfo{
             staker: ctx.sender,
             principal: ctx.value,
-            lockStart: now() + 600
+            lockEnd: now() + 600
             }; 
         //_stakeInfo.principal = msg.principal;
         self.balance = (self.balance + ctx.value);
-        self.stake.set(sender(), ctx.value);
         self.mintNFT(_stakeInfo);
     }
 
@@ -116,9 +115,11 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
 
     fun notes(){
        self.requireOwner(); 
+       let stake: map<Address, Int> = emptyMap();
+       stake.set(sender(), 3);
        let hash: Int = sha256("String");
-       self.counter = self.stake.get(sender())!!; // !! - denaming, error if null
-       self.stake.set(sender(), null); // instead of delete
+       self.counter = stake.get(sender())!!; // !! - denaming, error if null
+       stake.set(sender(), null); // instead of delete
     }
 
 }
