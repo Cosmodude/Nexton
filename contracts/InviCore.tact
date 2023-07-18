@@ -14,7 +14,7 @@ struct StakeInfo{
     protocolFee: Int as coins = ton("0.1");
     principal: Int as coins;
     lockPeriod: Int as uint256 = (24 * 60 * 60 * 1);
-    lockStart: Int as uint256;
+    lockEnd: Int as uint256;
     isLent: Bool = false;
 }
 
@@ -108,7 +108,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
             body: MintNFT{
                 staker: _stakeInfo.staker,
                 principal: _stakeInfo.principal,
-                lockStart: _stakeInfo.lockStart
+                lockEnd: _stakeInfo.lockEnd 
             }.toCell()
         });
         self.nftCounter = self.nftCounter + 1;
