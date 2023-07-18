@@ -1,23 +1,23 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { toNano } from 'ton-core';
+import { Address, toNano } from 'ton-core';
 import { Invicore } from '../wrappers/InviCore';
 import '@ton-community/test-utils';
+let deployer
 
 describe('InviCore', () => {
     let blockchain: Blockchain;
     let invicore: SandboxContract<Invicore>;
-
+    let myAddress: Address = new Address(0, Buffer.from("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu"));
     beforeEach(async () => {
         blockchain = await Blockchain.create();
+        deployer = await blockchain.treasury('deployer');
 
-        invicore = blockchain.openContract(await Invicore.fromInit());
-
-        const deployer = await blockchain.treasury('deployer');
-
+        invicore = blockchain.openContract(await Invicore.fromInit(deployer.address,deployer.address,deployer.address));
+        
         const deployResult = await invicore.send(
             deployer.getSender(),
             {
-                value: toNano('0.05'),
+                value: toNano('0.1'),
             },
             {
                 $$type: 'Deploy',
@@ -31,6 +31,9 @@ describe('InviCore', () => {
             deploy: true,
             success: true,
         });
+        const owner = await invicore.getOwner();
+
+        expect(owner).toEqual(deployer.address)
     });
 
     it('should deploy', async () => {
