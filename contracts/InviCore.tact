@@ -22,7 +22,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
     stopped: Bool = false;
     LPPoolContractAddress: Address;          // Liquidity Pool Provider contract 
-    jettonContractAddress: Address;  // stToken Contract Address
+
     SPContractAddress: Address;      // Liquidity Staking Contract Address
     nFTContractAddress: Address;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
@@ -32,10 +32,9 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     balance: Int as coins = 0;
     
 
-    init(_liquidtyProviderPool: Address, _jetton: Address, _liquidStaking: Address, _nft: Address) {
+    init(_liquidtyProviderPool: Address, _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
         self.LPPoolContractAddress = _liquidtyProviderPool;
-        self.jettonContractAddress = _jetton;
         self.SPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
