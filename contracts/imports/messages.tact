@@ -2,7 +2,7 @@ message MintNFT{
     principal: Int as coins;
     leverageRatio: Int as uint32 = 1;
     staker: Address;
-    lockPeriod: Int as uint256 = (24 * 60 * 60 * 1);
+    lockPeriod: Int as uint256 = (10 * 60 * 1);
     lockEnd: Int as uint256;
     isLent: Bool = false;
 }

@@ -39,7 +39,6 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
 
-        emptyMap();
     }
 
     // Modifiers 
@@ -53,6 +52,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     receive(){}
 
     receive("increment"){
+        self.requireNotStopped();
         self.counter = self.counter + 1;
     }
 
