@@ -13,13 +13,20 @@ describe('NftCollection', () => {
 
     let blockchain: Blockchain;
     let nftCollection: SandboxContract<NftCollection>;
+    let deployer;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        nftCollection = blockchain.openContract(NftCollection.createFromConfig({}, code));
+        deployer = await blockchain.treasury('deployer');
 
-        const deployer = await blockchain.treasury('deployer');
+        const initConfig =  {
+            owner: deployer.address,
+            nextItemIndex: 0
+        };
+        nftCollection = blockchain.openContract(NftCollection.createFromConfig(initConfig, code));
+
+        deployer = await blockchain.treasury('deployer');
 
         const deployResult = await nftCollection.sendDeploy(deployer.getSender(), toNano('0.05'));
 
@@ -29,6 +36,8 @@ describe('NftCollection', () => {
             deploy: true,
             success: true,
         });
+        console.log(nftCollection.init?.data)
+        const owner = nftCollection.address
     });
 
     it('should deploy', async () => {
