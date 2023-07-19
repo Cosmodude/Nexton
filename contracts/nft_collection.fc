@@ -127,7 +127,9 @@ slice calculate_nft_item_address(int wc, cell state_init) { ;; wc = workchain
     }
     
     if (op == 3) { ;; change owner
-
+      slice new_owner = in_msg_body~load_msg_addr(); 
+      save_data(new_owner, next_item_index, content, nft_item_code, royalty_params); 
+      return ();
     }
     throw(0xffff);  ;; exception with no action
 }
