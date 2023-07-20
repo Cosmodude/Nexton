@@ -46,7 +46,7 @@ slice calculate_nft_item_address(int wc, cell state_init) { ;; wc = workchain
 
 ;; Deploy a single NFT
 () deploy_nft_item(int item_index, cell nft_item_code, int amount, cell nft_content) impure {
-    cell state_init = calculate_nft_item_state_init(item_index, nft_item_code);
+    cell state_init = calculate_nft_item_state_init(item_index, nft_item_code);  ;; owner addres is in the nft_item_code
     slice nft_address = calculate_nft_item_address(workchain(), state_init);
     var msg = begin_cell()
         .store_uint(0x18, 6)  ;; flags

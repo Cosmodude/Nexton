@@ -54,4 +54,34 @@ export class NftCollection implements Contract {
             body: beginCell().endCell(),
         });
     }
+    
+
+    async sendMintNft(provider: ContractProvider, via: Sender,
+        opts: {
+            value: bigint;
+            queryId: number;
+            itemIndex: number;
+            itemOwnerAddress: Address;
+            itemContent: String;
+            amount: bigint;
+        }
+        ) {
+            const nftContent = beginCell();
+            nftContent.storeBuffer(Buffer.from(opts.itemContent));
+            
+            const nftMessage = beginCell();
+            nftMessage.storeAddress(opts.itemOwnerAddress)
+            nftMessage.storeRef(nftContent)
+            await provider.internal(via, {
+                value: opts.value,
+                sendMode: SendMode.PAY_GAS_SEPARATELY,
+                body: beginCell()
+                    .storeUint(1,32)
+                    .storeUint(opts.queryId,64)
+                    .storeUint(opts.itemIndex,64)
+                    .storeCoins(opts.amount)
+                    .storeRef(nftMessage)
+                .endCell()
+            })
+        }
 }
