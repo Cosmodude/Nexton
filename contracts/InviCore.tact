@@ -21,10 +21,13 @@ struct StakeInfo{
 contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
     stopped: Bool = false;
-    LPPoolContractAddress: Address;          // Liquidity Pool Provider contract 
 
+    LPPoolContractAddress: Address;          // Liquidity Pool Provider contract 
     SPContractAddress: Address;      // Liquidity Staking Contract Address
     nFTContractAddress: Address;
+
+    LPPBalance: Int as coins = 0;
+    stakeAmount: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     nftCounter: Int as uint32 = 0;
@@ -42,15 +45,18 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     }
 
     // Modifiers 
+
     fun requireLPPool() {
         nativeThrowUnless(132, context().sender == self.LPPoolContractAddress);
+        require(context().value >= ton("10000"), "Deposited not enough Ton");
     }
 
     // Receive functions 
 
     // Receive TONCoins
     receive(){}
-
+    // receive("Resume"){...}
+    // receive("Stop"){...}
     receive("increment"){
         self.requireNotStopped();
         self.counter = self.counter + 1;
@@ -64,6 +70,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
             principal: ctx.value,
             lockEnd: now() + 600
             }; 
+        self.stakeAmount = self.stakeAmount + ctx.value;
         //_stakeInfo.principal = msg.principal;
         self.balance = (self.balance + ctx.value);
         self.mintNFT(_stakeInfo);
@@ -80,9 +87,18 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         });
     }
 
+    receive(msg: LPDeposit){
+        self.requireNotStopped();
+        let ctx: Context = context(); 
+        self.LPPBalance = self.LPPBalance + ctx.value;
+        //_stakeInfo.principal = msg.principal;
+        self.balance = (self.balance + ctx.value);
+        self.mintJettons(ctx.sender, ctx.value);
+    }
+
     // Command messages
 
-    receive(msg: Addr){
+    receive(msg: ChangeAddr){
         self.requireOwner();
         if(msg.entity.asSlice().hash() == "nft".asSlice().hash()){  // NFT
             self.nFTContractAddress = msg.address;
@@ -112,6 +128,19 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         self.nftCounter = self.nftCounter + 1;
     }
 
+    fun mintJettons(_receiver: Address, _amount: Int){
+        send(SendParameters{
+            to: self.LPPoolContractAddress,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            body: mintJettons{
+                amount: _amount,
+                receiverAddress: _receiver
+            }.toCell()
+        });
+        self.nftCounter = self.nftCounter + 1;
+    }
+    
     fun notes(){
        self.requireOwner(); 
        let stake: map<Address, Int> = emptyMap();
@@ -121,6 +150,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
        stake.set(sender(), null); // instead of delete
     }
 
+    // get fun stopped(): Bool {...}
 }
 
 

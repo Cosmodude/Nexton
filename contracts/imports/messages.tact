@@ -7,6 +7,11 @@ message MintNFT{
     isLent: Bool = false;
 }
 
+message(1) mintJettons{
+    amount: Int as coins;
+    receiverAddress: Address;
+}
+
 message Deposit{
     principal: Int as coins;
     lockPeriod: Int as uint256;
@@ -18,11 +23,12 @@ message UserDeposit{
     leverage: Int as uint32;
 }
 
-message LPPoolDeposit{
-    amount: Int as coins; 
+message LPDeposit{
+    amount: Int as coins;
+    providerAddress: Address;
 }
 
-message Addr{
+message ChangeAddr{
     address: Address;
     entity: String;
 }
