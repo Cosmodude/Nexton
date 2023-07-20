@@ -1,0 +1,9 @@
+
+#include "imports/stdlib.fc";
+#include "imports/nft_op_codes.fc";
+int workchain() asm "0 PUSHINT";
+int equal_slices (slice a, slice b) asm "SDEQ";
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+
+}
