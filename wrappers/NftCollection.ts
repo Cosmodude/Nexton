@@ -1,9 +1,37 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
 
-export type NftCollectionConfig = {};
+export type RoyaltyParams = {
+    royaltyFactor: number;
+    royaltyBase: number;
+    royaltyAddress: Address;
+};
+
+export type NftCollectionConfig = {
+    ownerAddress: Address;
+    nextItemIndex: number;
+    collectionContent: Cell;
+    nftItemCode: Cell;
+    royaltyParams: RoyaltyParams;
+};
+
+export type NftCollectionContent = {
+    collectionContent: string;
+    commonContent: string;
+};
 
 export function nftCollectionConfigToCell(config: NftCollectionConfig): Cell {
-    return beginCell().endCell();
+    return beginCell()
+        .storeAddress(config.ownerAddress)
+        .storeUint(config.nextItemIndex, 64)
+        .storeRef(config.collectionContent)
+        .storeRef(config.nftItemCode)
+        .storeRef(
+            beginCell()
+                .storeUint(config.royaltyParams.royaltyFactor, 16)
+                .storeUint(config.royaltyParams.royaltyBase, 16)
+                .storeAddress(config.royaltyParams.royaltyAddress)
+        )
+    .endCell();
 }
 
 export class NftCollection implements Contract {
