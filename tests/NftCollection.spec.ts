@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano } from 'ton-core';
+import { Cell, toNano, beginCell } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -24,7 +24,17 @@ describe('NftCollection', () => {
             owner: deployer.address,
             nextItemIndex: 0
         };
-        nftCollection = blockchain.openContract(NftCollection.createFromConfig(initConfig, code));
+        nftCollection = blockchain.openContract(NftCollection.createFromConfig({
+            ownerAddress: deployer.address,
+            nextItemIndex: 0,
+            collectionContent: beginCell().storeUint(58594,256).endCell(),
+            nftItemCode: await compile("NftItem"),
+            royaltyParams: {
+                royaltyFactor: 15,
+                royaltyBase: 100,
+                royaltyAddress: deployer.address
+            }
+        }, code));
 
         deployer = await blockchain.treasury('deployer');
 
@@ -36,8 +46,8 @@ describe('NftCollection', () => {
             deploy: true,
             success: true,
         });
-        console.log(nftCollection.init?.data)
-        const owner = nftCollection.address
+
+        const owner = nftCollection.getOwner
         console.log(deployResult)
     });
 

@@ -32,7 +32,6 @@ describe('InviCore', () => {
             success: true,
         });
         const owner = await invicore.getOwner();
-        owner.equals( deployer.address);
         expect(owner.equals( deployer.address)).toBe(true);
         console.log("Owner: ", owner)
     });

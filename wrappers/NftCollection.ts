@@ -55,6 +55,10 @@ export class NftCollection implements Contract {
         });
     }
     
+    async getOwner(provider: ContractProvider, via: Sender){
+        const collection_data = await provider.get("get_collection_data", []);
+        console.log(collection_data);
+    }
 
     async sendMintNft(provider: ContractProvider, via: Sender,
         opts: {
