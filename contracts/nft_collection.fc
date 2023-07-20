@@ -1,8 +1,7 @@
 #include "imports/stdlib.fc";
+#include "imports/nft_op_codes.fc";
 int workchain() asm "0 PUSHINT";
 int equal_slices (slice a, slice b) asm "SDEQ";
-const int op::get_royalty_params = 0x693d3950;
-const int op::report_royalty_params = 0xa8cb00ad;
 
 (slice,int, cell, cell, cell) load_data() inline {
 	  slice ds = get_data().begin_parse();
@@ -36,7 +35,7 @@ cell calculate_nft_item_state_init(int item_index, cell nft_item_code) {
 
 ;; Item Address
 slice calculate_nft_item_address(int wc, cell state_init) { ;; wc = workchain
-  return begin_cell().store_uint(4, 3)
+  return begin_cell().store_uint(4, 3)  ;; address = workchain + hash of state_init (0:85ab4c)
 					 .store_int(wc, 8)
 					 .store_uint(cell_hash(state_init), 256) ;;cell_hash calculates the hash repr of cell
 					 .end_cell()

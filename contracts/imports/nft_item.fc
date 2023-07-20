@@ -1,0 +1,4 @@
+#include "./stdlib.fc";
+#include "./nft_op_codes.fc";
+int workchain() asm "0 PUSHINT";
+int equal_slices (slice a, slice b) asm "SDEQ";
