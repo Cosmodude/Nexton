@@ -26,4 +26,28 @@ export class NftItem implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async sendTransfer(provider: ContractProvider, via: Sender,
+        opts: {
+            queryId: number;
+            value: bigint;
+            newOwner: Address;
+            responseAddress?: Address;
+            fwdAmount?: bigint;
+        }
+    ) {
+        await provider.internal(via, {
+            value: opts.value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+                .storeUint(0x5fcc3d14, 32)
+                .storeUint(opts.queryId,64)
+                .storeAddress(opts.newOwner)
+                .storeAddress(opts.responseAddress || null)
+                .storeBit(false) // no custom payload
+                .storeCoins(opts.fwdAmount || 0)
+                .storeBit(false)
+            .endCell(),
+        });
+    }
 }
