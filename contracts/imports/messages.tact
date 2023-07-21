@@ -7,7 +7,7 @@ message MintNFT{
     isLent: Bool = false;
 }
 
-message(1) mintJettons{
+message(0x1) mintJettons{
     amount: Int as coins;
     receiverAddress: Address;
 }
