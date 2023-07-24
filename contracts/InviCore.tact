@@ -1,19 +1,29 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
-//import "./contracts/NFT.fc";
 import "./imports/messages";
 
-const day: Int = (24 * 60 * 60);
-const year: Int =  24 * 60 * 60 * 365;
+const DAY: Int = (24 * 60 * 60);
+const YEAR: Int =  24 * 60 * 60 * 365;
+const HOUR: Int = 60 * 60;
 
-struct StakeInfo{
+struct LPProvider{
+    principal: Int as coins = 0;
+    rewards: Int as coins = 0;
+    lastStakePrincipal: Int as coins = 0;
+}
+
+message StakingReward{
+
+}
+
+struct UserStakeInfo{
     staker: Address;
     originalLeverageRatio: Int as uint32 = 1;
     leverageRatio: Int as uint32 = 1;
     protocolFee: Int as coins = ton("0.1");
     principal: Int as coins;
-    lockPeriod: Int as uint256 = (10 * 60 * 1);
+    lockPeriod: Int as uint256 = 600;
     lockEnd: Int as uint256;
     isLent: Bool = false;
 }
@@ -22,9 +32,11 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     owner: Address;
     stopped: Bool = false;
 
-    LPPoolContractAddress: Address;          // Liquidity Pool Provider contract 
-    SPContractAddress: Address;      // Liquidity Staking Contract Address
+    const MIN: Int = 60 * 60;
+    LPPoolContractAddress: Address;  // Liquidity Pool Provider contract 
+    SPContractAddress: Address;      // Staking Contract Address
     nFTContractAddress: Address;
+    stake: map<Address, LPProvider> = emptyMap();
 
     LPPBalance: Int as coins = 0;
     stakeAmount: Int as coins = 0;
