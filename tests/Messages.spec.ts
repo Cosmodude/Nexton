@@ -51,22 +51,22 @@ describe('Messages', () => {
     it('should withdraw all', async() => {
         const user = await blockchain.treasury('user');
         const balanceBeforeUser = await user.getBalance()
-        console.log("Balance before: ", fromNano(balanceBeforeUser))
+        //console.log("Balance before: ", fromNano(balanceBeforeUser))
         await messages.send(user.getSender(), {
             value: toNano("0.2")
         }, 'withdraw all')
 
         const balanceAfterUser = await user.getBalance()
-        console.log("balance after: ", fromNano(balanceAfterUser))
+        //console.log("balance after: ", fromNano(balanceAfterUser))
 
         const balanceBeforeDeployer = await deployer.getBalance()
-        console.log("balance before for deployer: ", fromNano(balanceBeforeDeployer))
+        //console.log("balance before for deployer: ", fromNano(balanceBeforeDeployer))
         await messages.send(deployer.getSender(), {
             value: toNano("0.2")
         }, 'withdraw all')
 
         const balanceAfterDeployer = await deployer.getBalance()
-        console.log("balance after for deployer: ", fromNano(balanceAfterDeployer))
+        //console.log("balance after for deployer: ", fromNano(balanceAfterDeployer))
     })
 
     it('should withdraw safe', async() => {

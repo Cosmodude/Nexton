@@ -47,8 +47,6 @@ describe('NftCollection', () => {
             success: true,
         });
 
-        const owner = nftCollection.getOwner
-        console.log(deployResult)
     });
 
     it('should deploy', async () => {
