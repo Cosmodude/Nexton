@@ -6,7 +6,8 @@ import "./imports/messages";
 const DAY: Int = (24 * 60 * 60);
 const YEAR: Int =  24 * 60 * 60 * 365;
 const HOUR: Int = 60 * 60;
-const PROTOCOL_FEE: Int = ton("0.1");
+const PROTOCOL_FEE: Int = ton("100");
+const MAX_LEVERAGE: Int = 5;
 
 message LPDeposit{
     principal: Int as coins = 0;
@@ -21,7 +22,7 @@ message StakingReward{
 struct UserStakeInfo{
     staker: Address;
     leverageRatio: Int as uint32 = 1;
-    protocolFee: Int as coins = ton("0.1");
+    protocolFee: Int as coins = ton("100");
     principal: Int as coins;
     lockPeriod: Int as uint256 = 600;
     lockEnd: Int as uint256;
@@ -73,6 +74,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
 
     receive(msg: UserDeposit){
         self.requireNotStopped();
+        require(msg.leverage<=MAX_LEVERAGE, "Too big leverage");
         let ctx: Context = context();
         let _stakeInfo: UserStakeInfo = UserStakeInfo{
             staker: ctx.sender,
@@ -170,7 +172,9 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         return self.sPContractAddress;
     }
 
-    
+    get fun balance(): Int{
+        return myBalance();
+    }
 }
 
 
