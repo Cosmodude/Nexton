@@ -13,10 +13,8 @@ describe('InviCore', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
-        console.log("Deployer", deployer.address);
 
-        invicore = blockchain.openContract(await Invicore.fromInit(randomAddress(), randomAddress()));
-        console.log("Contract: ", invicore.address);
+        invicore = blockchain.openContract(await Invicore.fromInit(randomAddress(0), randomAddress(0)));
 
         const deployResult = await invicore.send(
             deployer.getSender(),
@@ -36,8 +34,8 @@ describe('InviCore', () => {
             success: true,
         });
 
-        //const owner = await invicore.getOwner();
-        //expect(owner.equals( deployer.address)).toBe(true);
+        const owner = await invicore.getOwner();
+        expect(owner.equals( deployer.address)).toBe(true);
         
     });
 
@@ -46,7 +44,7 @@ describe('InviCore', () => {
         // blockchain and invicore are ready to use
     });
 
-    /*it('should change Staking Pool address', async() => {
+    it('should change Staking Pool address', async() => {
         console.log("Changing Address!!!")
         console.log("Contract: ", invicore.address)
         const user = await blockchain.treasury('user');
@@ -60,13 +58,13 @@ describe('InviCore', () => {
             }, 
             {   
                 $$type: 'ChangeAddr',
-                address: randomAddress(),
+                address: await randomAddress(),
                 entity: "SP"
             }
         )
 
-        let addressAfter = await invicore.getStakingPool();
-        console.log("Address after (user): ", addressAfter);
+        const addressAfterUser = await invicore.getStakingPool();
+        console.log("Address after (user): ", addressAfterUser);
 
         await invicore.send(
             deployer.getSender(),
@@ -75,13 +73,14 @@ describe('InviCore', () => {
             }, 
             {   
                 $$type: 'ChangeAddr',
-                address: randomAddress(),
+                address: await randomAddress(0),
                 entity: "nft"
             }
         )
         
-        addressAfter = await invicore.getstakingPool();
-        console.log("Address after (deployer)): ", addressAfter);
-
-    })*/
+        const addressAfterDeployer = await invicore.getStakingPool();
+        console.log("Address after (deployer)): ", addressAfterDeployer);
+        expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
+        expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
+    })
 });
