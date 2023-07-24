@@ -119,6 +119,8 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         }
     }
 
+    // Functions
+
     fun mintNFT(_stakeInfo: UserStakeInfo){
         send(SendParameters{
             to: self.nFTContractAddress,
