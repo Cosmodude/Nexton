@@ -12,12 +12,6 @@ message(0x1) mintJettons{
     receiverAddress: Address;
 }
 
-message Deposit{
-    principal: Int as coins;
-    lockPeriod: Int as uint256;
-    leverage: Int as uint32;
-}
-
 message UserDeposit{
     lockPeriod: Int as uint256;
     leverage: Int as uint32;

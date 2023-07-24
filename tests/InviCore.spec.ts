@@ -1,20 +1,41 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, toNano } from 'ton-core';
+import { Address, toNano, fromNano, Cell, beginCell } from 'ton-core';
 import { Invicore } from '../wrappers/InviCore';
+import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
 import { randomAddress } from '@ton-community/test-utils';
+import { compile } from '@ton-community/blueprint';
 
 describe('InviCore', () => {
+    let code: Cell;
+
+    beforeAll(async () => {
+        code = await compile('NftCollection');
+    });
+
     let blockchain: Blockchain;
     let invicore: SandboxContract<Invicore>;
-    let myAddress: Address = new Address(0, Buffer.from("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu"));
-    let nftContract: Address= new Address(0, Buffer.from("EQAMLDBglwTu1QwgCZPXCqTKdi7Uro4wVvydHZqx-tvGf0DT"));
-    let deployer: SandboxContract<TreasuryContract>
+    let nftCollection: SandboxContract<NftCollection>;
+    let deployer: SandboxContract<TreasuryContract>;
+
+    let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
+    
     beforeEach(async () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
 
-        invicore = blockchain.openContract(await Invicore.fromInit(randomAddress(0), randomAddress(0)));
+        nftCollection = blockchain.openContract(await NftCollection.createFromConfig({
+            ownerAddress: deployer.address,
+            nextItemIndex: 0,
+            collectionContent: beginCell().storeUint(58594,256).endCell(),
+            nftItemCode: await compile("NftItem"),
+            royaltyParams: {
+                royaltyFactor: 15,
+                royaltyBase: 100,
+                royaltyAddress: deployer.address
+            }
+        }, code));
+        invicore = blockchain.openContract(await Invicore.fromInit(myAddress, randomAddress(0)));
 
         const deployResult = await invicore.send(
             deployer.getSender(),
@@ -44,9 +65,8 @@ describe('InviCore', () => {
         // blockchain and invicore are ready to use
     });
 
-    it('should change Staking Pool address', async() => {
+    it('Should change Staking Pool address', async() => {
         console.log("Changing Address!!!")
-        console.log("Contract: ", invicore.address)
         const user = await blockchain.treasury('user');
         const addressBefore = await invicore.getStakingPool();
         console.log("Address before: ", addressBefore);
@@ -62,7 +82,7 @@ describe('InviCore', () => {
                 entity: "SP"
             }
         )
-        console.log("user message", userMessage.events);
+        //console.log("user message", userMessage.events); // should be bounced
 
         const addressAfterUser = await invicore.getStakingPool();
         console.log("Address after (user): ", addressAfterUser);
@@ -78,11 +98,36 @@ describe('InviCore', () => {
                 entity: "SP"
             }
         )
-        console.log("Deployer message", deployerMessage.events);
+        //console.log("Deployer message", deployerMessage.events);
         
         const addressAfterDeployer = await invicore.getStakingPool();
         console.log("Address after (deployer): ", addressAfterDeployer);
         expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
         expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
-    })
+    });
+
+    it('Deposit and Mint NFT', async() => {
+        console.log("Depositing!!!");
+        const user = await blockchain.treasury('user');
+        const balanceBefore = await invicore.getBalance();
+
+        console.log("Balance before deposit: ", fromNano(balanceBefore));
+        const userMessage = await invicore.send(
+            user.getSender(), 
+            {
+            value: toNano("10000")
+            }, 
+            {   
+                $$type: 'UserDeposit',
+                lockPeriod: 600n,
+                leverage: 5n
+            }
+        )
+
+        console.log(userMessage.events);
+
+        console.log("Balance after: ", fromNano(await invicore.getBalance()) )
+
+
+    });
 });
