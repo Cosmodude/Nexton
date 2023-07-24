@@ -29,6 +29,7 @@ struct UserStakeInfo{
 }
 
 contract Invicore with Deployable, OwnableTransferable, Resumable {
+    const MinTonForStorage: Int = ton("0.1");
     owner: Address;
     stopped: Bool = false;
 
