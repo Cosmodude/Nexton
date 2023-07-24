@@ -51,7 +51,7 @@ describe('InviCore', () => {
         const addressBefore = await invicore.getStakingPool();
         console.log("Address before: ", addressBefore);
 
-        await invicore.send(
+        const userMessage = await invicore.send(
             user.getSender(), 
             {
             value: toNano("0.2")
@@ -62,11 +62,12 @@ describe('InviCore', () => {
                 entity: "SP"
             }
         )
+        console.log("user message", userMessage.events);
 
         const addressAfterUser = await invicore.getStakingPool();
         console.log("Address after (user): ", addressAfterUser);
 
-        await invicore.send(
+        const deployerMessage = await invicore.send(
             deployer.getSender(),
             {
                 value: toNano("0.2")
@@ -74,12 +75,13 @@ describe('InviCore', () => {
             {   
                 $$type: 'ChangeAddr',
                 address: await randomAddress(0),
-                entity: "nft"
+                entity: "SP"
             }
         )
+        console.log("Deployer message", deployerMessage.events);
         
         const addressAfterDeployer = await invicore.getStakingPool();
-        console.log("Address after (deployer)): ", addressAfterDeployer);
+        console.log("Address after (deployer): ", addressAfterDeployer);
         expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
         expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
     })
