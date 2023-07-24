@@ -6,8 +6,9 @@ import "./imports/messages";
 const DAY: Int = (24 * 60 * 60);
 const YEAR: Int =  24 * 60 * 60 * 365;
 const HOUR: Int = 60 * 60;
+const PROTOCOL_FEE: Int = ton("0.1");
 
-struct LPProvider{
+message LPDeposit{
     principal: Int as coins = 0;
     rewards: Int as coins = 0;
     lastStakePrincipal: Int as coins = 0;
@@ -19,7 +20,6 @@ message StakingReward{
 
 struct UserStakeInfo{
     staker: Address;
-    originalLeverageRatio: Int as uint32 = 1;
     leverageRatio: Int as uint32 = 1;
     protocolFee: Int as coins = ton("0.1");
     principal: Int as coins;
@@ -33,10 +33,9 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     stopped: Bool = false;
 
     const MIN: Int = 60 * 60;
-    LPPoolContractAddress: Address;  // Liquidity Pool Provider contract 
-    SPContractAddress: Address;      // Staking Contract Address
-    nFTContractAddress: Address;
-    stake: map<Address, LPProvider> = emptyMap();
+    sPContractAddress: Address;      // Staking Contract Address
+    nFTContractAddress: Address;      // NFT Contract Address
+    stake: map<Address, LPDeposit>;
 
     LPPBalance: Int as coins = 0;
     stakeAmount: Int as coins = 0;
@@ -47,28 +46,25 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     balance: Int as coins = 0;
     
 
-    init(_liquidtyProviderPool: Address, _liquidStaking: Address, _nft: Address) {
+    init( _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
-        self.LPPoolContractAddress = _liquidtyProviderPool;
-        self.SPContractAddress = _liquidStaking;
+        self.sPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
-
     }
 
     // Modifiers 
 
-    fun requireLPPool() {
-        nativeThrowUnless(132, context().sender == self.LPPoolContractAddress);
-        require(context().value >= ton("10000"), "Deposited not enough Ton");
-    }
+    
 
     // Receive functions 
 
-    // Receive TONCoins
-    receive(){}
     // receive("Resume"){...}
     // receive("Stop"){...}
+
+    // Receive TONCoins
+    receive(){}
+    
     receive("increment"){
         self.requireNotStopped();
         self.counter = self.counter + 1;
@@ -77,7 +73,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
     receive(msg: UserDeposit){
         self.requireNotStopped();
         let ctx: Context = context();
-        let _stakeInfo: StakeInfo = StakeInfo{
+        let _stakeInfo: UserStakeInfo = UserStakeInfo{
             staker: ctx.sender,
             principal: ctx.value,
             lockEnd: now() + 600
@@ -115,18 +111,15 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
         if(msg.entity.asSlice().hash() == "nft".asSlice().hash()){  // NFT
             self.nFTContractAddress = msg.address;
         }
-        if(msg.entity.asSlice().hash() == "LPP".asSlice().hash()){  // Liquidity Provider Pool
-            self.LPPoolContractAddress  = msg.address;
-        }
         if(msg.entity.asSlice().hash() == "SP".asSlice().hash()){  // Staking Pool
-            self.SPContractAddress  = msg.address;
+            self.sPContractAddress  = msg.address;
         }
         else{
             self.reply("Wrong entity".asComment());
         }
     }
 
-    fun mintNFT(_stakeInfo: StakeInfo){
+    fun mintNFT(_stakeInfo: UserStakeInfo){
         send(SendParameters{
             to: self.nFTContractAddress,
             value: 0,
@@ -142,7 +135,7 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
 
     fun mintJettons(_receiver: Address, _amount: Int){
         send(SendParameters{
-            to: self.LPPoolContractAddress,
+            to: sender(),
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             body: mintJettons{
@@ -162,7 +155,19 @@ contract Invicore with Deployable, OwnableTransferable, Resumable {
        stake.set(sender(), null); // instead of delete
     }
 
+    // GET methods
+
     // get fun stopped(): Bool {...}
+
+    get fun nftContract(): Address{
+        return self.nFTContractAddress;
+    }
+
+    get fun stakingPool(): Address{
+        return self.sPContractAddress;
+    }
+
+    
 }
 
 

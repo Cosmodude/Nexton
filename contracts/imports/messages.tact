@@ -23,10 +23,6 @@ message UserDeposit{
     leverage: Int as uint32;
 }
 
-message LPDeposit{
-    amount: Int as coins;
-    providerAddress: Address;
-}
 
 message ChangeAddr{
     address: Address;
