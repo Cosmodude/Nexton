@@ -89,7 +89,6 @@ slice calculate_nft_item_address(int wc, cell state_init) {
 
     if (flags & 1) { ;; ignore all bounced messages, bitwise "and"
 		  return ();
-        return ();
     }
     slice sender_address = cs~load_msg_addr();
 

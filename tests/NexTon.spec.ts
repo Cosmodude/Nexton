@@ -35,10 +35,19 @@ describe('NexTon', () => {
                 royaltyAddress: deployer.address
             }
         }, code))
+
+        const nftCollectionDeployResult = await nftCollection.sendDeploy(deployer.getSender(), toNano('0.1'));
+
+        expect(nftCollectionDeployResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: nftCollection.address,
+            deploy: true,
+            success: true,
+        });
         
         nexton = blockchain.openContract(await NexTon.fromInit(myAddress, randomAddress(0)));
 
-        const nextonDeployResult = await nexton.send(
+        const nexTonDeployResult = await nexton.send(
             deployer.getSender(),
             {
                 value: toNano('0.1'),
@@ -49,13 +58,14 @@ describe('NexTon', () => {
             }
         );
 
-        expect(nextonDeployResult.transactions).toHaveTransaction({
+        expect(nexTonDeployResult.transactions).toHaveTransaction({
             from: deployer.address,
             to: nexton.address,
             deploy: true,
             success: true,
         });
 
+        
         const owner = await nexton.getOwner();
         expect(owner.equals( deployer.address)).toBe(true);
         
