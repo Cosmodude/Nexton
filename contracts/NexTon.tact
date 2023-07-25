@@ -39,7 +39,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     nFTContractAddress: Address;      // NFT Contract Address
     stake: map<Address, LPDeposit>;
 
-    LPPBalance: Int as coins = 0;
+    LPPPrinciple: Int as coins = 0;
     usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
@@ -70,25 +70,37 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     receive(msg: UserDeposit){
         self.requireNotStopped();
-        require(msg.leverage<=MAX_LEVERAGE, "Too big leverage");
+        require(msg.leverage<=MAX_LEVERAGE, "Too big leverage, should be less than 5");
         let ctx: Context = context();
-        let _stakeInfo: UserStakeInfo = UserStakeInfo{
-            staker: ctx.sender,
-            principal: ctx.value,
+
+        let nftContent: Cell = NFTContent{
+            principal: ctx.value - PROTOCOL_FEE,
+            leverageRatio: msg.leverage,
+            lockPeriod: msg.lockPeriod,
             lockEnd: now() + 600
-            }; 
-        self.stakeAmount = self.stakeAmount + ctx.value;
+            }.toCell();
+        let nftMessage: Cell = beginCell()
+            .storeAddress(ctx.sender)
+            .storeRef(nftContent)
+            .endCell();
+        let _body: MintNFT =  MintNFT{
+            queryId: now(),
+            itemIndex: self.nftCounter,
+            amount: ton("0.05"),
+            NFTMessage: nftMessage
+        };
+
+        self.usersPrincipal = self.usersPrincipal + ctx.value;
         //_stakeInfo.principal = msg.principal;
-        self.balance = (self.balance + ctx.value);
-        self.mintNFT(_stakeInfo);
+        self.mintNFT(_body);
     }
 
     bounced(src: bounced<MintNFT>) {
-        self.balance = (self.balance - src.principal);
+        self.usersPrincipal = (self.usersPrincipal - src.queryId);
         self.stopped = true;
         send(SendParameters{
             to: sender(),
-            value: src.principal,
+            value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,  // vulnarable for attacks
             body: "Error: NFT not minted".asComment()
         });
@@ -97,9 +109,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     receive(msg: LPDeposit){
         self.requireNotStopped();
         let ctx: Context = context(); 
-        self.LPPBalance = self.LPPBalance + ctx.value;
-        //_stakeInfo.principal = msg.principal;
-        self.balance = (self.balance + ctx.value);
+        self.LPPPrinciple = (self.LPPPrinciple + ctx.value);
         self.mintJettons(ctx.sender, ctx.value);
     }
 
@@ -120,16 +130,12 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     // Functions
 
-    fun mintNFT(_stakeInfo: UserStakeInfo){
+    fun mintNFT(_body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
             value: 0,
-            mode: SendRemainingValue + SendIgnoreErrors,
-            body: MintNFT{ //op 1
-                staker: _stakeInfo.staker,
-                principal: _stakeInfo.principal,
-                lockEnd: _stakeInfo.lockEnd 
-            }.toCell()
+            mode: SendIgnoreErrors,
+            body: _body.toCell() 
         });
         self.nftCounter = self.nftCounter + 1;
     }
@@ -145,9 +151,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
                 receiverAddress: _receiver
             }.toCell()
         });
-        self.nftCounter = self.nftCounter + 1;
     }
-    
+
     fun notes(){
        self.requireOwner(); 
        let stake: map<Address, Int> = emptyMap();
