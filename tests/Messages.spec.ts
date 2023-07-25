@@ -83,10 +83,11 @@ describe('Messages', () => {
 
         const balanceBeforeDeployer = await deployer.getBalance()
         console.log("balance before for deployer: ", fromNano(balanceBeforeDeployer))
-        await messages.send(deployer.getSender(), {
+        const a = await messages.send(deployer.getSender(), {
             value: toNano("0.2")
         }, 'withdraw safe')
 
+        console.log(a.events);
         const balanceAfterDeployer = await deployer.getBalance()
         console.log("balance after for deployer: ", fromNano(balanceAfterDeployer))
 

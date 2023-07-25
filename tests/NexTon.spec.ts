@@ -11,7 +11,7 @@ describe('NexTon', () => {
 
     beforeAll(async () => {
         code = await compile('NftCollection');
-    });
+    }, 10000);
 
     let blockchain: Blockchain;
     let nexton: SandboxContract<NexTon>;
@@ -80,7 +80,7 @@ describe('NexTon', () => {
         console.log("Changing Address!!!")
         const user = await blockchain.treasury('user');
         const addressBefore = await nexton.getStakingPool();
-        console.log("Address before: ", addressBefore);
+        //console.log("Address before: ", addressBefore);
 
         const userChange = await nexton.send(
             user.getSender(), 
@@ -96,7 +96,7 @@ describe('NexTon', () => {
         //console.log("user message", userChange.events); // should be bounced
 
         const addressAfterUser = await nexton.getStakingPool();
-        console.log("Address after (user): ", addressAfterUser);
+        //console.log("Address after (user): ", addressAfterUser);
 
         const deployerChange = await nexton.send(
             deployer.getSender(),
@@ -112,24 +112,25 @@ describe('NexTon', () => {
         //console.log("Deployer message", deployerChange.events);
         
         const addressAfterDeployer = await nexton.getStakingPool();
-        console.log("Address after (deployer): ", addressAfterDeployer);
+        //console.log("Address after (deployer): ", addressAfterDeployer);
         expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
         expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
     });
 
     it('Deposit and Mint NFT', async() => {
         console.log("Depositing!!!");
+        
         const user = await blockchain.treasury('user');
 
         const balanceBefore = await nexton.getBalance();
         console.log("Balance before deposit: ", fromNano(balanceBefore));
 
-
         const mintMessageReceiver = await nexton.getNftContract();
+        console.log("NFTCollection: ", nftCollection.address);
         console.log("Mint messsage is send to ", mintMessageReceiver);
         expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
 
-        const userMessage = await nexton.send(
+        const mintMessage = await nexton.send(
             user.getSender(), 
             {
             value: toNano("10000")
@@ -137,13 +138,27 @@ describe('NexTon', () => {
             {   
                 $$type: 'UserDeposit',
                 lockPeriod: 600n,
-                leverage: 5n
+                leverage: 3n
             }
         )
+        console.log(await mintMessage.events);
 
-        console.log(userMessage.events);
+        const message = await nexton.send(deployer.getSender(), {
+            value: toNano("0.2")
+        }, 'increment');
 
         console.log("Balance after: ", fromNano(await nexton.getBalance()));
+
+        
+
+        console.log("NFTCounter: ", await nexton.getNftCounter())
+
+        // expect(mintMessage.transactions).toHaveTransaction({
+        //     from: nexton.address,
+        //     to: nftCollection.address
+        // });
+
+        
         
 
     });
