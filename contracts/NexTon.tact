@@ -29,7 +29,7 @@ struct UserStakeInfo{
     isLent: Bool = false;
 }
 
-contract Invicore with Deployable, OwnableTransferable, Resumable {
+contract NexTon with Deployable, OwnableTransferable, Resumable {
     const MinTonForStorage: Int = ton("0.1");
     owner: Address;
     stopped: Bool = false;

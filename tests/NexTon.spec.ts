@@ -1,12 +1,12 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
 import { Address, toNano, fromNano, Cell, beginCell } from 'ton-core';
-import { Invicore } from '../wrappers/InviCore';
+import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
 import { randomAddress } from '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
 
-describe('InviCore', () => {
+describe('NexTon', () => {
     let code: Cell;
 
     beforeAll(async () => {
@@ -14,7 +14,7 @@ describe('InviCore', () => {
     });
 
     let blockchain: Blockchain;
-    let invicore: SandboxContract<Invicore>;
+    let nexton: SandboxContract<NexTon>;
     let nftCollection: SandboxContract<NftCollection>;
     let deployer: SandboxContract<TreasuryContract>;
 
@@ -34,10 +34,11 @@ describe('InviCore', () => {
                 royaltyBase: 100,
                 royaltyAddress: deployer.address
             }
-        }, code));
-        invicore = blockchain.openContract(await Invicore.fromInit(myAddress, randomAddress(0)));
+        }, code))
+        
+        nexton = blockchain.openContract(await NexTon.fromInit(myAddress, randomAddress(0)));
 
-        const deployResult = await invicore.send(
+        const nextonDeployResult = await nexton.send(
             deployer.getSender(),
             {
                 value: toNano('0.1'),
@@ -48,14 +49,14 @@ describe('InviCore', () => {
             }
         );
 
-        expect(deployResult.transactions).toHaveTransaction({
+        expect(nextonDeployResult.transactions).toHaveTransaction({
             from: deployer.address,
-            to: invicore.address,
+            to: nexton.address,
             deploy: true,
             success: true,
         });
 
-        const owner = await invicore.getOwner();
+        const owner = await nexton.getOwner();
         expect(owner.equals( deployer.address)).toBe(true);
         
     });
@@ -68,10 +69,10 @@ describe('InviCore', () => {
     it('Should change Staking Pool address', async() => {
         console.log("Changing Address!!!")
         const user = await blockchain.treasury('user');
-        const addressBefore = await invicore.getStakingPool();
+        const addressBefore = await nexton.getStakingPool();
         console.log("Address before: ", addressBefore);
 
-        const userMessage = await invicore.send(
+        const userMessage = await nexton.send(
             user.getSender(), 
             {
             value: toNano("0.2")
@@ -84,10 +85,10 @@ describe('InviCore', () => {
         )
         //console.log("user message", userMessage.events); // should be bounced
 
-        const addressAfterUser = await invicore.getStakingPool();
+        const addressAfterUser = await nexton.getStakingPool();
         console.log("Address after (user): ", addressAfterUser);
 
-        const deployerMessage = await invicore.send(
+        const deployerMessage = await nexton.send(
             deployer.getSender(),
             {
                 value: toNano("0.2")
@@ -100,7 +101,7 @@ describe('InviCore', () => {
         )
         //console.log("Deployer message", deployerMessage.events);
         
-        const addressAfterDeployer = await invicore.getStakingPool();
+        const addressAfterDeployer = await nexton.getStakingPool();
         console.log("Address after (deployer): ", addressAfterDeployer);
         expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
         expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
@@ -109,10 +110,10 @@ describe('InviCore', () => {
     it('Deposit and Mint NFT', async() => {
         console.log("Depositing!!!");
         const user = await blockchain.treasury('user');
-        const balanceBefore = await invicore.getBalance();
+        const balanceBefore = await nexton.getBalance();
 
         console.log("Balance before deposit: ", fromNano(balanceBefore));
-        const userMessage = await invicore.send(
+        const userMessage = await nexton.send(
             user.getSender(), 
             {
             value: toNano("10000")
@@ -126,7 +127,7 @@ describe('InviCore', () => {
 
         console.log(userMessage.events);
 
-        console.log("Balance after: ", fromNano(await invicore.getBalance()) )
+        console.log("Balance after: ", fromNano(await nexton.getBalance()) )
 
 
     });
