@@ -13,6 +13,7 @@ export async function run(provider: NetworkProvider) {
         provider.sender(),
         {
             value: toNano('0.1'),
+            bounce: false
         },
         {
             $$type: 'Deploy',
@@ -28,6 +29,7 @@ export async function run(provider: NetworkProvider) {
         provider.sender(),
         {
             value: toNano('0.1'),
+            bounce: false
         },
         null
     );

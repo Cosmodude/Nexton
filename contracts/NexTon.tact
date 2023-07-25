@@ -58,7 +58,9 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     // receive("Stop"){...}
 
     // Receive TONCoins
-    receive(){}
+    receive(){
+        
+    }
     
     receive("increment"){
         self.requireNotStopped();
