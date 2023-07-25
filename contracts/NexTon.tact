@@ -40,14 +40,11 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     stake: map<Address, LPDeposit>;
 
     LPPBalance: Int as coins = 0;
-    stakeAmount: Int as coins = 0;
+    usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     nftCounter: Int as uint32 = 0;
-
-    balance: Int as coins = 0;
     
-
     init( _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
         self.sPContractAddress = _liquidStaking;
@@ -57,7 +54,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     // Modifiers 
 
-    
 
     // Receive functions 
 
@@ -129,7 +125,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             to: self.nFTContractAddress,
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
-            body: MintNFT{
+            body: MintNFT{ //op 1
                 staker: _stakeInfo.staker,
                 principal: _stakeInfo.principal,
                 lockEnd: _stakeInfo.lockEnd 
@@ -143,6 +139,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             to: sender(),
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
+            bounce: false,
             body: mintJettons{
                 amount: _amount,
                 receiverAddress: _receiver

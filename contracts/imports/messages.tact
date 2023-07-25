@@ -1,4 +1,11 @@
-message MintNFT{
+message(0x1) MintNFT{
+    queryId: Int as uint64;
+    itemIndex: Int as uint64;
+    amount: Int as coins = ton("0.05");
+    content: NFTContent;
+}
+
+struct NFTContent{
     principal: Int as coins;
     leverageRatio: Int as uint32 = 1;
     staker: Address;
