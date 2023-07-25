@@ -7,9 +7,9 @@ let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-T
 let nftCollection: Address = Address.parse("EQDpNEt9Z3MVJJfxElU0m1AmrbtHJqrO4hZFSGle5pSyAgG3");
 
 export async function run(provider: NetworkProvider) {
-    const invicore = provider.open(await NexTon.fromInit(myAddress, nftCollection));
+    const nexton = provider.open(await NexTon.fromInit(myAddress, nftCollection));
 
-    await invicore.send(
+    await nexton.send(
         provider.sender(),
         {
             value: toNano('0.1'),
@@ -20,7 +20,16 @@ export async function run(provider: NetworkProvider) {
         }
     );
 
-    await provider.waitForDeploy(invicore.address);
+    
+    await provider.waitForDeploy(nexton.address);
 
     // run methods on `invicore`
+    await nexton.send(
+        provider.sender(),
+        {
+            value: toNano('0.1'),
+        },
+        null
+    );
+
 }
