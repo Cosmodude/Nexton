@@ -7,7 +7,7 @@ message(0x1) MintNFT{
 
 struct NFTMessage{
     staker: Address;  // item Owner 
-    content: NFTContent; 
+    content: Cell; 
 }
 
 struct NFTContent{

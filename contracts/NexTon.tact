@@ -3,9 +3,6 @@ import "@stdlib/ownable";
 import "@stdlib/stoppable";
 import "./imports/messages";
 
-const DAY: Int = (24 * 60 * 60);
-const YEAR: Int =  24 * 60 * 60 * 365;
-const HOUR: Int = 60 * 60;
 const PROTOCOL_FEE: Int = ton("100");
 const MAX_LEVERAGE: Int = 5;
 
@@ -66,13 +63,18 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     receive("increment"){
         self.requireNotStopped();
         self.counter = self.counter + 1;
+        send(SendParameters{
+            to: sender(),
+            value: 0,
+            mode: SendIgnoreErrors
+        });
     }
 
     receive(msg: UserDeposit){
         self.requireNotStopped();
-        require(msg.leverage<=MAX_LEVERAGE, "Too big leverage, should be less than 5");
+        require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
         let ctx: Context = context();
-
+        
         let nftContent: Cell = NFTContent{
             principal: ctx.value - PROTOCOL_FEE,
             leverageRatio: msg.leverage,
@@ -83,16 +85,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             .storeAddress(ctx.sender)
             .storeRef(nftContent)
             .endCell();
-        let _body: MintNFT =  MintNFT{
+        let body: MintNFT =  MintNFT{
             queryId: now(),
             itemIndex: self.nftCounter,
-            amount: ton("0.05"),
             NFTMessage: nftMessage
         };
-
         self.usersPrincipal = self.usersPrincipal + ctx.value;
-        //_stakeInfo.principal = msg.principal;
-        self.mintNFT(_body);
+        self.mintNFT(body);
+        self.nftCounter = self.nftCounter + 1;
     }
 
     bounced(src: bounced<MintNFT>) {
@@ -100,8 +100,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.stopped = true;
         send(SendParameters{
             to: sender(),
-            value: 0,
-            mode: SendRemainingValue + SendIgnoreErrors,  // vulnarable for attacks
+            value: ton("0.01"),
+            mode: SendIgnoreErrors,  // vulnarable for attacks
             body: "Error: NFT not minted".asComment()
         });
     }
@@ -110,7 +110,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.requireNotStopped();
         let ctx: Context = context(); 
         self.LPPPrinciple = (self.LPPPrinciple + ctx.value);
-        self.mintJettons(ctx.sender, ctx.value);
     }
 
     // Command messages
@@ -130,12 +129,12 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     // Functions
 
-    fun mintNFT(_body: MintNFT){
+    fun mintNFT(body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
-            value: 0,
+            value: ton("0.05"),
             mode: SendIgnoreErrors,
-            body: _body.toCell() 
+            body: body.toCell()
         });
         self.nftCounter = self.nftCounter + 1;
     }
@@ -145,7 +144,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             to: sender(),
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
-            bounce: false,
             body: mintJettons{
                 amount: _amount,
                 receiverAddress: _receiver
@@ -176,6 +174,10 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     get fun balance(): Int{
         return myBalance();
+    }
+
+    get fun nftCounter(): Int{
+        return self.nftCounter;
     }
 }
 
