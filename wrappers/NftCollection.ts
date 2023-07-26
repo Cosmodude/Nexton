@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
+import { Address, beginCell, Cell, Contract, contractAddress, ContractGetMethodResult, ContractProvider, Sender, SendMode } from 'ton-core';
 
 export type RoyaltyParams = {
     royaltyFactor: number;
@@ -55,9 +55,10 @@ export class NftCollection implements Contract {
         });
     }
     
-    async getOwner(provider: ContractProvider, via: Sender){
+    async getData(provider: ContractProvider, via: Sender): Promise<ContractGetMethodResult>{
         const collection_data = await provider.get("get_collection_data", []);
         console.log(collection_data);
+        return collection_data;
     }
 
     async sendMintNft(provider: ContractProvider, via: Sender,
@@ -80,7 +81,7 @@ export class NftCollection implements Contract {
                 value: opts.value,
                 sendMode: SendMode.PAY_GAS_SEPARATELY,
                 body: beginCell()
-                    .storeUint(1,32)
+                    .storeUint(1,32)  // operation
                     .storeUint(opts.queryId,64)
                     .storeUint(opts.itemIndex,64)
                     .storeCoins(opts.amount)
@@ -88,4 +89,22 @@ export class NftCollection implements Contract {
                 .endCell()
             })
         }
+
+        async sendChangeOwner(provider: ContractProvider, via: Sender,
+            opts: {
+                value: bigint;
+                queryId: number;
+                newOwnerAddress: Address;
+            }
+            ) { 
+                await provider.internal(via, {
+                    value: opts.value,
+                    sendMode: SendMode.PAY_GAS_SEPARATELY,
+                    body: beginCell()
+                        .storeUint(3,32) //operation
+                        .storeUint(opts.queryId,64)
+                        .storeAddress(opts.newOwnerAddress)
+                    .endCell()
+                })
+            }
 }
