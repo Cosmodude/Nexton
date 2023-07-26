@@ -4,10 +4,10 @@ import { NetworkProvider } from '@ton-community/blueprint';
 import { randomAddress } from '@ton-community/test-utils';
 
 const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
-const nftCollection: Address = Address.parse("EQDpNEt9Z3MVJJfxElU0m1AmrbtHJqrO4hZFSGle5pSyAgG3");
+const nftCollection: Address = Address.parse("EQBqzCDq5rq3HyZAEaH4dnPy4jCHoag6CceEwVAFTrD6Pil2");
 
 export async function run(provider: NetworkProvider) {
-    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQAgm4FTha6Aj0GYRmfcmRVBvaVd-smYYkd3Jjy86-50ndq7")));
+    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQCY_ODi6mZJC1m7RNr6QoweWvumtebT-G21Yn_V2U7x5i2c")));
         //fromInit(myAddress, nftCollection));
     const ui = provider.ui();
 

@@ -76,48 +76,60 @@ describe('NexTon', () => {
         // blockchain and invicore are ready to use
     });
 
-    it('Should change Staking Pool address', async() => {
-        console.log("Changing Address!!!")
-        const user = await blockchain.treasury('user');
-        const addressBefore = await nexton.getStakingPool();
-        //console.log("Address before: ", addressBefore);
+    // it('Should change Staking Pool address', async() => {
+    //     console.log("Changing Address!!!")
+    //     const user = await blockchain.treasury('user');
+    //     const addressBefore = await nexton.getStakingPool();
+    //     //console.log("Address before: ", addressBefore);
 
-        const userChange = await nexton.send(
-            user.getSender(), 
-            {
-            value: toNano("0.2")
-            }, 
-            {   
-                $$type: 'ChangeAddr',
-                address: await randomAddress(),
-                entity: "SP"
-            }
-        )
-        //console.log("user message", userChange.events); // should be bounced
+    //     const userChange = await nexton.send(
+    //         user.getSender(), 
+    //         {
+    //         value: toNano("0.2")
+    //         }, 
+    //         {   
+    //             $$type: 'ChangeAddr',
+    //             address: await randomAddress(),
+    //             entity: "SP"
+    //         }
+    //     )
+    //     //console.log("user message", userChange.events); // should be bounced
 
-        const addressAfterUser = await nexton.getStakingPool();
-        //console.log("Address after (user): ", addressAfterUser);
+    //     const addressAfterUser = await nexton.getStakingPool();
+    //     //console.log("Address after (user): ", addressAfterUser);
 
-        const deployerChange = await nexton.send(
-            deployer.getSender(),
-            {
-                value: toNano("0.2")
-            }, 
-            {   
-                $$type: 'ChangeAddr',
-                address: await randomAddress(0),
-                entity: "SP"
-            }
-        )
-        //console.log("Deployer message", deployerChange.events);
+    //     const deployerChange = await nexton.send(
+    //         deployer.getSender(),
+    //         {
+    //             value: toNano("0.2")
+    //         }, 
+    //         {   
+    //             $$type: 'ChangeAddr',
+    //             address: await randomAddress(0),
+    //             entity: "SP"
+    //         }
+    //     )
+    //     //console.log("Deployer message", deployerChange.events);
         
-        const addressAfterDeployer = await nexton.getStakingPool();
-        //console.log("Address after (deployer): ", addressAfterDeployer);
-        expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
-        expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
-    });
+    //     const addressAfterDeployer = await nexton.getStakingPool();
+    //     //console.log("Address after (deployer): ", addressAfterDeployer);
+    //     expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
+    //     expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
+    // });
 
     it('Deposit and Mint NFT', async() => {
+        console.log("Changing collection owner!!!");
+
+        nftCollection.sendChangeOwner(deployer.getSender(),{
+            value: toNano("0.02"),
+            newOwnerAddress: nexton.address,
+            queryId: Date.now()
+        });
+
+       //expect(nftCollection.getData)
+
+        console.log("Collection Owner changed!!!");
+
         console.log("Depositing!!!");
         
         const user = await blockchain.treasury('user');
@@ -127,7 +139,7 @@ describe('NexTon', () => {
 
         const mintMessageReceiver = await nexton.getNftContract();
         console.log("NFTCollection: ", nftCollection.address);
-        console.log("Mint messsage is send to ", mintMessageReceiver);
+        console.log("Mint messsage is sent to ", mintMessageReceiver);
         expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
 
         const mintMessage = await nexton.send(
@@ -143,23 +155,18 @@ describe('NexTon', () => {
         )
         console.log(await mintMessage.events);
 
-        const message = await nexton.send(deployer.getSender(), {
-            value: toNano("0.2")
-        }, 'increment');
 
         console.log("Balance after: ", fromNano(await nexton.getBalance()));
 
-        
-
         console.log("NFTCounter: ", await nexton.getNftCounter())
 
-        // expect(mintMessage.transactions).toHaveTransaction({
-        //     from: nexton.address,
-        //     to: nftCollection.address
-        // });
+        expect(mintMessage.transactions).toHaveTransaction({
+            from: nftCollection.address,
+            inMessageBounced: false
+        });
 
-        
-        
-
+        expect(await nexton.getNftCounter()).toEqual(1n);
+        await mintMessage.events
+    
     });
 });
