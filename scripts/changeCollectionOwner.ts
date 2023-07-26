@@ -19,6 +19,6 @@ export async function run(provider: NetworkProvider, args: string[]) {
     })
     ui.write('Collection owner changed deployed');
 
-    const collectionData = await nftCollection.getData(provider.sender());
-    ui.write('Collection Data');
+   // const collectionData = await nftCollection.getData(provider.sender());
+    //ui.write('Collection Data');
 }
