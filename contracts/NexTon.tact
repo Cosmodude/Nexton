@@ -111,8 +111,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     receive("Liquidity Provider Deposit"){
         let ctx: Context = context();
-        let currentPosition: LPProvider = self.lpProviders.get(sender());
-        lpProviders.set(ctx.sender(), LPProvider{
+        let currentPosition: LPProvider? = self.lpProviders.get(sender());
+        self.lpProviders.set(ctx.sender, LPProvider{
             principal: currentPosition.principal + ctx.value(),
             rewards: currentPosition.rewards,
             lastStakePrincipal:  currentPosition.lastStakePrincipal
