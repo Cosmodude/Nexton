@@ -1,13 +1,18 @@
+message UserDeposit{
+    lockPeriod: Int as uint256 = (10 * 60 * 1);
+    leverage: Int as uint32 = 1;
+}
+
+message ChangeAddr{
+    address: Address;
+    entity: String;
+}
+
 message(0x1) MintNFT{
     queryId: Int as uint64;
     itemIndex: Int as uint64;
     amount: Int as coins = ton("0.05");
     NFTMessage: Cell;
-}
-
-struct NFTMessage{
-    staker: Address;  // item Owner 
-    content: Cell; 
 }
 
 struct NFTContent{
@@ -20,15 +25,4 @@ struct NFTContent{
 message(0x1) mintJettons{
     amount: Int as coins;
     receiverAddress: Address;
-}
-
-message UserDeposit{
-    lockPeriod: Int as uint256 = (10 * 60 * 1);
-    leverage: Int as uint32 = 1;
-}
-
-
-message ChangeAddr{
-    address: Address;
-    entity: String;
 }

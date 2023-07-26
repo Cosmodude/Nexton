@@ -7,6 +7,10 @@ const PROTOCOL_FEE: Int = ton("0.1");
 const MAX_LEVERAGE: Int = 5;
 
 message LPDeposit{
+
+}
+
+struct LPProvider{
     principal: Int as coins = 0;
     rewards: Int as coins = 0;
     lastStakePrincipal: Int as coins = 0;
@@ -34,7 +38,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     const MIN: Int = 60 * 60;
     sPContractAddress: Address;      // Staking Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
-    stake: map<Address, LPDeposit>;
+    lpProviders: map<Address, LPProvider>;
 
     LPPPrinciple: Int as coins = 0;
     usersPrincipal: Int as coins = 0;
@@ -47,6 +51,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.sPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
+        self.lpProviders = emptyMap();
     }
 
     // Modifiers 
@@ -102,6 +107,16 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.usersPrincipal = 0;
         self.nftCounter = self.nftCounter - 1;
         //self.stopped = true;
+    }
+
+    receive("Liquidity Provider Deposit"){
+        let ctx: Context = context();
+        let currentPosition: LPProvider = self.lpProviders.get(sender());
+        lpProviders.set(ctx.sender(), LPProvider{
+            principal: currentPosition.principal + ctx.value(),
+            rewards: currentPosition.rewards,
+            lastStakePrincipal:  currentPosition.lastStakePrincipal
+        });
     }
 
     receive(msg: LPDeposit){
