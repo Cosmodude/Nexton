@@ -76,6 +76,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.requireNotStopped();
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
         let ctx: Context = context();
+        require(ctx.value > PROTOCOL_FEE, "Too small deposit amount");
         
         let nftContent: Cell = NFTContent{
             principal: ctx.value - PROTOCOL_FEE,
@@ -84,22 +85,22 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             lockEnd: now() + 600
             }.toCell();
         let nftMessage: Cell = beginCell()
-            .storeAddress(ctx.sender)
+            .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeRef(nftContent)
             .endCell();
         let body: MintNFT =  MintNFT{
             queryId: now(),
-            itemIndex: self.nftCounter,
+            itemIndex: self.nftCounter, //nftItemIndex
             NFTMessage: nftMessage
         };
 
         self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
-        self.nftCounter = self.nftCounter + 1;
     }
 
     bounced(src: bounced<MintNFT>) {
         self.usersPrincipal = 0;
+        self.nftCounter = self.nftCounter - 1;
         //self.stopped = true;
     }
 
@@ -129,23 +130,11 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     fun mintNFT(body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
-            value: ton("0.05"),
+            value: ton("0.04"),
             mode: SendPayGasSeparately + SendIgnoreErrors,
             body: body.toCell()
         });
         self.nftCounter = self.nftCounter + 1;
-    }
-
-    fun mintJettons(_receiver: Address, _amount: Int){
-        send(SendParameters{
-            to: sender(),
-            value: 0,
-            mode: SendRemainingValue + SendIgnoreErrors,
-            body: mintJettons{
-                amount: _amount,
-                receiverAddress: _receiver
-            }.toCell()
-        });
     }
 
     fun notes(){
