@@ -3,7 +3,7 @@ import "@stdlib/ownable";
 import "@stdlib/stoppable";
 import "./imports/messages";
 
-const PROTOCOL_FEE: Int = ton("100");
+const PROTOCOL_FEE: Int = ton("0.1");
 const MAX_LEVERAGE: Int = 5;
 
 message LPDeposit{
@@ -19,7 +19,7 @@ message StakingReward{
 struct UserStakeInfo{
     staker: Address;
     leverageRatio: Int as uint32 = 1;
-    protocolFee: Int as coins = ton("100");
+    protocolFee: Int as coins = ton("0.1");
     principal: Int as coins;
     lockPeriod: Int as uint256 = 600;
     lockEnd: Int as uint256;
@@ -92,20 +92,15 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             itemIndex: self.nftCounter,
             NFTMessage: nftMessage
         };
+
         self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
         self.nftCounter = self.nftCounter + 1;
     }
 
     bounced(src: bounced<MintNFT>) {
-        self.usersPrincipal = (self.usersPrincipal - src.queryId);
-        self.stopped = true;
-        send(SendParameters{
-            to: sender(),
-            value: ton("0.01"),
-            mode: SendIgnoreErrors,  // vulnarable for attacks
-            body: "Error: NFT not minted".asComment()
-        });
+        self.usersPrincipal = 0;
+        //self.stopped = true;
     }
 
     receive(msg: LPDeposit){
@@ -135,7 +130,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         send(SendParameters{
             to: self.nFTContractAddress,
             value: ton("0.05"),
-            mode: SendIgnoreErrors,
+            mode: SendPayGasSeparately + SendIgnoreErrors,
             body: body.toCell()
         });
         self.nftCounter = self.nftCounter + 1;
@@ -180,6 +175,10 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     get fun nftCounter(): Int{
         return self.nftCounter;
+    }
+
+    get fun maxLeverage(): Int{
+        return MAX_LEVERAGE;
     }
 }
 
