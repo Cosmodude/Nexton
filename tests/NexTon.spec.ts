@@ -133,7 +133,7 @@ describe('NexTon', () => {
         const mintMessage = await nexton.send(
             user.getSender(), 
             {
-            value: toNano("10000")
+            value: toNano("2")
             }, 
             {   
                 $$type: 'UserDeposit',
