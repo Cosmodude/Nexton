@@ -2,6 +2,7 @@
 Author: Vladislav Lenskii: https://github.com/Cosmodude
 
 Created using Blueprint framework: https://github.com/ton-org/blueprint
+
 Contracts were written in TACT and FunC
 ## Project structure
 
@@ -26,15 +27,15 @@ Contracts were written in TACT and FunC
 
 `npx blueprint run` 
 
-First "deployNexTon" to put contracts(NFT collection + Main NexTon contract) on chain.
+First `deployNexTon` to put contracts(NFT collection + Main NexTon contract) on chain.
 
-Then "userDeposit" to try deposit funds mannually.
+Then `userDeposit` to try deposit funds mannually.
 
 # License
 MIT
 
 ## For reference:
-    
-    - video tutorial https://www.youtube.com/watch?v=5Muo79ZsOIg
+
+    - tact video tutorial https://www.youtube.com/watch?v=5Muo79ZsOIg
     - Official docs https://docs.tact-lang.org/
                     https://tact-lang.org/
