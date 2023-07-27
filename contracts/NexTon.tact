@@ -78,7 +78,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             lockPeriod: msg.lockPeriod,
             lockEnd: now() + msg.lockPeriod
             }.toCell();
-        let nftMessage: Cell = beginCell()
+        let nftItemMessage: Cell = beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeRef(nftContent)
             .endCell();
@@ -86,7 +86,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             queryId: msg.queryId,
             itemIndex: self.nftCounter, // nftItemIndex
             amount: ton("0.055"),
-            NFTMessage: nftMessage
+            NFTMessage: nftItemMessage
         };
 
         self.usersPrincipal = self.usersPrincipal + ctx.value;

@@ -15,7 +15,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
     await nftCollection.sendChangeOwner(provider.sender(),{
         value: toNano("0.02"),
         newOwnerAddress: nextonAddress,
-        queryId: Date.now()
+        queryId: BigInt(Date.now())
     })
     ui.write('Collection owner changed deployed');
 

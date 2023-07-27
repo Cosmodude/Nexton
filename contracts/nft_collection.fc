@@ -60,7 +60,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
   var msg = begin_cell()
             .store_uint(0x18, 6)
             .store_slice(nft_address)
-            .store_coins(amount)
+            .store_coins(amount)  ;; value
             .store_uint(4 + 2 + 1, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
             .store_ref(state_init)
             .store_ref(nft_content);
@@ -109,7 +109,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
       int item_index = in_msg_body~load_uint(64);
       throw_unless(402, item_index <= next_item_index);
       var is_last = item_index == next_item_index;
-      deploy_nft_item(item_index, nft_item_code, in_msg_body~load_coins(), in_msg_body~load_ref());
+      deploy_nft_item(item_index, nft_item_code, in_msg_body~load_coins(), in_msg_body~load_ref());  ;; gets the value to be sent with item deploy and the body
       if (is_last) {
         next_item_index += 1;
         save_data(owner_address, next_item_index, content, nft_item_code, royalty_params);
