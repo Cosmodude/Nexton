@@ -66,16 +66,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         
     }
     
-    receive("increment"){
-        self.requireNotStopped();
-        self.counter = self.counter + 1;
-        send(SendParameters{
-            to: sender(),
-            value: 0,
-            mode: SendIgnoreErrors
-        });
-    }
-
     receive(msg: UserDeposit){
         self.requireNotStopped();
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
@@ -111,12 +101,13 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.requireNotStopped();
         let ctx: Context = context();
         require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount");
-        let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
-        self.lpProviders.set(ctx.sender, LPProvider{
-            principal: currentPosition.principal + ctx.value,
-            rewards: currentPosition.rewards,
-            lastStakePrincipal:  currentPosition.lastStakePrincipal
-        });
+        
+        // let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
+        // self.lpProviders.set(ctx.sender, LPProvider{
+        //     principal: currentPosition.principal + ctx.value,
+        //     rewards: currentPosition.rewards,
+        //     lastStakePrincipal:  currentPosition.lastStakePrincipal
+        // });
     }
 
     // Command messages

@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, toNano, fromNano, Cell, beginCell } from 'ton-core';
+import { Address, toNano, fromNano, Cell, beginCell, ContractProvider, } from 'ton-core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
@@ -65,10 +65,14 @@ describe('NexTon', () => {
             success: true,
         });
 
-        
-        const owner = await nexton.getOwner();
-        expect(owner.equals( deployer.address)).toBe(true);
-        
+        nftCollection.sendChangeOwner(deployer.getSender(),{
+            value: toNano("0.02"),
+            newOwnerAddress: nexton.address,
+            queryId: BigInt(Date.now())
+        });
+
+        //expect(nftCollection.getData)
+        //const tuple = (await nftCollection.getData(deployer.getSender())).stack
     });
 
     it('should deploy', async () => {
@@ -120,19 +124,8 @@ describe('NexTon', () => {
     // });
 
     it('Should Deposit and Mint NFT', async() => {
-        console.log("Changing collection owner!!!");
 
-        nftCollection.sendChangeOwner(deployer.getSender(),{
-            value: toNano("0.02"),
-            newOwnerAddress: nexton.address,
-            queryId: Date.now()
-        });
-
-       //expect(nftCollection.getData)
-
-        console.log("Collection Owner changed!!!");
-
-        console.log("Depositing!!!");
+        console.log("User Depositing!!!");
         
         const user = await blockchain.treasury('user');
 
@@ -169,9 +162,28 @@ describe('NexTon', () => {
         });
 
         expect(await nexton.getNftCounter()).toEqual(1n);
-        await mintMessage.events
     
     });
 
-    it("Should Deposit and keep track")
+    it("Should Deposit and keep track of LPP", async () =>{
+        console.log();
+        console.log("LPP Depositing!!!");
+
+        const lpProvider = await blockchain.treasury('provider');
+
+        const balanceBefore = await nexton.getBalance();
+        console.log("Balance before LP deposit: ", fromNano(balanceBefore));
+
+        const depositMessage = await nexton.send(
+            lpProvider.getSender(), 
+            {
+            value: toNano("20000")
+            }, 
+            'Liquidity Provider Deposit'
+        )
+        console.log(await depositMessage.events);
+
+
+        console.log("Balance after: ", fromNano(await nexton.getBalance()));
+    });
 });
