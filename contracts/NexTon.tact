@@ -5,10 +5,8 @@ import "./imports/messages";
 
 const PROTOCOL_FEE: Int = ton("0.1");
 const MAX_LEVERAGE: Int = 5;
-
-message LPDeposit{
-
-}
+const MIN_USER_DEPOSIT: Int = ton("0.2");
+const MIN_LP_DEPOSIT: Int = ton("10000");
 
 struct LPProvider{
     principal: Int as coins = 0;
@@ -17,7 +15,8 @@ struct LPProvider{
 }
 
 message StakingReward{
-
+    principal: Int as coins;
+    rewards: Int as coins;
 }
 
 struct UserStakeInfo{
@@ -81,20 +80,20 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.requireNotStopped();
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
         let ctx: Context = context();
-        require(ctx.value > PROTOCOL_FEE, "Too small deposit amount");
+        require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount");
         
         let nftContent: Cell = NFTContent{
             principal: ctx.value - PROTOCOL_FEE,
             leverageRatio: msg.leverage,
             lockPeriod: msg.lockPeriod,
-            lockEnd: now() + 600
+            lockEnd: now() + msg.lockPeriod
             }.toCell();
         let nftMessage: Cell = beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeRef(nftContent)
             .endCell();
         let body: MintNFT =  MintNFT{
-            queryId: now(),
+            queryId: msg.queryId,
             itemIndex: self.nftCounter, //nftItemIndex
             NFTMessage: nftMessage
         };
@@ -104,25 +103,20 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     }
 
     bounced(src: bounced<MintNFT>) {
-        self.usersPrincipal = 0;
         self.nftCounter = self.nftCounter - 1;
         //self.stopped = true;
     }
 
     receive("Liquidity Provider Deposit"){
+        self.requireNotStopped();
         let ctx: Context = context();
-        let currentPosition: LPProvider? = self.lpProviders.get(sender());
+        require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount");
+        let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
         self.lpProviders.set(ctx.sender, LPProvider{
-            principal: currentPosition.principal + ctx.value(),
+            principal: currentPosition.principal + ctx.value,
             rewards: currentPosition.rewards,
             lastStakePrincipal:  currentPosition.lastStakePrincipal
         });
-    }
-
-    receive(msg: LPDeposit){
-        self.requireNotStopped();
-        let ctx: Context = context(); 
-        self.LPPPrinciple = (self.LPPPrinciple + ctx.value);
     }
 
     // Command messages
@@ -152,15 +146,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.nftCounter = self.nftCounter + 1;
     }
 
-    fun notes(){
-       self.requireOwner(); 
-       let stake: map<Address, Int> = emptyMap();
-       stake.set(sender(), 3);
-       let hash: Int = sha256("String");
-       self.counter = stake.get(sender())!!; // !! - denaming, error if null
-       stake.set(sender(), null); // instead of delete
-    }
-
     // GET methods
 
     // get fun stopped(): Bool {...}
@@ -181,9 +166,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         return self.nftCounter;
     }
 
-    get fun maxLeverage(): Int{
-        return MAX_LEVERAGE;
-    }
 }
 
 

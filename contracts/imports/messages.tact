@@ -1,4 +1,5 @@
 message UserDeposit{
+    queryId: Int as uint64;
     lockPeriod: Int as uint256 = (10 * 60 * 1);
     leverage: Int as uint32 = 1;
 }

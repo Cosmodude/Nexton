@@ -151,6 +151,7 @@ describe('NexTon', () => {
             }, 
             {   
                 $$type: 'UserDeposit',
+                queryId: BigInt(Date.now()),
                 lockPeriod: 600n,
                 leverage: 3n
             }

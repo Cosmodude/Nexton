@@ -16,7 +16,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
 (slice, int, cell, cell, cell) load_data() inline {
   var ds = get_data().begin_parse();
   return
-    (ds~load_msg_addr(), ;; owner_address
+    (ds~load_msg_addr(), ;; collection owner_address
      ds~load_uint(64), ;; next_item_index
      ds~load_ref(), ;; content
      ds~load_ref(), ;; nft_item_code
@@ -171,7 +171,7 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
   cs~load_ref();
   slice common_content = cs~load_ref().begin_parse();
   return (begin_cell()
-                      .store_uint(1, 8) ;; offchain tag https://github.com/ton-blockchain/TIPs/issues/64
+                      .store_uint(0, 8) ;; onchain tag https://github.com/ton-blockchain/TIPs/issues/64
                       .store_slice(common_content)
                       .store_ref(individual_nft_content)
           .end_cell());
