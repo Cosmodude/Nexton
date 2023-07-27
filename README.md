@@ -1,29 +1,32 @@
-# Invincible_LS
+# NexTon (BlockWave Labs)
+Author: Vladislav Lenskii: https://github.com/Cosmodude
 
+Created using Blueprint framework: https://github.com/ton-org/blueprint
+Contracts were written in TACT and FunC
 ## Project structure
 
--   `contracts` - source code of all the smart contracts of the project and their dependencies.
--   `wrappers` - wrapper classes (implementing `Contract` from ton-core) for the contracts, including any [de]serialization primitives and compilation functions.
+-   `contracts` - source code of all the smart contracts of the project, their dependencies and references.
+-   `wrappers` - wrapper classes (implementing `Contract` from ton-core) for the contracts, including any (de)serialization primitives and compilation functions.
 -   `tests` - tests for the contracts.
--   `scripts` - scripts used by the project, mainly the deployment scripts.
+-   `scripts` - scripts used by the project, the deployment and scripts.
 
 ## How to use
 
+'npm i' to install the dependencies
+
 ### Build
 
-`npx blueprint build` or `yarn blueprint build`
+`npx blueprint build` to compile contracts 
 
 ### Test
 
-`npx blueprint test` or `yarn blueprint test`
+`npx blueprint test` to run the test suits 
 
-### Deploy or run another script
+### Run scripts
 
-`npx blueprint run` or `yarn blueprint run`
-
-### Add a new contract
-
-`npx blueprint create ContractName` or `yarn blueprint create ContractName`
+`npx blueprint run`
+First "deployNexTon" to put contracts(NFT collection + Main NexTon contract) on chain.
+Then "userDeposit" to try deposit funds mannually.
 
 # License
 MIT
