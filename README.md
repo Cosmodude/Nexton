@@ -1,4 +1,4 @@
-# NexTon (BlockWave Labs)
+# NexTon (BlockWave Labs) Contracts
 Author: Vladislav Lenskii: https://github.com/Cosmodude
 
 Created using Blueprint framework: https://github.com/ton-org/blueprint
@@ -27,6 +27,7 @@ Contracts were written in TACT and FunC
 `npx blueprint run` 
 
 First "deployNexTon" to put contracts(NFT collection + Main NexTon contract) on chain.
+
 Then "userDeposit" to try deposit funds mannually.
 
 # License
