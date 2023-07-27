@@ -55,11 +55,7 @@ export class NftCollection implements Contract {
         });
     }
     
-    async getData(provider: ContractProvider, via: Sender): Promise<ContractGetMethodResult>{
-        const collection_data = await provider.get("get_collection_data", []);
-        console.log(collection_data);
-        return collection_data;
-    }
+    
 
     async sendMintNft(provider: ContractProvider, via: Sender,
         opts: {
@@ -90,21 +86,27 @@ export class NftCollection implements Contract {
             })
         }
 
-        async sendChangeOwner(provider: ContractProvider, via: Sender,
-            opts: {
-                value: bigint;
-                queryId: number;
-                newOwnerAddress: Address;
-            }
-            ) { 
-                await provider.internal(via, {
-                    value: opts.value,
-                    sendMode: SendMode.PAY_GAS_SEPARATELY,
-                    body: beginCell()
-                        .storeUint(3,32) //operation
-                        .storeUint(opts.queryId,64)
-                        .storeAddress(opts.newOwnerAddress)
-                    .endCell()
-                })
-            }
+    async sendChangeOwner(provider: ContractProvider, via: Sender,
+        opts: {
+            value: bigint;
+            queryId: bigint;
+            newOwnerAddress: Address;
+        }
+        ) { 
+            await provider.internal(via, {
+                value: opts.value,
+                sendMode: SendMode.PAY_GAS_SEPARATELY,
+                body: beginCell()
+                    .storeUint(3,32) //operation
+                    .storeUint(opts.queryId, 64)
+                    .storeAddress(opts.newOwnerAddress)
+                .endCell()
+            })
+    }
+
+    async getData(provider: ContractProvider, via: Sender): Promise<ContractGetMethodResult>{
+        const collection_data = await provider.get("get_collection_data", []);
+        console.log(collection_data);
+        return collection_data;
+    }
 }

@@ -65,7 +65,7 @@ export async function run(provider: NetworkProvider) {
     await collection.sendChangeOwner(provider.sender(),{
         value: toNano("0.11"),
         newOwnerAddress: nexton.address,
-        queryId: Date.now()
+        queryId: BigInt(Date.now())
     });
 
     ui.write('Collection owner changed !!!');
