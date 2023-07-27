@@ -46,6 +46,15 @@ contract Messages with Deployable {
         self.reply("Hello World".asComment());
     }
 
+    fun notes(){
+       self.requireOwner(); 
+       let stake: map<Address, Int> = emptyMap();
+       stake.set(sender(), 3);
+       let hash: Int = sha256("String");
+       self.counter = stake.get(sender())!!; // !! - denaming, error if null
+       stake.set(sender(), null); // instead of delete
+    }
+    
     get fun balance(): Int{
         return myBalance();
     }
