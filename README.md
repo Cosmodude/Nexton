@@ -12,7 +12,7 @@ Contracts were written in TACT and FunC
 
 ## How to use
 
-'npm i' to install the dependencies
+`npm i` to install the dependencies
 
 ### Build
 
@@ -24,7 +24,8 @@ Contracts were written in TACT and FunC
 
 ### Run scripts
 
-`npx blueprint run`
+`npx blueprint run` 
+
 First "deployNexTon" to put contracts(NFT collection + Main NexTon contract) on chain.
 Then "userDeposit" to try deposit funds mannually.
 
