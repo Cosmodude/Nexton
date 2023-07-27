@@ -12,7 +12,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     await nftCollection.sendMintNft(provider.sender(),{
         value: toNano("0.02"),
-        amount: toNano("0.05"),
+        amount: toNano("0.055"),
         itemIndex: 0,
         itemOwnerAddress: provider.sender().address as Address,
         itemContent: "123",

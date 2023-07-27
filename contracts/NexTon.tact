@@ -84,7 +84,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             .endCell();
         let body: MintNFT =  MintNFT{
             queryId: msg.queryId,
-            itemIndex: self.nftCounter, //nftItemIndex
+            itemIndex: self.nftCounter, // nftItemIndex
+            amount: ton("0.055"),
             NFTMessage: nftMessage
         };
 
@@ -130,7 +131,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     fun mintNFT(body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
-            value: ton("0.04"),
+            value: ton("0.05"),
             mode: SendPayGasSeparately + SendIgnoreErrors,
             body: body.toCell()
         });

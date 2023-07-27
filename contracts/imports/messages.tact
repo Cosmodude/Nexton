@@ -13,7 +13,7 @@ message ChangeAddr{
 message(0x1) MintNFT{
     queryId: Int as uint64;
     itemIndex: Int as uint64;
-    amount: Int as coins = ton("0.05");
+    amount: Int as coins = ton("0.03");
     NFTMessage: Cell;
 }
 
