@@ -4,6 +4,7 @@ message UserDeposit{
 }
 
 message ChangeAddr{
+    queryId: Int as uint64;
     address: Address;
     entity: String;
 }
@@ -23,6 +24,7 @@ struct NFTContent{
 }
 
 message(0x1) mintJettons{
+    queryId: Int as uint64;
     amount: Int as coins;
     receiverAddress: Address;
 }

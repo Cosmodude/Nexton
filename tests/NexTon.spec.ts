@@ -89,6 +89,7 @@ describe('NexTon', () => {
     //         }, 
     //         {   
     //             $$type: 'ChangeAddr',
+    //             queryId: Date.now(),
     //             address: await randomAddress(),
     //             entity: "SP"
     //         }
@@ -105,6 +106,7 @@ describe('NexTon', () => {
     //         }, 
     //         {   
     //             $$type: 'ChangeAddr',
+    //             queryId: Date.now(),
     //             address: await randomAddress(0),
     //             entity: "SP"
     //         }
@@ -117,7 +119,7 @@ describe('NexTon', () => {
     //     expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
     // });
 
-    it('Deposit and Mint NFT', async() => {
+    it('Should Deposit and Mint NFT', async() => {
         console.log("Changing collection owner!!!");
 
         nftCollection.sendChangeOwner(deployer.getSender(),{
@@ -169,4 +171,6 @@ describe('NexTon', () => {
         await mintMessage.events
     
     });
+
+    it("Should Deposit and keep track")
 });
