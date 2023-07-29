@@ -21,6 +21,7 @@ async function fetchData() {
     // Get list of transactions
     // Token should be issued on https://tonconsole.com
     const blockchainApi = new BlockchainApi(new Configuration({
+        basePath: "https://testnet.tonapi.io", // override base path
         headers: {
             Authorization: 'Bearer ' + env.TONAPI_KEY,
         },
@@ -32,15 +33,30 @@ async function fetchData() {
         limit: 10,
     })
 
-    const accountsApi = new AccountsApi()
+
+    const accountsApi = new AccountsApi(new Configuration({
+        basePath: "https://testnet.tonapi.io", // override base path
+        headers: {
+            Authorization: 'Bearer ' + env.TONAPI_KEY,
+        },
+    }));
+    
     const nfts = await accountsApi.getNftItemsByOwner({
-        
-    }
-    )
-    // Get list of nfts by owner address
-    const nftApi = new NFTApi()
-    // Receive typed array of owner nfts
-    const NftItem  = await nftApi.getNftItemByAddress({
-            accountId: address
+        accountId: address,
+
     })
+    console.log(nfts)
+
+
+
+
+    // Get list of nfts by owner address
+    const nftApi = new NFTApi(new Configuration({
+        basePath: "https://testnet.tonapi.io", // override base path
+        headers: {
+            Authorization: 'Bearer ' + env.TONAPI_KEY,
+        },
+    }));
 }
+
+fetchData();
