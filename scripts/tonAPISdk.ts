@@ -16,6 +16,7 @@ const env = load({
 });
 
 const address = "kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu";
+const collection = "EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK";
 
 async function fetchData() {
     // Get list of transactions
@@ -40,9 +41,10 @@ async function fetchData() {
             Authorization: 'Bearer ' + env.TONAPI_KEY,
         },
     }));
-    
+
     const nfts = await accountsApi.getNftItemsByOwner({
         accountId: address,
+        collection: collection
 
     })
     console.log(nfts)
