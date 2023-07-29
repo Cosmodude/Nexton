@@ -22,9 +22,12 @@
     },
     "dependencies": {
         "@orbs-network/ton-access": "^2.3.3",
+        "dotenv": "^16.3.1",
         "i": "^0.3.7",
         "install": "^0.13.0",
+        "node-fetch": "^3.3.2",
         "npm": "^9.8.0",
+        "tonapi-sdk-js": "^0.30.0",
         "tonweb": "^0.0.60",
         "ts-dotenv": "^0.9.1"
     }
