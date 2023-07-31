@@ -165,7 +165,7 @@ slice get_nft_address_by_index(int index) method_id {
      return (rs~load_uint(16), rs~load_uint(16), rs~load_msg_addr());
 }
 
-cell get_nft_content(int index, cell individual_nft_content) method_id {
+cell get_nft_content(int index, cell individual_nft_content) method_id {  ;; ??? content
   var (_, _, content, _, _) = load_data();
   slice cs = content.begin_parse();
   cs~load_ref();
