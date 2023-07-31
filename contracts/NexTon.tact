@@ -19,7 +19,11 @@ message StakingReward{
     rewards: Int as coins;
 }
 
-message UserRewardsClaim{
+message UserClaim{
+    nftIndex: Int as uint32;
+}
+
+message UserWithdraw{
     nftIndex: Int as uint32;
 }
 
@@ -117,11 +121,18 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         // });
     }
 
-    receive(msg: UserRewardsClaim){
+    receive(msg: UserClaim){
         self.requireNotStopped();
         require(self.nftCounter > msg.nftIndex, "Claiming not exisitng NFT");
-        require(self.nftOwner.get(msg.nftIndex) == sender());
+        require(self.nftOwner.get(msg.nftIndex) == sender(), "Message sender is not the NFT owner!");
         let ctx: Context = context();
+        self.userNFTClaimed.set(msg.nftIndex, true);
+    }
+
+    receive(msg: UserWithdraw){
+        self.requireNotStopped();
+        require(self.nftCounter > msg.nftIndex, "Claiming not exisitng NFT");
+        require(self.nftOwner.get(msg.nftIndex) == sender(), "Message sender is not the NFT owner!");
 
     }
 
@@ -172,6 +183,9 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         return self.nftCounter;
     }
 
+    get fun userNFTClaimed(index: Int): Bool{
+        return self.userNFTClaimed.get(index)!!;
+    }
 }
 
 
