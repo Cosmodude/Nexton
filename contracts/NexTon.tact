@@ -99,12 +99,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             NFTMessage: nftItemMessage
         };
 
+        self.nftOwner.set(self.nftCounter, ctx.sender);
         self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
     }
 
     bounced(src: bounced<MintNFT>) {
         self.nftCounter = self.nftCounter - 1;
+        self.nftOwner.set(self.nftCounter, myAddress());
         //self.stopped = true;
     }
 
@@ -183,9 +185,12 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         return self.nftCounter;
     }
 
-    get fun userNFTClaimed(index: Int): Bool{
-        return self.userNFTClaimed.get(index)!!;
+    get fun userNFTClaimed(index: Int): Bool?{
+        return self.userNFTClaimed.get(index);
     }
 }
 
 
+// Two ways of claiming:
+// tic talk with users nfts (only one withdraw message from user), no extra reward from overtime staking(even for us)
+// through 2 user messages
