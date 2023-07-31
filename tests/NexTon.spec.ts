@@ -80,6 +80,7 @@ describe('NexTon', () => {
         // blockchain and invicore are ready to use
     });
 
+
     // it('Should change Staking Pool address', async() => {
     //     console.log("Changing Address!!!")
     //     const user = await blockchain.treasury('user');
@@ -185,5 +186,93 @@ describe('NexTon', () => {
 
 
         console.log("Balance after: ", fromNano(await nexton.getBalance()));
+    });
+
+    /*
+    it('Should Deposit and Mint NFT', async() => {
+
+        console.log("User Depositing!!!");
+        
+        const user = await blockchain.treasury('user');
+
+        const balanceBefore = await nexton.getBalance();
+        console.log("Balance before deposit: ", fromNano(balanceBefore));
+
+        const mintMessageReceiver = await nexton.getNftContract();
+        console.log("NFTCollection: ", nftCollection.address);
+        console.log("Mint messsage is sent to ", mintMessageReceiver);
+        expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
+
+        const mintMessage = await nexton.send(
+            user.getSender(), 
+            {
+            value: toNano("2")
+            }, 
+            {   
+                $$type: 'UserDeposit',
+                queryId: BigInt(Date.now()),
+                lockPeriod: 600n,
+                leverage: 3n
+            }
+        )
+        console.log(await mintMessage.events);
+
+
+        console.log("Balance after: ", fromNano(await nexton.getBalance()));
+
+        console.log("NFTCounter: ", await nexton.getNftCounter())
+
+        expect(mintMessage.transactions).toHaveTransaction({
+            from: nftCollection.address,
+            inMessageBounced: false
+        });
+
+        expect(await nexton.getNftCounter()).toEqual(1n);
+    
+    });
+    */
+
+    it("Should Deposit and Claim User reward", async () =>{
+        console.log();
+        console.log("User Depositing!!!");
+        
+        const user = await blockchain.treasury('user');
+
+        const balanceBefore = await nexton.getBalance();
+
+        const depositMessage = await nexton.send(
+            user.getSender(), 
+            {
+                value: toNano("2")
+            }, 
+            {   
+                $$type: 'UserDeposit',
+                queryId: BigInt(Date.now()),
+                lockPeriod: 600n,
+                leverage: 3n
+            }
+        )
+        console.log(await depositMessage.events);
+
+        expect(await nexton.getBalance()).toBeGreaterThan(balanceBefore);
+        expect(await nexton.getNftCounter()).toEqual(1n);
+
+        const nftIndex: bigint = 0n;
+
+        console.log("User Depositing!!!");
+
+        const claimMessage = await nexton.send(
+            user.getSender(),
+            {
+                value: toNano("1")
+            },
+            {   
+                $$type: 'UserClaim',
+                nftIndex: nftIndex
+            }
+        )
+        console.log(await claimMessage.events);
+
+        expect(await nexton.getUserNftClaimed(nftIndex)).toBeTruthy;
     });
 });
