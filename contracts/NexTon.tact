@@ -5,7 +5,7 @@ import "./imports/messages";
 
 const PROTOCOL_FEE: Int = ton("0.1");
 const MAX_LEVERAGE: Int = 5;
-const MIN_USER_DEPOSIT: Int = ton("0.2");
+const MIN_USER_DEPOSIT: Int = ton("0.5");  // inform the frontend
 const MIN_LP_DEPOSIT: Int = ton("10000");
 
 struct LPProvider{
@@ -17,6 +17,10 @@ struct LPProvider{
 message StakingReward{
     principal: Int as coins;
     rewards: Int as coins;
+}
+
+message UserRewardsClaim{
+    nftIndex: Int as uint32;
 }
 
 struct UserStakeInfo{
@@ -44,6 +48,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     nftCounter: Int as uint32 = 0;
+    userNFTClaimed: map<Int, Bool>;
+    nftOwner: map<Int, Address>;
     
     init( _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
@@ -70,7 +76,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.requireNotStopped();
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
         let ctx: Context = context();
-        require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount");
+        require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
         
         let nftContent: Cell = NFTContent{
             principal: ctx.value - PROTOCOL_FEE,
@@ -101,7 +107,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     receive("Liquidity Provider Deposit"){
         self.requireNotStopped();
         let ctx: Context = context();
-        require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount");
+        require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount, min LP deposit is 10000 Ton");
         
         // let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
         // self.lpProviders.set(ctx.sender, LPProvider{
@@ -109,6 +115,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         //     rewards: currentPosition.rewards,
         //     lastStakePrincipal:  currentPosition.lastStakePrincipal
         // });
+    }
+
+    receive(msg: UserRewardsClaim){
+        self.requireNotStopped();
+        require(self.nftCounter > msg.nftIndex, "Claiming not exisitng NFT");
+        require(self.nftOwner.get(msg.nftIndex) == sender());
+        let ctx: Context = context();
+
     }
 
     // Command messages
