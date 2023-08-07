@@ -7,7 +7,8 @@ import {
     ContractGetMethodResult, 
     ContractProvider, 
     Sender, 
-    SendMode 
+    SendMode, 
+    TupleItem
 } from 'ton-core';
 
 export type RoyaltyParams = {
@@ -114,9 +115,14 @@ export class NftCollection implements Contract {
             })
     }
 
-    async getCollectionData(provider: ContractProvider, via: Sender): Promise<Cell>{
+    async getCollectionData(provider: ContractProvider, via: Sender): Promise<TupleItem>{
         const collection_data = await provider.get("get_collection_data", []);
         const stack = collection_data.stack;
-        return stack.readCell();
+        return stack.pop();
+    }
+
+    async getNextItemIndex(provider: ContractProvider, via: Sender): Promise<BigInt>{
+        const collection_data = await provider.get("get_collection_data", []);
+        return collection_data.stack.readBigNumber(); 
     }
 }
