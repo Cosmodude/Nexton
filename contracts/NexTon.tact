@@ -52,7 +52,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     nftCounter: Int as uint32 = 0;
-    userNFTClaimed: map<Int, Bool>;
+    userNFTItemClaimed: map<Int, Bool>;
     nftOwner: map<Int, Address>;
     
     init( _liquidStaking: Address, _nft: Address) {
@@ -128,7 +128,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         require(self.nftCounter > msg.nftIndex, "Claiming not exisitng NFT");
         require(self.nftOwner.get(msg.nftIndex) == sender(), "Message sender is not the NFT owner!");
         let ctx: Context = context();
-        self.userNFTClaimed.set(msg.nftIndex, true);
+        self.userNFTItemClaimed.set(msg.nftIndex, true);
     }
 
     receive(msg: UserWithdraw){
@@ -185,8 +185,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         return self.nftCounter;
     }
 
-    get fun userNFTClaimed(index: Int): Bool?{
-        return self.userNFTClaimed.get(index);
+    get fun userNFTItemClaimed(index: Int): Bool?{
+        return self.userNFTItemClaimed.get(index);
     }
 }
 
