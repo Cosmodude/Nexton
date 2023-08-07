@@ -10,6 +10,7 @@ import {
     SendMode, 
     TupleItem
 } from 'ton-core';
+import { encodeOffChainContent } from './helpFulFunctions/nftCollectionContent';
 
 export type RoyaltyParams = {
     royaltyFactor: number;
@@ -34,11 +35,10 @@ export type NftCollectionContent = {
 export function buildNftCollectionContentCell(data: NftCollectionContent): Cell {
     let contentCell = beginCell();
 
-    let collectionContent = beginCell()
-        .storeStringTail(data.collectionContent);
+    let collectionContent = encodeOffChainContent(data.collectionContent);
 
     let commonContent = beginCell();
-    commonContent.storeStringTail(data.commonContent);  // https://github.com/ton-blockchain/token-contract/blob/main/nft/web-example/my_collection.json
+    commonContent.storeStringTail(data.commonContent);
 
     contentCell.storeRef(collectionContent);
     contentCell.storeRef(commonContent);
