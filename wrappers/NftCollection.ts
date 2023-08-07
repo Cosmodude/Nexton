@@ -1,4 +1,14 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractGetMethodResult, ContractProvider, Sender, SendMode } from 'ton-core';
+import { 
+    Address, 
+    beginCell, 
+    Cell, 
+    Contract, 
+    contractAddress, 
+    ContractGetMethodResult, 
+    ContractProvider, 
+    Sender, 
+    SendMode 
+} from 'ton-core';
 
 export type RoyaltyParams = {
     royaltyFactor: number;
@@ -104,9 +114,9 @@ export class NftCollection implements Contract {
             })
     }
 
-    async getData(provider: ContractProvider, via: Sender): Promise<ContractGetMethodResult>{
+    async getCollectionData(provider: ContractProvider, via: Sender): Promise<Cell>{
         const collection_data = await provider.get("get_collection_data", []);
-        console.log(collection_data);
-        return collection_data;
+        const stack = collection_data.stack;
+        return stack.readCell();
     }
 }
