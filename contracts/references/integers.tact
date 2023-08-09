@@ -14,14 +14,14 @@ contract Intgers with Deployable {
     }
 
     receive(){
-        let it1: Int as uint32 = 32;
-        let it2: Int as uint24 = 10;
+        let it1: Int = 32;
+        let it2: Int = 10;
 
-        let i = it1/it2; // 32/10 =3 
+        let i: Int = it1/it2; // 32/10 =3 
         i = it1 % it2; // = 2
         i = it1 >> 3; // bitwise right shift (see c++)
         i = min(it1, it2);
-        i = abs( -1 * int2); // = 10
-        i = it1>=30; // true
+        i = abs( -1 * it2); // = 10
+        let b: Bool = it1>=30; // true
     }
 }
