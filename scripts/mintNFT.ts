@@ -10,7 +10,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     const nftCollection = provider.open(NftCollection.createFromAddress(address));
 
-    await nftCollection.sendMintNft(provider.sender(),{
+    const mint = await nftCollection.sendMintNft(provider.sender(),{
         value: toNano("0.02"),
         amount: toNano("0.055"),
         itemIndex: 0,
