@@ -30,13 +30,13 @@ export type NftCollectionContent = {
 };
 
 
-export function buildNftCollectionContentCell(uri: string): Cell {
+export function buildNftCollectionContentCell(data: NftCollectionContent): Cell {
     let contentCell = beginCell();
 
-    let collectionContent = encodeOffChainContent(uri);
+    let collectionContent = encodeOffChainContent(data.collectionContent);
 
     let commonContent = beginCell();
-    commonContent.storeStringTail(uri);
+    commonContent.storeStringTail(data.commonContent);
 
     contentCell.storeRef(collectionContent);
     contentCell.storeRef(commonContent);
@@ -129,7 +129,7 @@ export class NftCollection implements Contract {
             })
     }
 
-    async getCollectionData(provider: ContractProvider, via: Sender): Promise<[bigint,Cell, Address]>{
+    async getCollectionData(provider: ContractProvider): Promise<[bigint,Cell, Address]>{
         const collection_data = await provider.get("get_collection_data", []);
         const a = collection_data.stack;
         const stack = await collection_data.stack;
@@ -139,7 +139,7 @@ export class NftCollection implements Contract {
         return [nextItemId, collectionContent ,ownerAddress];
     }
 
-    async getNextItemIndex(provider: ContractProvider, via: Sender): Promise<BigInt>{
+    async getNextItemIndex(provider: ContractProvider): Promise<BigInt>{
         const collection_data = await provider.get("collection_data", []);
         return collection_data.stack.readBigNumber(); 
     }
