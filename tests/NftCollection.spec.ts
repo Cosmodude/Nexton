@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano, beginCell } from 'ton-core';
+import { Cell, toNano, beginCell, Address } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -46,6 +46,10 @@ describe('NftCollection', () => {
             deploy: true,
             success: true,
         });
+
+        const collectionData: [bigint,Cell, Address] = await nftCollection.getCollectionData(deployer.getSender());
+        console.log(String(collectionData));
+        //expect(collectionData[2]).toEqual(deployer.getSender().address);
 
     });
 

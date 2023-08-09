@@ -273,6 +273,6 @@ describe('NexTon', () => {
         )
         console.log(await claimMessage.events);
 
-        expect(await nexton.getUserNftClaimed(nftIndex)).toBeTruthy;
+        expect(await nexton.getUserNftItemClaimed(nftIndex)).toBeTruthy;
     });
 });
