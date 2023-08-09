@@ -47,7 +47,7 @@ describe('NftCollection', () => {
             success: true,
         });
 
-        const collectionData: [bigint,Cell, Address] = await nftCollection.getCollectionData(deployer.getSender());
+        const collectionData: [bigint,Cell, Address] = await nftCollection.getCollectionData();
         console.log(String(collectionData));
         //expect(collectionData[2]).toEqual(deployer.getSender().address);
 
