@@ -4,12 +4,9 @@ import {
     Cell, 
     Contract, 
     contractAddress, 
-    ContractGetMethodResult, 
     ContractProvider, 
     Sender, 
     SendMode, 
-    Tuple, 
-    TupleItem
 } from 'ton-core';
 import { encodeOffChainContent } from './helpFulFunctions/nftCollectionContent';
 
@@ -91,7 +88,7 @@ export class NftCollection implements Contract {
             queryId: number;
             itemIndex: number;
             itemOwnerAddress: Address;
-            itemContent: String;
+            itemContent: string;
             amount: bigint;
         }
         ) {
@@ -134,6 +131,7 @@ export class NftCollection implements Contract {
 
     async getCollectionData(provider: ContractProvider, via: Sender): Promise<[bigint,Cell, Address]>{
         const collection_data = await provider.get("get_collection_data", []);
+        const a = collection_data.stack;
         const stack = await collection_data.stack;
         let nextItemId: bigint = stack.readBigNumber();
         let collectionContent = await stack.readCell();
@@ -142,7 +140,7 @@ export class NftCollection implements Contract {
     }
 
     async getNextItemIndex(provider: ContractProvider, via: Sender): Promise<BigInt>{
-        const collection_data = await provider.get("get_collection_data", []);
+        const collection_data = await provider.get("collection_data", []);
         return collection_data.stack.readBigNumber(); 
     }
 }

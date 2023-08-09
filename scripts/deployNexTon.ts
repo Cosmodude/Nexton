@@ -9,7 +9,7 @@ import { randomAddress } from '@ton-community/test-utils';
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
 export async function run(provider: NetworkProvider) {
-    const randomSeed= Math.floor(Math.random() * 1000);
+    const randomSeed= Math.floor(Math.random() * 10000);
     const ui = provider.ui();
 
     // Deploying Collection !!!
