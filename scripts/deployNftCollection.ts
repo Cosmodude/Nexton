@@ -6,12 +6,7 @@ export async function run(provider: NetworkProvider) {
     const nftCollection = provider.open(NftCollection.createFromConfig({
         ownerAddress: provider.sender().address as Address,
         nextItemIndex: 0,
-        collectionContent: buildNftCollectionContentCell(
-            {
-                collectionContent: "https://github.com/Cosmodude/Invincible_LS/blob/main/sampleMetadata.json",
-                commonContent: ""
-            }
-        ),
+        collectionContent: beginCell().storeStringTail("hi").endCell(),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
             royaltyFactor: 15,
