@@ -12,13 +12,16 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     const nftCollection = provider.open(NftCollection.createFromAddress(address));
 
-    await nftCollection.sendChangeOwner(provider.sender(),{
+    const tx = await nftCollection.sendChangeOwner(provider.sender(),{
         value: toNano("0.02"),
         newOwnerAddress: nextonAddress,
         queryId: BigInt(Date.now())
     })
     ui.write('Collection owner changed deployed');
 
-   // const collectionData = await nftCollection.getData(provider.sender());
+    //ui.write();
+    
+
+    //const collectionData = await nftCollection.getCollectionData(provider.sender());
     //ui.write('Collection Data');
 }

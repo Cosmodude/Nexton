@@ -9,7 +9,7 @@ import { randomAddress } from '@ton-community/test-utils';
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
 export async function run(provider: NetworkProvider) {
-    const randomSeed= Math.floor(Math.random() * 10000);
+    const randomSeed= Math.floor(Math.random() * 1000);
     const ui = provider.ui();
 
     // Deploying Collection !!!
@@ -38,8 +38,7 @@ export async function run(provider: NetworkProvider) {
     await nexton.send(
         provider.sender(),
         {
-            value: toNano('0.1'),
-            bounce: false
+            value: toNano('0.1')
         },
         {
             $$type: 'Deploy',
@@ -53,8 +52,7 @@ export async function run(provider: NetworkProvider) {
     await nexton.send(
         provider.sender(),
         {
-            value: toNano('0.5'),
-            bounce: false
+            value: toNano('0.5')
         },
         null
     );
