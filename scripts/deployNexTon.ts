@@ -15,7 +15,7 @@ export async function run(provider: NetworkProvider) {
     // Deploying Collection !!!
 
     const collection = provider.open(NftCollection.createFromConfig({
-        ownerAddress: provider.sender().address as Address,
+        ownerAddress: myAddress,
         nextItemIndex: 0,
         collectionContent: beginCell().storeUint(randomSeed,256).endCell(),
         nftItemCode: await compile("NftItem"),

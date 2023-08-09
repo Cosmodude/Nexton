@@ -2,11 +2,13 @@ import { Address, beginCell, toNano } from 'ton-core';
 import { NftCollection, buildNftCollectionContentCell } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
 
+let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
+
 export async function run(provider: NetworkProvider) {
     const nftCollection = provider.open(NftCollection.createFromConfig({
-        ownerAddress: provider.sender().address as Address,
+        ownerAddress: myAddress,
         nextItemIndex: 0,
-        collectionContent: beginCell().storeStringTail("hi").endCell(),
+        collectionContent: beginCell().storeStringRefTail("HI").endCell(),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
             royaltyFactor: 15,
@@ -15,9 +17,9 @@ export async function run(provider: NetworkProvider) {
         }
     }, await compile('NftCollection')));
 
+    console.log(provider.sender().address)
     await nftCollection.sendDeploy(provider.sender(), toNano('0.05'));
-
+    console.log(provider.sender().address)
     await provider.waitForDeploy(nftCollection.address);
 
-    // run methods on `nftCollection`
 }
