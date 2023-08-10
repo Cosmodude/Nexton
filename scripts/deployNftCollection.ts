@@ -6,7 +6,7 @@ let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-T
 
 export async function run(provider: NetworkProvider) {
     const nftCollection = provider.open(NftCollection.createFromConfig({
-        ownerAddress: myAddress,
+        ownerAddress: myAddress, 
         nextItemIndex: 0,
         collectionContent: buildNftCollectionContentCell({
             collectionContent: 'https://raw.githubusercontent.com/Cosmodude/Invincible_LS/main/sampleMetadata.json',
@@ -20,9 +20,8 @@ export async function run(provider: NetworkProvider) {
         }
     }, await compile('NftCollection')));
 
-    console.log(provider.sender().address)
+    console.log(provider.sender().address as Address)
     await nftCollection.sendDeploy(provider.sender(), toNano('0.05'));
-    console.log(provider.sender().address)
+    console.log()
     await provider.waitForDeploy(nftCollection.address);
-
 }
