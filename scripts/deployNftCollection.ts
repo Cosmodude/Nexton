@@ -10,11 +10,11 @@ export async function run(provider: NetworkProvider) {
         nextItemIndex: 0,
         collectionContent: buildNftCollectionContentCell({
             collectionContent: 'https://raw.githubusercontent.com/Cosmodude/Invincible_LS/main/sampleMetadata.json',
-            commonContent: ''
+            commonContent: 'https://raw.githubusercontent.com/Cosmodude/Invincible_LS/main/sampleMetadata.json'
         }),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
-            royaltyFactor: 15,
+            royaltyFactor: 10,
             royaltyBase: 100,
             royaltyAddress: provider.sender().address as Address
         }
