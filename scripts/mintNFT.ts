@@ -15,9 +15,9 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const mint = await nftCollection.sendMintNft(provider.sender(),{
         value: toNano("0.04"),
         amount: toNano("0.025"),
-        itemIndex: 0,
+        itemIndex: 1,
         itemOwnerAddress: myAddress,
-        itemContent: "123",
+        itemContent: "",
         queryId: Date.now()
     })
     ui.write('NFT Item deployed');
