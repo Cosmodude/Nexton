@@ -10,6 +10,6 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     const nftCollection = provider.open(NftCollection.createFromAddress(address));
 
-    const data = await nftCollection.getCollectionData(provider.sender())
+    const data = await nftCollection.getCollectionData()
     console.log(data);
 }

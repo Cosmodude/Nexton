@@ -8,7 +8,7 @@ import {
     Sender, 
     SendMode, 
 } from 'ton-core';
-import { encodeOffChainContent } from './helpFulFunctions/nftCollectionContent';
+import { encodeOffChainContent, decodeOffChainContent } from './helpFulFunctions/nftCollectionContent';
 
 export type RoyaltyParams = {
     royaltyFactor: number;
@@ -129,17 +129,21 @@ export class NftCollection implements Contract {
             })
     }
 
-    async getCollectionData(provider: ContractProvider): Promise<[bigint,Cell, Address]>{
+    // for offcahin content!
+    async getCollectionData(provider: ContractProvider): Promise<{nextItemId: number, ownerAddress: Address, collectionContent: string}>{
         const collection_data = await provider.get("get_collection_data", []);
-        const a = collection_data.stack;
         const stack = await collection_data.stack;
-        let nextItemId: bigint = stack.readBigNumber();
+        let nextItem: bigint = stack.readBigNumber();
         let collectionContent = await stack.readCell();
         let ownerAddress = await stack.readAddress();
-        return [nextItemId, collectionContent ,ownerAddress];
+        return {
+            nextItemId: Number(nextItem), 
+            collectionContent: decodeOffChainContent(collectionContent),
+            ownerAddress: ownerAddress
+        };
     }
 
-    async getNextItemIndex(provider: ContractProvider): Promise<BigInt>{
+    async getNextItemIndex(provider: ContractProvider): Promise<bigint>{
         const collection_data = await provider.get("collection_data", []);
         return collection_data.stack.readBigNumber(); 
     }
