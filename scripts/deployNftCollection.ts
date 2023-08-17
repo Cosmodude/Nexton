@@ -13,16 +13,21 @@ function toTextCell(s: string): Cell {
     return beginCell().storeUint(0, 8).storeStringTail(s).endCell()
 }
 
-const contentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
+const collectionContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
     .set(toSha256("name"), toTextCell("NexTon User"))
     .set(toSha256("description"), toTextCell("Nfts proving users' deposits"))
     .set(toSha256("image"), toTextCell(""));
 
-const content = beginCell().storeUint(0, 8).storeDict(contentDict).endCell()
+const commonContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
+    .set(toSha256("name"), toTextCell("NexTon User"))
+    .set(toSha256("description"), toTextCell("Nfts proving users' deposits"))
+    .set(toSha256("image"), toTextCell(""));
+
+console.log(collectionContentDict)
+
+const content = beginCell().storeUint(0, 8).storeDict(collectionContentDict).endCell()
 
 export async function run(provider: NetworkProvider) {
-    let collectionContent = Dictionary.empty(Dictionary.Keys.Uint(256), Dictionary.Values.Buffer(32));
-    console.log(collectionContent)
     const nftCollection = provider.open(NftCollection.createFromConfig({
         ownerAddress: myAddress, 
         nextItemIndex: 0,
