@@ -14,9 +14,9 @@ function toTextCell(s: string): Cell {
 }
 
 const collectionContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-    .set(toSha256("name"), toTextCell("NexTon User"))
+    .set(toSha256("name"), toTextCell("NexTon Users"))
     .set(toSha256("description"), toTextCell("Nfts proving users' deposits"))
-    .set(toSha256("image"), toTextCell(""));
+    .set(toSha256("image"), toTextCell("https://hipo.finance/hton.png"));
 
 const commonContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
     .set(toSha256("name"), toTextCell("NexTon User"))
@@ -25,7 +25,7 @@ const commonContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Diction
 
 console.log(collectionContentDict)
 
-const content = beginCell().storeUint(0, 8).storeDict(collectionContentDict).endCell()
+const content = beginCell().storeUint(0,8).storeDict(collectionContentDict).storeDict(commonContentDict).endCell()
 
 export async function run(provider: NetworkProvider) {
     const nftCollection = provider.open(NftCollection.createFromConfig({

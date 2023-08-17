@@ -88,16 +88,13 @@ export class NftCollection implements Contract {
             queryId: number;
             itemIndex: number;
             itemOwnerAddress: Address;
-            itemContent: string;
+            itemContent: Cell;
             amount: bigint;
         }
         ) {
-            const nftContent = beginCell();
-            nftContent.storeBuffer(Buffer.from(opts.itemContent));
-            
             const nftMessage = beginCell();
             nftMessage.storeAddress(opts.itemOwnerAddress)
-            nftMessage.storeRef(nftContent)
+            nftMessage.storeRef(opts.itemContent)
             await provider.internal(via, {
                 value: opts.value,
                 sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -143,8 +140,4 @@ export class NftCollection implements Contract {
         };
     }
 
-    async getNextItemIndex(provider: ContractProvider): Promise<bigint>{
-        const collection_data = await provider.get("collection_data", []);
-        return collection_data.stack.readBigNumber(); 
-    }
 }
