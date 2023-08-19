@@ -18,12 +18,12 @@ const collectionContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dic
     .set(toSha256("description"), toTextCell("Nfts proving users' deposits"))
     .set(toSha256("image"), toTextCell("https://hipo.finance/hton.png"));
 
-const commonContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-    .set(toSha256("name"), toTextCell("NexTon User"))
-    .set(toSha256("description"), toTextCell("Nft proving user's deposit"))
-    .set(toSha256("image"), toTextCell("https://s.getgems.io/nft/b/c/62fba50217c3fe3cbaad9e7f/image.png"));
+// const commonContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
+//     .set(toSha256("name"), toTextCell("NexTon User"))
+//     .set(toSha256("description"), toTextCell("Nft proving user's deposit"))
+//     .set(toSha256("image"), toTextCell("https://s.getgems.io/nft/b/c/62fba50217c3fe3cbaad9e7f/image.png"));
 
-const content = beginCell().storeUint(0,8).storeRef(beginCell().storeDict(collectionContentDict)).endCell()
+const content = beginCell().storeUint(0,8).storeDict(collectionContentDict).endCell()
 
 console.log(content)
 
@@ -34,8 +34,8 @@ export async function run(provider: NetworkProvider) {
         collectionContent: content,
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
-            royaltyFactor: 5,
-            royaltyBase: 100,
+            royaltyFactor: 9,
+            royaltyBase: 900,
             royaltyAddress: provider.sender().address as Address
         }
     }, await compile('NftCollection')));
