@@ -119,10 +119,9 @@ describe('NftCollection', () => {
         const cs = itemData.itemContent.beginParse();
         const tag = cs.loadUint(8);
         const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        const nameCell = dict.get(toSha256("name"));
-        const parsedNCell = nameCell?.beginParse();
-        console.log("got 8 bits", parsedNCell?.loadUint(8));
-        const name = await parsedNCell?.loadStringTail();
-        console.log(name);
+        const nameCS = dict.get(toSha256("name"))?.beginParse()!!;
+        await nameCS.loadUint(8);
+        const name = await nameCS?.loadStringTail();
+        expect(name).toEqual("Item name");
     });
 });
