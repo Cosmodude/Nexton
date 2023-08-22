@@ -2,6 +2,11 @@ import { beginCell, Cell } from 'ton-core'
 
 const OFF_CHAIN_CONTENT_PREFIX = 0x01
 
+export type NftCollectionContent = {
+  collectionContent: string;
+  commonContent: string;
+};
+
 export function flattenSnakeCell(cell: Cell) {
   let c: Cell | null = cell
 
@@ -76,4 +81,18 @@ export function decodeOffChainContent(content: Cell) {
     throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
   }
   return data.slice(1).toString()
+}
+
+export function buildNftCollectionContentCell(data: NftCollectionContent): Cell {
+  let contentCell = beginCell();
+
+  let collectionContent = encodeOffChainContent(data.collectionContent);
+
+  let commonContent = beginCell();
+  commonContent.storeStringTail(data.commonContent);
+
+  contentCell.storeRef(collectionContent);
+  contentCell.storeRef(commonContent);
+
+  return contentCell.endCell();
 }
