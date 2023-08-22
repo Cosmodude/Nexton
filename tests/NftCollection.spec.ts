@@ -1,6 +1,6 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Cell, toNano, beginCell, Address, Dictionary, TupleItem, TupleItemInt, } from 'ton-core';
-import { NftCollection, buildNftCollectionContentCell } from '../wrappers/NftCollection';
+import { Cell, toNano, beginCell, Dictionary, TupleItemInt, } from 'ton-core';
+import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
 import { sha256_sync } from 'ton-crypto';

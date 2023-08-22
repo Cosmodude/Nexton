@@ -7,10 +7,9 @@ import {
     ContractProvider, 
     Sender, 
     SendMode,
-    TupleItem,
     TupleItemInt, 
 } from 'ton-core';
-import { encodeOffChainContent, decodeOffChainContent } from './helpFulFunctions/nftCollectionContent';
+
 
 export type RoyaltyParams = {
     royaltyFactor: number;
@@ -25,26 +24,6 @@ export type NftCollectionConfig = {
     nftItemCode: Cell;
     royaltyParams: RoyaltyParams;
 };
-
-export type NftCollectionContent = {
-    collectionContent: string;
-    commonContent: string;
-};
-
-
-export function buildNftCollectionContentCell(data: NftCollectionContent): Cell {
-    let contentCell = beginCell();
-
-    let collectionContent = encodeOffChainContent(data.collectionContent);
-
-    let commonContent = beginCell();
-    commonContent.storeStringTail(data.commonContent);
-
-    contentCell.storeRef(collectionContent);
-    contentCell.storeRef(commonContent);
-
-    return contentCell.endCell();
-}
 
 export function nftCollectionConfigToCell(config: NftCollectionConfig): Cell {
     return beginCell()
@@ -81,8 +60,6 @@ export class NftCollection implements Contract {
             body: beginCell().endCell(),
         });
     }
-    
-    
 
     async sendMintNft(provider: ContractProvider, via: Sender,
         opts: {
@@ -129,7 +106,7 @@ export class NftCollection implements Contract {
     }
 
     // for offcahin content!
-    async getCollectionData(provider: ContractProvider): Promise<{nextItemId: number, ownerAddress: Address, collectionContent: string}>{
+    async getCollectionData(provider: ContractProvider): Promise<{nextItemId: number, ownerAddress: Address, collectionContent: Cell}>{
         const collection_data = await provider.get("get_collection_data", []);
         const stack = await collection_data.stack;
         let nextItem: bigint = stack.readBigNumber();
@@ -137,7 +114,7 @@ export class NftCollection implements Contract {
         let ownerAddress = await stack.readAddress();
         return {
             nextItemId: Number(nextItem), 
-            collectionContent: decodeOffChainContent(collectionContent),
+            collectionContent: collectionContent,
             ownerAddress: ownerAddress
         };
     }
