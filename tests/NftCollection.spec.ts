@@ -73,6 +73,8 @@ describe('NftCollection', () => {
 
     it('should set and read metadata properly', async () => {
 
+        deployer = await blockchain.treasury('deployer');
+
         let collectionData = await nftCollection.getCollectionData();
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
 
@@ -89,7 +91,7 @@ describe('NftCollection', () => {
             .set(toSha256("description"), toTextCell("Item description"))
             .set(toSha256("image"), toTextCell("https://s.getgems.io/nft/b/c/62fba50217c3fe3cbaad9e7f/image.png"));
         
-        const itemContent = beginCell().storeUint(0, 8).storeDict(itemContentDict).endCell()
+        const itemContent = beginCell().storeUint(0, 8).storeDict(itemContentDict).endCell();
 
         const mint = await nftCollection.sendMintNft(deployer.getSender(), {
             value: toNano("0.04"),
@@ -113,9 +115,14 @@ describe('NftCollection', () => {
         const itemData = await nftItem.getNFTData();
         expect(itemData.collectionAddress).toEqualAddress(nftCollection.address);
         
-        console.log(itemContent);
-        console.log(itemData);
-
-    })
+        //console.log(itemData.itemContent);
+        const cs = itemData.itemContent.beginParse();
+        const tag = cs.loadUint(8);
+        const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        const nameCell = dict.get(toSha256("name"));
+        const parsedNCell = nameCell?.beginParse();
+        console.log("got 8 bits", parsedNCell?.loadUint(8));
+        const name = await parsedNCell?.loadStringTail();
+        console.log(name);
+    });
 });
-
