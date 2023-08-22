@@ -6,7 +6,9 @@ import {
     contractAddress, 
     ContractProvider, 
     Sender, 
-    SendMode, 
+    SendMode,
+    TupleItem,
+    TupleItemInt, 
 } from 'ton-core';
 import { encodeOffChainContent, decodeOffChainContent } from './helpFulFunctions/nftCollectionContent';
 
@@ -138,6 +140,12 @@ export class NftCollection implements Contract {
             collectionContent: decodeOffChainContent(collectionContent),
             ownerAddress: ownerAddress
         };
+    }
+
+    async getNFTAddressByIndex(provider: ContractProvider, index: TupleItemInt){
+        const res = await provider.get("get_nft_address_by_index", [index]);
+        const itemAddress = await res.stack.readAddress()
+        return itemAddress;
     }
 
 }

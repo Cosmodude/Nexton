@@ -19,8 +19,8 @@ export async function run(provider: NetworkProvider, args: string[]) {
     }
     
     const itemContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-        .set(toSha256("name"), toTextCell("User 0"))
-        .set(toSha256("description"), toTextCell("first depositor"))
+        .set(toSha256("name"), toTextCell("Item name"))
+        .set(toSha256("description"), toTextCell("Item description"))
         .set(toSha256("image"), toTextCell("https://s.getgems.io/nft/b/c/62fba50217c3fe3cbaad9e7f/image.png"));
     
     const itemContent = beginCell().storeUint(0, 8).storeDict(itemContentDict).endCell()
