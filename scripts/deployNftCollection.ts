@@ -14,8 +14,8 @@ function toTextCell(s: string): Cell {
 }
 
 const collectionContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-    .set(toSha256("name"), toTextCell("NexTon Users"))
-    .set(toSha256("description"), toTextCell("Nfts proving users' deposits"))
+    .set(toSha256("name"), toTextCell("Collection name"))
+    .set(toSha256("description"), toTextCell("Collection description"))
     .set(toSha256("image"), toTextCell("https://hipo.finance/hton.png"));
 
 // const commonContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
