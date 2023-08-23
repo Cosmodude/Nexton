@@ -5,21 +5,8 @@ import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
 import { sha256_sync } from 'ton-crypto';
 import { NftItem } from '../wrappers/NftItem';
-
-function toSha256(s: string): bigint {
-    return BigInt('0x' + sha256_sync(s).toString('hex'))
-}
-
-function toTextCell(s: string): Cell {
-    return beginCell().storeUint(0, 8).storeStringTail(s).endCell()
-}
-
-const collectionContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-    .set(toSha256("name"), toTextCell("Collection name"))
-    .set(toSha256("description"), toTextCell("Collection description"))
-    .set(toSha256("image"), toTextCell("https://hipo.finance/hton.png"));
-
-const content = beginCell().storeUint(0,8).storeDict(collectionContentDict).endCell()
+import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
+   
 
 describe('NftCollection', () => {
     let code: Cell;
@@ -45,7 +32,11 @@ describe('NftCollection', () => {
         nftCollection = blockchain.openContract(NftCollection.createFromConfig({
             ownerAddress: deployer.address,
             nextItemIndex: 0,
-            collectionContent: content,
+            collectionContent: buildCollectionContentCell({
+                name: "Collection name",
+                description: "Collection description",
+                image: "https://hipo.finance/hton.png"
+            }),
             nftItemCode: await compile("NftItem"),
             royaltyParams: {
                 royaltyFactor: 15,
@@ -78,27 +69,16 @@ describe('NftCollection', () => {
         let collectionData = await nftCollection.getCollectionData();
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
 
-        function toSha256(s: string): bigint {
-            return BigInt('0x' + sha256_sync(s).toString('hex'))
-        }
-        
-        function toTextCell(s: string): Cell {
-            return beginCell().storeUint(0, 8).storeStringTail(s).endCell()
-        }
-        
-        const itemContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-            .set(toSha256("name"), toTextCell("Item name"))
-            .set(toSha256("description"), toTextCell("Item description"))
-            .set(toSha256("image"), toTextCell("https://s.getgems.io/nft/b/c/62fba50217c3fe3cbaad9e7f/image.png"));
-        
-        const itemContent = beginCell().storeUint(0, 8).storeDict(itemContentDict).endCell();
-
         const mint = await nftCollection.sendMintNft(deployer.getSender(), {
             value: toNano("0.04"),
             amount: toNano("0.025"),
             itemIndex: 0,
             itemOwnerAddress: deployer.address,
-            itemContent: itemContent,
+            itemContent: setItemContentCell({
+                name: "Item name",
+                description: "Item description",
+                image: "https://hipo.finance/hton.png"
+            }),
             queryId: Date.now()
         })
         console.log("EVENT: ", mint.events[1]);
