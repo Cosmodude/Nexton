@@ -1,7 +1,7 @@
 import { Address, toNano } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
-import { buildNftCollectionContentCell } from '../wrappers/collectionContent/offChain';
+import { buildCollectionContentCell } from '../wrappers/collectionContent/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
@@ -10,9 +10,10 @@ export async function run(provider: NetworkProvider) {
     const nftCollection = provider.open(NftCollection.createFromConfig({
         ownerAddress: myAddress, 
         nextItemIndex: 0,
-        collectionContent: buildNftCollectionContentCell({
-            collectionContent: "https://raw.githubusercontent.com/Cosmodude/Invincible_LS/main/collectionMetadata.json",
-            commonContent:" "
+        collectionContent: buildCollectionContentCell({
+            name: "Nexton collection name",
+            description:"Nexton collection description 23.08",
+            image: ""
         }),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
