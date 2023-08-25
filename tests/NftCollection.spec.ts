@@ -1,11 +1,12 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Cell, toNano, beginCell, Dictionary, TupleItemInt, } from 'ton-core';
+import { Cell, toNano, beginCell, Dictionary, TupleItemInt, Address, } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
 import { sha256_sync } from 'ton-crypto';
 import { NftItem } from '../wrappers/NftItem';
 import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
+import { randomAddress } from '@ton-community/test-utils';
    
 
 describe('NftCollection', () => {
@@ -19,6 +20,7 @@ describe('NftCollection', () => {
     let nftCollection: SandboxContract<NftCollection>;
     let nftItem: SandboxContract<NftItem>;
     let deployer: SandboxContract<TreasuryContract>;
+    const nextonAddress: Address = randomAddress();
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
@@ -74,6 +76,7 @@ describe('NftCollection', () => {
             amount: toNano("0.025"),
             itemIndex: 0,
             itemOwnerAddress: deployer.address,
+            nextonAddress: nextonAddress,
             itemContent: setItemContentCell({
                 name: "Item name",
                 description: "Item description",
@@ -98,10 +101,34 @@ describe('NftCollection', () => {
         //console.log(itemData.itemContent);
         const cs = itemData.itemContent.beginParse();
         const tag = cs.loadUint(8);
+        console.log(tag)
         const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
         const nameCS = dict.get(toSha256("name"))?.beginParse()!!;
+        console.log(nameCS)
         await nameCS.loadUint(8);
         const name = await nameCS?.loadStringTail();
         expect(name).toEqual("Item name");
     });
+
+    it('should transfer tokens freely', async() => {
+        deployer = await blockchain.treasury('deployer');
+
+        let collectionData = await nftCollection.getCollectionData();
+        expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
+
+        const mint = await nftCollection.sendMintNft(deployer.getSender(), {
+            value: toNano("0.04"),
+            amount: toNano("0.025"),
+            itemIndex: 0,
+            itemOwnerAddress: deployer.address,
+            nextonAddress: nextonAddress,
+            itemContent: setItemContentCell({
+                name: "Item name",
+                description: "Item description",
+                image: "https://hipo.finance/hton.png"
+            }),
+            queryId: Date.now()
+        })
+        console.log("EVENT: ", mint.events[1]);
+    })
 });
