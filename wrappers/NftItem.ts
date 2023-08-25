@@ -1,4 +1,12 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
+import { Address, 
+    beginCell, 
+    Cell, 
+    Contract, 
+    contractAddress, 
+    ContractProvider, 
+    Sender, 
+    SendMode
+ } from 'ton-core';
 
 export type NftItemConfig = {};
 
@@ -58,6 +66,7 @@ export class NftItem implements Contract {
             index: res.stack.readBigNumber(),
             collectionAddress: res.stack.readAddress(),
             itemOwner: res.stack.readAddress(),
+            nextonAddress: res.stack.readAddress(),
             itemContent: res.stack.readCell()
         }
         return data;

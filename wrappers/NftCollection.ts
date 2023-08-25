@@ -67,12 +67,14 @@ export class NftCollection implements Contract {
             queryId: number;
             itemIndex: number;
             itemOwnerAddress: Address;
+            nextonAddress: Address;
             itemContent: Cell;
             amount: bigint;
         }
         ) {
             const nftMessage = beginCell();
             nftMessage.storeAddress(opts.itemOwnerAddress)
+            nftMessage.storeAddress(opts.nextonAddress)
             nftMessage.storeRef(opts.itemContent)
             await provider.internal(via, {
                 value: opts.value,
