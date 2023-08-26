@@ -1,6 +1,6 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
 import { fromNano, toNano } from 'ton-core';
-import { Messages } from '../../wrappers/Messages';
+import { Messages } from './Messages';
 import '@ton-community/test-utils';
 
 describe('Messages', () => {
