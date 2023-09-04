@@ -8,10 +8,22 @@ import { Address,
     SendMode
  } from 'ton-core';
 
-export type NftItemConfig = {};
+export type NftItemConfig = {
+    index: number;
+    collectionAddress: Address;
+    ownerAddress: Address;
+    nextonAddress: Address;
+    itemContent: Cell;
+};
 
 export function nftItemConfigToCell(config: NftItemConfig): Cell {
-    return beginCell().endCell();
+    return beginCell()
+        .storeUint(config.index, 64)
+        .storeAddress(config.collectionAddress)
+        .storeAddress(config.ownerAddress)
+        .storeAddress(config.nextonAddress)
+        .storeRef(config.itemContent)
+    .endCell();
 }
 
 export class NftItem implements Contract {
@@ -59,7 +71,7 @@ export class NftItem implements Contract {
         });
     }
 
-    async getNFTData(provider: ContractProvider){
+    async getItemData(provider: ContractProvider){
         const res = await provider.get("get_nft_data",[]);
         res.stack.readBigNumberOpt();
         const data = {
