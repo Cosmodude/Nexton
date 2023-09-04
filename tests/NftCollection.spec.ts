@@ -64,15 +64,18 @@ describe('NftCollection', () => {
         // blockchain and nftCollection are ready to use
     });
 
-    it('should set and read metadata properly', async () => {
+    it('should set and read Item metadata properly', async () => {
 
         deployer = await blockchain.treasury('deployer');
+
+        // need to deploy collection 
+
 
         let collectionData = await nftCollection.getCollectionData();
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
 
         const mint = await nftCollection.sendMintNft(deployer.getSender(), {
-            value: toNano("0.04"),
+            value: toNano("0.03"),
             amount: toNano("0.025"),
             itemIndex: 0,
             itemOwnerAddress: deployer.address,
@@ -91,7 +94,7 @@ describe('NftCollection', () => {
             value: 0n
         }
        
-        const itemAddress = await nftCollection.getNFTAddressByIndex(index);
+        const itemAddress = await nftCollection.getItemAddressByIndex(index);
 
         nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
 
@@ -110,7 +113,7 @@ describe('NftCollection', () => {
         expect(name).toEqual("Item name");
     });
 
-    it('should transfer tokens freely', async() => {
+    it('should claim tokens to nexton freely', async() => {
         deployer = await blockchain.treasury('deployer');
 
         let collectionData = await nftCollection.getCollectionData();

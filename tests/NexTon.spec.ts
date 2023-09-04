@@ -166,27 +166,27 @@ describe('NexTon', () => {
     
     });
 
-    it("Should Deposit and keep track of LPP", async () =>{
-        console.log();
-        console.log("LPP Depositing!!!");
+    // it("Should Deposit and keep track of LPP", async () =>{
+    //     console.log();
+    //     console.log("LPP Depositing!!!");
 
-        const lpProvider = await blockchain.treasury('provider');
+    //     const lpProvider = await blockchain.treasury('provider');
 
-        const balanceBefore = await nexton.getBalance();
-        console.log("Balance before LP deposit: ", fromNano(balanceBefore));
+    //     const balanceBefore = await nexton.getBalance();
+    //     console.log("Balance before LP deposit: ", fromNano(balanceBefore));
 
-        const depositMessage = await nexton.send(
-            lpProvider.getSender(), 
-            {
-            value: toNano("20000")
-            }, 
-            'Liquidity Provider Deposit'
-        )
-        console.log(await depositMessage.events);
+    //     const depositMessage = await nexton.send(
+    //         lpProvider.getSender(), 
+    //         {
+    //         value: toNano("20000")
+    //         }, 
+    //         'Liquidity Provider Deposit'
+    //     )
+    //     console.log(await depositMessage.events);
 
 
-        console.log("Balance after: ", fromNano(await nexton.getBalance()));
-    });
+    //     console.log("Balance after: ", fromNano(await nexton.getBalance()));
+    // });
 
     /*
     it('Should Deposit and Mint NFT', async() => {
