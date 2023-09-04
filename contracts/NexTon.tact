@@ -41,7 +41,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     const MinTonForStorage: Int = ton("0.1");
     owner: Address;
     stopped: Bool = false;
-    collection_set: Bool = false;
+    collectionSet: Bool = false;
 
     const MIN: Int = 60;
     sPContractAddress: Address;      // Staking Contract Address
@@ -140,6 +140,12 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
 
     }
 
+
+    receive(msg: SetCollection){
+        require(!self.collectionSet, "Collection was already set");
+        self.collectionAddress = msg.collectionAddress;
+        self.collectionSet = true;
+    }
     // Command messages
 
     receive(msg: ChangeAddr){

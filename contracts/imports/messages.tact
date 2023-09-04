@@ -29,3 +29,7 @@ message(0x1) mintJettons{
     amount: Int as coins;
     receiverAddress: Address;
 }
+
+message SetCollection{
+    collectionAddress: Address;
+}
