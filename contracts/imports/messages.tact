@@ -23,13 +23,3 @@ struct NFTContent{
     lockPeriod: Int as uint256 = (10 * 60 * 1);
     lockEnd: Int as uint256;
 }
-
-message(0x1) mintJettons{
-    queryId: Int as uint64;
-    amount: Int as coins;
-    receiverAddress: Address;
-}
-
-message SetCollection{
-    collectionAddress: Address;
-}
