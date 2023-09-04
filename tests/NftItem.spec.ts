@@ -3,6 +3,8 @@ import { Cell, toNano } from 'ton-core';
 import { NftItem } from '../wrappers/NftItem';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
+import { randomAddress } from '@ton-community/test-utils';
+import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
 
 describe('NftItem', () => {
     let code: Cell;
@@ -17,7 +19,17 @@ describe('NftItem', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        nftItem = blockchain.openContract(NftItem.createFromConfig({}, code));
+        nftItem = blockchain.openContract(NftItem.createFromConfig({
+            index: 0, 
+            collectionAddress: randomAddress(),
+            ownerAddress: randomAddress(),
+            nextonAddress: randomAddress(),
+            itemContent: setItemContentCell({
+                name: "Item name",
+                description: "Item description",
+                image: "https://hipo.finance/hton.png"
+            }),
+        }, code));
 
         const deployer = await blockchain.treasury('deployer');
 
