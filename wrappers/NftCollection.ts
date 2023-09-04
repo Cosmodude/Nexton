@@ -65,11 +65,12 @@ export class NftCollection implements Contract {
         opts: {
             value: bigint;
             queryId: number;
+            amount: bigint;
             itemIndex: number;
             itemOwnerAddress: Address;
             nextonAddress: Address;
             itemContent: Cell;
-            amount: bigint;
+           
         }
         ) {
             const nftMessage = beginCell();
@@ -121,7 +122,7 @@ export class NftCollection implements Contract {
         };
     }
 
-    async getNFTAddressByIndex(provider: ContractProvider, index: TupleItemInt){
+    async getItemAddressByIndex(provider: ContractProvider, index: TupleItemInt){
         const res = await provider.get("get_nft_address_by_index", [index]);
         const itemAddress = await res.stack.readAddress()
         return itemAddress;

@@ -2,11 +2,14 @@ import { Address, toNano, Dictionary, beginCell, Cell } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NetworkProvider, sleep } from '@ton-community/blueprint';
 import { sha256_sync } from 'ton-crypto';
+import { randomAddress } from '@ton-community/test-utils';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
+
+    const randomSeed= Math.floor(Math.random() * 10000);
 
     const address = Address.parse(args.length > 0 ? args[0] : await ui.input('Collection address'));
     
@@ -29,11 +32,12 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     const mint = await nftCollection.sendMintNft(provider.sender(),{
         value: toNano("0.04"),
+        queryId: randomSeed,
         amount: toNano("0.025"),
         itemIndex: 0,
         itemOwnerAddress: myAddress,
         itemContent: itemContent,
-        queryId: Date.now()
+        nextonAddress: randomAddress()
     })
     ui.write('NFT Item deployed');
 }
