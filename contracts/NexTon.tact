@@ -41,13 +41,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     const MinTonForStorage: Int = ton("0.1");
     owner: Address;
     stopped: Bool = false;
+    collection_set: Bool = false;
 
-    const MIN: Int = 60 * 60;
+    const MIN: Int = 60;
     sPContractAddress: Address;      // Staking Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
-    lpProviders: map<Address, LPProvider>;
+    //lpProviders: map<Address, LPProvider>; // delete?
 
-    LPPPrinciple: Int as coins = 0;
+    //LPPPrinciple: Int as coins = 0;
     usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
@@ -60,7 +61,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         self.sPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
-        self.lpProviders = emptyMap();
+       // self.lpProviders = emptyMap();
     }
 
     // Modifiers 
@@ -82,7 +83,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
         
-        let nftContent: Cell = NFTContent{
+        let nftMetadata: Cell = NFTContent{
             principal: ctx.value - PROTOCOL_FEE,
             leverageRatio: msg.leverage,
             lockPeriod: msg.lockPeriod,
@@ -90,12 +91,13 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
             }.toCell();
         let nftItemMessage: Cell = beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
-            .storeRef(nftContent)
+            .storeAddress(myAddress())  // setting nexton_aadress for nft_item
+            .storeRef(nftMetadata)
             .endCell();
         let body: MintNFT =  MintNFT{
             queryId: msg.queryId,
             itemIndex: self.nftCounter, // nftItemIndex
-            amount: ton("0.055"),
+            amount: ton("0.035"),
             NFTMessage: nftItemMessage
         };
 
@@ -110,18 +112,18 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
         //self.stopped = true;
     }
 
-    receive("Liquidity Provider Deposit"){
-        self.requireNotStopped();
-        let ctx: Context = context();
-        require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount, min LP deposit is 10000 Ton");
+    // receive("Liquidity Provider Deposit"){
+    //     self.requireNotStopped();
+    //     let ctx: Context = context();
+    //     require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount, min LP deposit is 10000 Ton");
         
-        // let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
-        // self.lpProviders.set(ctx.sender, LPProvider{
-        //     principal: currentPosition.principal + ctx.value,
-        //     rewards: currentPosition.rewards,
-        //     lastStakePrincipal:  currentPosition.lastStakePrincipal
-        // });
-    }
+    //     // let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
+    //     // self.lpProviders.set(ctx.sender, LPProvider{
+    //     //     principal: currentPosition.principal + ctx.value,
+    //     //     rewards: currentPosition.rewards,
+    //     //     lastStakePrincipal:  currentPosition.lastStakePrincipal
+    //     // });
+    // }
 
     receive(msg: UserClaim){
         self.requireNotStopped();
@@ -158,7 +160,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable {
     fun mintNFT(body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
-            value: ton("0.05"),
+            value: ton("0.04"),
             mode: SendPayGasSeparately + SendIgnoreErrors,
             body: body.toCell()
         });
