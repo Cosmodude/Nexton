@@ -7,7 +7,6 @@ import { sha256_sync } from 'ton-crypto';
 import { NftItem } from '../wrappers/NftItem';
 import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
 import { randomAddress } from '@ton-community/test-utils';
-   
 
 describe('NftCollection', () => {
     let code: Cell;
@@ -68,8 +67,6 @@ describe('NftCollection', () => {
 
         deployer = await blockchain.treasury('deployer');
         nexton = await blockchain.treasury('nexton');
-        // need to deploy collection 
-
 
         let collectionData = await nftCollection.getCollectionData();
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
@@ -89,6 +86,8 @@ describe('NftCollection', () => {
         })
         console.log("EVENT: ", mint.events);
 
+        
+
         const index: TupleItemInt = {
             type: "int",
             value: 0n
@@ -97,8 +96,15 @@ describe('NftCollection', () => {
         const itemAddress = await nftCollection.getItemAddressByIndex(index);
         console.log("Address", itemAddress);
 
+        expect(mint.transactions).toHaveTransaction({
+            from: nftCollection.address,
+            to: itemAddress,
+            deploy: true,
+            success: true,
+        });
+
         nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
-        expect(nftItem.address).toEqualAddress(Address.parse("EQDP1SKIYa9sv0dkgwav4uBTaE2axYrTTk8xi8iGNs4F3KQu"));
+        expect(nftItem.address).toEqualAddress(itemAddress);
         const itemData = await nftItem.getItemData();
         expect(itemData.collectionAddress).toEqualAddress(nftCollection.address);
         
@@ -114,18 +120,19 @@ describe('NftCollection', () => {
         expect(name).toEqual("Item name");
     });
 
-    it('should claim tokens to nexton freely', async() => {
+    it('should send tokens to nexton freely', async() => {
         deployer = await blockchain.treasury('deployer');
         nexton = await blockchain.treasury('nexton');
+        let initialOwner = await blockchain.treasury('owner');
 
         let collectionData = await nftCollection.getCollectionData();
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
 
         const mint = await nftCollection.sendMintNft(deployer.getSender(), {
-            value: toNano("0.04"),
-            amount: toNano("0.025"),
+            value: toNano("0.6"),
+            amount: toNano("0.5"),
             itemIndex: 0,
-            itemOwnerAddress: deployer.address,
+            itemOwnerAddress: initialOwner.address,
             nextonAddress: nexton.address,
             itemContent: setItemContentCell({
                 name: "Item name",
@@ -134,6 +141,34 @@ describe('NftCollection', () => {
             }),
             queryId: Date.now()
         })
-        //console.log("EVENT: ", mint.events[1]);
+        console.log("EVENT: ", mint.events);
+
+        const index: TupleItemInt = {
+            type: "int",
+            value: 0n
+        }
+       
+        const itemAddress = await nftCollection.getItemAddressByIndex(index);
+        console.log("Item Address", itemAddress);
+
+        nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
+        expect(nftItem.address).toEqualAddress(Address.parse("EQDP1SKIYa9sv0dkgwav4uBTaE2axYrTTk8xi8iGNs4F3KQu"));
+
+        const returnTx = await nftItem.sendTransfer(initialOwner.getSender(),{
+            queryId: Date.now(),
+            value:  toNano("0.1"),
+            newOwner: nexton.address,
+            responseAddress: initialOwner.address,
+            fwdAmount: toNano("0")
+            }
+        );
+
+        console.log("Return Tx: ", returnTx.events);
+        // expect(returnTx).toHaveTransaction({
+        //     from: nftItem.address,
+        //     to: initialOwner.address,
+        //     success: true,
+        // })
+        console.log(initialOwner.address)
     })
 });
