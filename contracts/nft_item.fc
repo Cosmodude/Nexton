@@ -65,13 +65,13 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
     slice new_owner_address = in_msg_body~load_msg_addr();
     if (equal_slices(new_owner_address, nexton_address)){
-      slice cs = content.begin_parse();
-      throw_unless(406, cs~load_uint(8) == 0);
-      cell content = cs~load_dict();
-      (slice name, int success) = content.udict_get?(256, string_hash("name"));
-      throw_unless(901, success == -1); ;; check that result found
-      name~load_uint(8);
-      throw_unless(1000, string_hash(name) == "Item name"H);
+        slice cs = content.begin_parse();
+        throw_unless(406, cs~load_uint(8) == 0);
+        cell content = cs~load_dict();
+        (slice name, int success) = content.udict_get?(256, string_hash("name"));
+        throw_unless(901, success == -1); ;; check that result found
+        name~load_uint(8);
+        throw_unless(1000, string_hash(name) == "Item name"H);
     }
 
     force_chain(new_owner_address);

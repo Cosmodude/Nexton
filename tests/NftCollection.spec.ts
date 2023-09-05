@@ -152,23 +152,27 @@ describe('NftCollection', () => {
         console.log("Item Address", itemAddress);
 
         nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
-        expect(nftItem.address).toEqualAddress(Address.parse("EQDP1SKIYa9sv0dkgwav4uBTaE2axYrTTk8xi8iGNs4F3KQu"));
+        expect(nftItem.address).toEqualAddress(itemAddress);
+
+
 
         const returnTx = await nftItem.sendTransfer(initialOwner.getSender(),{
             queryId: Date.now(),
-            value:  toNano("0.1"),
-            newOwner: nexton.address,
-            responseAddress: initialOwner.address,
+            value:  toNano("10"),
+            newOwner: deployer.address,
             fwdAmount: toNano("0")
             }
         );
 
         console.log("Return Tx: ", returnTx.events);
-        // expect(returnTx).toHaveTransaction({
-        //     from: nftItem.address,
-        //     to: initialOwner.address,
-        //     success: true,
-        // })
-        console.log(initialOwner.address)
+        expect(returnTx.transactions).toHaveTransaction({
+            from: nftItem.address,
+            to: deployer.address,
+            success: true,
+            inMessageBounced: false
+        })
+        console.log("init owner  ", initialOwner.address);
+        console.log("deployer owner  ", deployer.address);
+        console.log(" Item   ", itemAddress)
     })
 });
