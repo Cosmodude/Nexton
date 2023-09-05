@@ -160,7 +160,8 @@ describe('NftCollection', () => {
             queryId: Date.now(),
             value:  toNano("10"),
             newOwner: deployer.address,
-            fwdAmount: toNano("0")
+            responseAddress: initialOwner.address,
+            fwdAmount: toNano("5")
             }
         );
 
