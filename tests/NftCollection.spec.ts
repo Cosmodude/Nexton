@@ -20,7 +20,7 @@ describe('NftCollection', () => {
     let nftCollection: SandboxContract<NftCollection>;
     let nftItem: SandboxContract<NftItem>;
     let deployer: SandboxContract<TreasuryContract>;
-    let nextonAddress: Address;
+    let nexton: SandboxContract<TreasuryContract>;
     
     beforeEach(async () => {
         blockchain = await Blockchain.create();
@@ -67,7 +67,7 @@ describe('NftCollection', () => {
     it('should set and read Item metadata properly', async () => {
 
         deployer = await blockchain.treasury('deployer');
-        nextonAddress = randomAddress();
+        nexton = await blockchain.treasury('nexton');
         // need to deploy collection 
 
 
@@ -75,11 +75,11 @@ describe('NftCollection', () => {
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
 
         const mint = await nftCollection.sendMintNft(deployer.getSender(), {
-            value: toNano("0.03"),
-            amount: toNano("0.025"),
+            value: toNano("0.6"),
+            amount: toNano("0.5"),
             itemIndex: 0,
-            itemOwnerAddress: deployer.address,
-            nextonAddress: nextonAddress,
+            itemOwnerAddress: randomAddress(),
+            nextonAddress: nexton.address,
             itemContent: setItemContentCell({
                 name: "Item name",
                 description: "Item description",
@@ -97,12 +97,12 @@ describe('NftCollection', () => {
         const itemAddress = await nftCollection.getItemAddressByIndex(index);
         console.log("Address", itemAddress);
 
-        nftItem = blockchain.openContract(NftItem.createFromAddress(Address.parse("EQBGhqLAZseEqRXz4ByFPTGV7SVMlI4hrbs-Sps_Xzx01x8G")));
-        expect(nftItem.init).toBeTruthy();
+        nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
+        expect(nftItem.address).toEqualAddress(Address.parse("EQDP1SKIYa9sv0dkgwav4uBTaE2axYrTTk8xi8iGNs4F3KQu"));
         const itemData = await nftItem.getItemData();
-        // expect(itemData.collectionAddress).toEqualAddress(nftCollection.address);
+        expect(itemData.collectionAddress).toEqualAddress(nftCollection.address);
         
-        // //console.log(itemData.itemContent);
+        console.log(itemData.itemContent);
         // const cs = itemData.itemContent.beginParse();
         // const tag = cs.loadUint(8);
         // console.log(tag)
@@ -116,6 +116,7 @@ describe('NftCollection', () => {
 
     it('should claim tokens to nexton freely', async() => {
         deployer = await blockchain.treasury('deployer');
+        nexton = await blockchain.treasury('nexton');
 
         let collectionData = await nftCollection.getCollectionData();
         expect(collectionData.ownerAddress).toEqualAddress(deployer.address);
@@ -125,7 +126,7 @@ describe('NftCollection', () => {
             amount: toNano("0.025"),
             itemIndex: 0,
             itemOwnerAddress: deployer.address,
-            nextonAddress: nextonAddress,
+            nextonAddress: nexton.address,
             itemContent: setItemContentCell({
                 name: "Item name",
                 description: "Item description",

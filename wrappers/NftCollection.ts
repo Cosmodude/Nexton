@@ -65,7 +65,7 @@ export class NftCollection implements Contract {
         opts: {
             value: bigint;
             queryId: number;
-            amount: bigint;
+            amount: bigint;  // to send with nft
             itemIndex: number;
             itemOwnerAddress: Address;
             nextonAddress: Address;

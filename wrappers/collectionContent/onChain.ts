@@ -34,13 +34,13 @@ export function buildCollectionContentCell(content: collectionContent): Cell {
     }
 
 export function setItemContentCell(content: itemContent): Cell {
-    const collectionContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
+    const itemContentDict = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
         .set(toSha256("name"), toTextCell(content.name))
         .set(toSha256("description"), toTextCell(content.description))
         .set(toSha256("image"), toTextCell(content.image));
 
     return beginCell()
             .storeUint(0,8)  // onchain prefix
-            .storeDict(collectionContentDict)
+            .storeDict(itemContentDict)
             .endCell(); 
 }
