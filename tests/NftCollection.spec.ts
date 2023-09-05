@@ -102,16 +102,16 @@ describe('NftCollection', () => {
         const itemData = await nftItem.getItemData();
         expect(itemData.collectionAddress).toEqualAddress(nftCollection.address);
         
-        console.log(itemData.itemContent);
-        // const cs = itemData.itemContent.beginParse();
-        // const tag = cs.loadUint(8);
-        // console.log(tag)
-        // const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        // const nameCS = dict.get(toSha256("name"))?.beginParse()!!;
-        // console.log(nameCS);
-        // await nameCS.loadUint(8);
-        // const name = await nameCS?.loadStringTail();
-        // expect(name).toEqual("Item name");
+        //console.log(itemData.itemContent);
+        const cs = itemData.itemContent.beginParse();
+        const tag = cs.loadUint(8);
+        //console.log(tag)
+        const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        const nameCS = dict.get(toSha256("name"))?.beginParse()!!;
+        //console.log(nameCS);
+        await nameCS.loadUint(8);
+        const name = await nameCS?.loadStringTail();
+        expect(name).toEqual("Item name");
     });
 
     it('should claim tokens to nexton freely', async() => {
