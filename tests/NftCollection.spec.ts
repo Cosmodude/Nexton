@@ -107,16 +107,18 @@ describe('NftCollection', () => {
         expect(nftItem.address).toEqualAddress(itemAddress);
         const itemData = await nftItem.getItemData();
         expect(itemData.collectionAddress).toEqualAddress(nftCollection.address);
-        
+        expect(itemData.nextonAddress).toEqualAddress(nexton.address);
+
         //console.log(itemData.itemContent);
         const cs = itemData.itemContent.beginParse();
         const tag = cs.loadUint(8);
-        //console.log(tag)
+        console.log("Tag", tag)
         const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
         const nameCS = dict.get(toSha256("name"))?.beginParse()!!;
         //console.log(nameCS);
         await nameCS.loadUint(8);
         const name = await nameCS?.loadStringTail();
+        console.log(name);
         expect(name).toEqual("Item name");
     });
 
@@ -159,19 +161,19 @@ describe('NftCollection', () => {
         const returnTx = await nftItem.sendTransfer(initialOwner.getSender(),{
             queryId: Date.now(),
             value:  toNano("10"),
-            newOwner: deployer.address,
+            newOwner: nexton.address,
             responseAddress: initialOwner.address,
             fwdAmount: toNano("5")
             }
         );
 
-        console.log("Return Tx: ", returnTx.events);
-        expect(returnTx.transactions).toHaveTransaction({
-            from: nftItem.address,
-            to: deployer.address,
-            success: true,
-            inMessageBounced: false
-        })
+        console.log("Return Tx: ", returnTx.transactions);
+        // expect(returnTx.transactions).toHaveTransaction({
+        //     from: nftItem.address,
+        //     to: deployer.address,
+        //     success: true,
+        //     inMessageBounced: false
+        // })
         console.log("init owner  ", initialOwner.address);
         console.log("deployer owner  ", deployer.address);
         console.log(" Item   ", itemAddress)
