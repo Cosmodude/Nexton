@@ -23,6 +23,19 @@ async function fetchData() {
 
 fetchData();
 
+const blockchainApi = new BlockchainApi(new Configuration({
+  basePath: "https://testnet.tonapi.io", // override base path
+  headers: {
+      Authorization: 'Bearer ' + env.TONAPI_KEY,
+  },
+}));
+
+// Receive typed array of transactions
+const { transactions } = await blockchainApi.getAccountTransactions({
+  accountId: address,
+  limit: 10,
+})
+
 import fetch, { Headers } from 'node-fetch'; // Use 'node-fetch' for Node.js environment or 'fetch' for browsers
 
 async function fetchDataa() {
