@@ -66,22 +66,22 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     slice new_owner_address = in_msg_body~load_msg_addr();
     if (equal_slices(new_owner_address, nexton_address)){
         slice contS = content.begin_parse();
-        (int bits, int refs) = contS.slice_bits_refs();
-        throw_unless(898, bits == 9);
-        throw_unless(899, refs == 1);
         throw_unless(900, contS~load_uint(8) == 0);
-        cell refDictCell = contS~load_dict();
-        throw_unless(901, contS.slice_empty?() );
-        throw_if(902, refDictCell.dict_empty?() == -1);
-        (slice name, int success) = refDictCell.udict_get?(256, string_hash("name"));
+        cell dictCell = contS~load_dict();
+        ;;throw_unless(901, contS.slice_empty?() );
+        throw_if(902, dictCell.dict_empty?() == -1);
+        (slice name, int success) = dictCell.udict_get?(256, string_hash("name"));  ;; need to change to lockPeriod later
         throw_unless(903, success == -1); ;; check that result found
-        (int bits, int refs) = name.slice_bits_refs();
-        throw_unless(904, bits == 0);  ;; strange
-        throw_unless(905, refs == 1);
-        ;;int toTextCell = name~load_uint(8);
-        ;;throw_unless(904, toTextCell == 0); ;; check that result found
-        ;; prob;ems start here
+        ;;(int bits, int refs) = name.slice_bits_refs();
+        ;;throw_unless(904, bits == 0);  ;; strange
+        ;;throw_unless(905, refs == 1);
+        ;; problems were here
         slice nameS = name~load_ref().begin_parse();
+        throw_if(999, nameS.slice_empty?() == -1);
+        ;;(int nameBits, int nameRefs) = nameS.slice_bits_refs();
+        ;;throw_if(997, nameBits == 0);
+        ;;throw_unless(998, nameRefs == 0);
+        nameS~load_uint(8);
         throw_unless(1000, string_hash(nameS) == "Item name"H);
     }
 
