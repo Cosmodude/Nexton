@@ -12,7 +12,7 @@ export async function run(provider: NetworkProvider) {
         nextItemIndex: 0,
         collectionContent: buildCollectionContentCell({
             name: "Nexton collection name",
-            description:"Nexton collection description 23.08",
+            description:"Nexton collection description 06.09",
             image: ""
         }),
         nftItemCode: await compile("NftItem"),
