@@ -85,7 +85,7 @@ export class NftCollection implements Contract {
                     .storeUint(opts.queryId,64)
                     .storeUint(opts.itemIndex,64)
                     .storeCoins(opts.amount)
-                    .storeRef(nftMessage)
+                    .storeRef(nftMessage)  // body
                 .endCell()
             })
         }
