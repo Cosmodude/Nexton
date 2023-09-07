@@ -8,13 +8,13 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     const itemAddress = Address.parse(args.length > 0 ? args[0] : await ui.input('NFT address'));
     let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
-    const nextonAddress = Address.parse("EQBDqObEyc8KYOuHCKm0evBNp0hJ9derp8eSIdhYMjIeMRSZ");
+    const nextonAddress = Address.parse("EQAVA5b-fDM6tH1runR2HCdqgGCDaaYsfGdvAeEamUOeKAXM");
 
     const nftItem = provider.open(NftItem.createFromAddress(itemAddress));
 
     await nftItem.sendTransfer(provider.sender(),{
-        value: toNano("0.2"),
-        fwdAmount: toNano("0.02"),
+        value: toNano("0.3"),
+        fwdAmount: toNano("0.08"),
         newOwner: randomAddress(),
         responseAddress: randomAddress(),
         queryId: Date.now()

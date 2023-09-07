@@ -7,14 +7,9 @@ const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf
 const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
 
 export async function run(provider: NetworkProvider) {
-    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQCQih3SDKBwHVdCs5gCXJBIxD42agoC0gOJU1SBhqI8ThIc")));
+    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQAVA5b-fDM6tH1runR2HCdqgGCDaaYsfGdvAeEamUOeKAXM")));
         //fromInit(myAddress, nftCollection));
     const ui = provider.ui();
-
-    // chack if is stopped:
-    const stopped = await nexton.getStopped();
-    console.log("Stopped: ", stopped);
-    console.log();
 
     const command =  await ui.input('Continue?');
 
