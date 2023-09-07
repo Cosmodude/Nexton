@@ -98,6 +98,7 @@ contract NexTon with Deployable, OwnableTransferable {
         };
 
         //self.nftOwner.set(self.itemCounter, ctx.sender);  // delete after demo
+        self.principalByIndex.set(self.itemCounter, ctx.value);
         self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
     }
@@ -117,6 +118,7 @@ contract NexTon with Deployable, OwnableTransferable {
     // }
 
     receive(msg: UserClaimWithdraw){
+        //requireOwner();
         require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
         //require(self.nftOwner.get(msg.itemIndex) == sender(), "Message sender is not the NFT owner!");
         require(self.userItemWithdrawn.get(msg.itemIndex) == false, "Item was already withdrawn!");
