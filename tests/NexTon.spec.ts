@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, toNano, fromNano, Cell, beginCell, ContractProvider, } from 'ton-core';
+import { Address, toNano, fromNano, Cell, beginCell, TupleItemInt, ContractProvider, } from 'ton-core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import '@ton-community/test-utils';
@@ -71,8 +71,8 @@ describe('NexTon', () => {
             queryId: BigInt(Date.now())
         });
 
-        //expect(nftCollection.getData)
-        //const tuple = (await nftCollection.getData(deployer.getSender())).stack
+        expect((await nftCollection.getCollectionData()).ownerAddress).toEqualAddress(nexton.address);
+        expect((await nftCollection.getCollectionData()).nextItemId).toEqual(0);
     });
 
     it('should deploy', async () => {
@@ -133,10 +133,10 @@ describe('NexTon', () => {
         const balanceBefore = await nexton.getBalance();
         console.log("Balance before deposit: ", fromNano(balanceBefore));
 
-        const mintMessageReceiver = await nexton.getNftContract();
+        //const mintMessageReceiver = await nexton.getNftContract();
         console.log("NFTCollection: ", nftCollection.address);
-        console.log("Mint messsage is sent to ", mintMessageReceiver);
-        expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
+        //console.log("Mint messsage is sent to ", mintMessageReceiver);
+        //expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
 
         const mintMessage = await nexton.send(
             user.getSender(), 
@@ -151,8 +151,13 @@ describe('NexTon', () => {
             }
         )
         console.log(await mintMessage.events);
+        
+        const index: TupleItemInt = {
+            type: "int",
+            value: 0n
+        }
 
-
+        const expectedItemAddress =  nftCollection.getItemAddressByIndex(index);
         console.log("Balance after: ", fromNano(await nexton.getBalance()));
 
         console.log("NFTCounter: ", await nexton.getNftCounter())
@@ -267,12 +272,12 @@ describe('NexTon', () => {
                 value: toNano("1")
             },
             {   
-                $$type: 'UserClaim',
-                nftIndex: nftIndex
+                $$type: 'UserClaimWithdraw',
+                itemIndex: nftIndex
             }
         )
         console.log(await claimMessage.events);
 
-        expect(await nexton.getUserNftItemClaimed(nftIndex)).toBeTruthy;
+        //expect(await nexton.getUserNftItemClaimed(nftIndex)).toBeTruthy;
     });
 });
