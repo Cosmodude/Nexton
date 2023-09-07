@@ -84,7 +84,7 @@ describe('NftCollection', () => {
             }),
             queryId: Date.now()
         })
-        console.log("EVENT: ", mint.events);
+        //console.log("EVENT: ", mint.events);
 
         
 
@@ -94,7 +94,7 @@ describe('NftCollection', () => {
         }
        
         const itemAddress = await nftCollection.getItemAddressByIndex(index);
-        console.log("Address", itemAddress);
+        //console.log("Address", itemAddress);
 
         expect(mint.transactions).toHaveTransaction({
             from: nftCollection.address,
@@ -112,17 +112,18 @@ describe('NftCollection', () => {
         //console.log(itemData.itemContent);
         const cs = itemData.itemContent.beginParse();
         const tag = cs.loadUint(8);
-        console.log("Tag", tag)
+        //console.log("Tag", tag)
+        expect(tag).toEqual(0);
         const dict = cs.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
         const nameCS = dict.get(toSha256("name"))?.beginParse()!!;
         //console.log(nameCS);
         await nameCS.loadUint(8);
         const name = await nameCS?.loadStringTail();
-        console.log(name);
+        //console.log(name);
         expect(name).toEqual("Item name");
     });
 
-    it('should send tokens to nexton freely', async() => {
+    it('should send items to nexton freely (withdraw)', async() => {
         deployer = await blockchain.treasury('deployer');
         nexton = await blockchain.treasury('nexton');
         let initialOwner = await blockchain.treasury('owner');
@@ -143,7 +144,7 @@ describe('NftCollection', () => {
             }),
             queryId: Date.now()
         })
-        console.log("EVENT: ", mint.events);
+        //console.log("EVENT: ", mint.events);
 
         const index: TupleItemInt = {
             type: "int",
@@ -151,7 +152,7 @@ describe('NftCollection', () => {
         }
        
         const itemAddress = await nftCollection.getItemAddressByIndex(index);
-        console.log("Item Address", itemAddress);
+        //console.log("Item Address", itemAddress);
 
         nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
         expect(nftItem.address).toEqualAddress(itemAddress);
@@ -167,15 +168,15 @@ describe('NftCollection', () => {
             }
         );
 
-        console.log("Return Tx: ", returnTx.transactions);
-        // expect(returnTx.transactions).toHaveTransaction({
-        //     from: nftItem.address,
-        //     to: deployer.address,
-        //     success: true,
-        //     inMessageBounced: false
-        // })
-        console.log("init owner  ", initialOwner.address);
-        console.log("deployer owner  ", deployer.address);
-        console.log(" Item   ", itemAddress)
+        //console.log("Return Tx: ", returnTx.transactions);
+        expect(returnTx.transactions).toHaveTransaction({
+            from: nftItem.address,
+            to: nexton.address,
+            success: true,
+            inMessageBounced: false
+        });
+        // console.log("init owner  ", initialOwner.address);
+        // console.log("deployer owner  ", deployer.address);
+        // console.log(" Item   ", itemAddress)
     })
 });
