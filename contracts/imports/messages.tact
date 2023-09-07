@@ -4,11 +4,11 @@ message UserDeposit{
     leverage: Int as uint32 = 1;
 }
 
-message ChangeAddr{
-    queryId: Int as uint64;
-    address: Address;
-    entity: String;
-}
+// message ChangeAddr{
+//     queryId: Int as uint64;
+//     address: Address;
+//     entity: String;
+// }
 
 message(0x1) MintNFT{
     queryId: Int as uint64;
@@ -17,9 +17,9 @@ message(0x1) MintNFT{
     NFTMessage: Cell;
 }
 
-struct NFTContent{
-    principal: Int as coins;
-    leverageRatio: Int as uint32 = 1;
-    lockPeriod: Int as uint256 = (10 * 60 * 1);
-    lockEnd: Int as uint256;
-}
+// struct NFTContent{
+//     principal: Int as coins;
+//     leverageRatio: Int as uint32 = 1;
+//     lockPeriod: Int as uint256 = (10 * 60 * 1);
+//     lockEnd: Int as uint256;
+// }
