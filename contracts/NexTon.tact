@@ -50,7 +50,8 @@ contract NexTon with Deployable, OwnableTransferable {
     //userItemClaimed: map<Int, Bool>;
     userItemWithdrawn: map<Int, Bool>;
     //nftOwner: map<Int, Address>;
-    principalByIndex: map<Int, Int>;
+    //principalByIndex: map<Int, Int>;
+    principalByAddress: map<Address, Int>;
     
     init( _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
@@ -73,7 +74,6 @@ contract NexTon with Deployable, OwnableTransferable {
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
-        self.principalByIndex.set(self.itemCounter, ctx.value);
 
         let nftMetadata: Cell = BasicMetadata{
                 name: "Item name",
@@ -98,7 +98,7 @@ contract NexTon with Deployable, OwnableTransferable {
         };
 
         //self.nftOwner.set(self.itemCounter, ctx.sender);  // delete after demo
-        self.principalByIndex.set(self.itemCounter, ctx.value);
+        self.principalByAddress.set(sender(), ctx.value);
         self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
     }
@@ -126,7 +126,7 @@ contract NexTon with Deployable, OwnableTransferable {
         //self.userItemWithdrawn.set(msg.itemIndex, true);
         send(SendParameters{
             to: sender(),
-            value: self.principalByIndex.get(msg.itemIndex)!! + ton("0.5"),
+            value: self.principalByAddress.get(sender())!! + ton("0.5"),
             mode: SendPayGasSeparately + SendIgnoreErrors
         });
     }
