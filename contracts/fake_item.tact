@@ -12,6 +12,8 @@ contract FakeItem with Deployable {
         self.owner = sender();
     }
 
+    receive(){}
+    
     receive(msg: Transfer){
         self.owner = msg.newOwner;
         require(context().value>= ton("0.1"), " not enough to pay for gas");

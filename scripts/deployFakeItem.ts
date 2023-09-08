@@ -17,6 +17,16 @@ export async function run(provider: NetworkProvider) {
     );
 
     await provider.waitForDeploy(fakeItem.address);
+    
+    await fakeItem.send(
+        provider.sender(),
+        {
+            value: toNano('0.5')
+        },
+        null
+    );
+
+ 
 
     // run methods on `fakeItem`
 }

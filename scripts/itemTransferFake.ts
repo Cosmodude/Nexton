@@ -13,12 +13,12 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     await nftItem.send(provider.sender(),
     {
-        value: toNano('2'),
+        value: toNano('0.1'),
     },
     {
         $$type: 'Transfer',
         newOwner: randomAddress()
     })
-    
+
     ui.write('Transfer succesful');
 }
