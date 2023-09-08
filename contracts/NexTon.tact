@@ -119,11 +119,11 @@ contract NexTon with Deployable, OwnableTransferable {
 
     receive(msg: UserClaimWithdraw){
         //requireOwner();
-        require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
+        //require(self.itemCounter >= msg.itemIndex, "Claiming not exisitng NFT");
         //require(self.nftOwner.get(msg.itemIndex) == sender(), "Message sender is not the NFT owner!");
-        require(self.userItemWithdrawn.get(msg.itemIndex) == false, "Item was already withdrawn!");
+        //require(self.userItemWithdrawn.get(msg.itemIndex) == false, "Item was already withdrawn!");
         //require(self.userItemClaimed.get(msg.itemIndex) == true, "Message sender is not the NFT owner!");
-        self.userItemWithdrawn.set(msg.itemIndex, true);
+        //self.userItemWithdrawn.set(msg.itemIndex, true);
         send(SendParameters{
             to: sender(),
             value: self.principalByIndex.get(msg.itemIndex)!! + ton("0.5"),
@@ -159,8 +159,6 @@ contract NexTon with Deployable, OwnableTransferable {
     }
 
     // GET methods
-
-    // get fun stopped(): Bool {...}
 
     // get fun nftContract(): Address{
     //     return self.nFTContractAddress;
