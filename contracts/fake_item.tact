@@ -5,7 +5,7 @@ message Transfer{
 }
 
 contract FakeItem with Deployable {
-    const MinTonForStorage: Int = ton("0.2");
+    const MinTonForStorage: Int = ton("0.02");
     owner: Address;
     
     init() {
@@ -13,10 +13,10 @@ contract FakeItem with Deployable {
     }
 
     receive(){}
-    
+
     receive(msg: Transfer){
         self.owner = msg.newOwner;
-        require(context().value>= ton("0.1"), " not enough to pay for gas");
+        require(context().value>= ton("0.07"), "not enough to pay for gas");
         send(SendParameters{
             to: sender(),
             value: context().value - ton("0.05"),
