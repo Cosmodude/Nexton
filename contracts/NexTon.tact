@@ -7,12 +7,15 @@ const MAX_LEVERAGE: Int = 5;
 const MIN_USER_DEPOSIT: Int = ton("0.5");  // inform the frontend
 const MIN_LP_DEPOSIT: Int = ton("10000");
 
+@name(store_dict)
+native storeDict(b: Builder, c: Cell): Builder;
+
 message StakingReward{
     principal: Int as coins;
     rewards: Int as coins;
 }
 
-message(0x05138d91) UserClaimWithdraw{
+message(0x05138d91) UserClaim{
     itemIndex: Int as uint32;
 }
 
@@ -36,13 +39,12 @@ contract NexTon with Deployable, OwnableTransferable {
     const MinTonForStorage: Int = ton("0.2");
     owner: Address;
     stopped: Bool = false;
+    nftItemCode: Cell;
 
     const MIN: Int = 60;
     sPContractAddress: Address;      // Staking Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
-    //lpProviders: map<Address, LPProvider>; // delete?
 
-    //LPPPrinciple: Int as coins = 0;
     usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
@@ -53,8 +55,9 @@ contract NexTon with Deployable, OwnableTransferable {
     //principalByIndex: map<Int, Int>;
     principalByAddress: map<Address, Int>;
     
-    init( _liquidStaking: Address, _nft: Address) {
+    init(nftItemCode: Cell, _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
+        self.nftItemCode = nftItemCode;
         self.sPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
@@ -109,6 +112,8 @@ contract NexTon with Deployable, OwnableTransferable {
         //self.stopped = true;
     }
 
+    
+
     // receive(msg: UserClaim){
     //     self.requireNotStopped();
     //     require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
@@ -117,7 +122,7 @@ contract NexTon with Deployable, OwnableTransferable {
     //     //self.userItemClaimed.set(msg.itemIndex, true);
     // }
 
-    receive(msg: UserClaimWithdraw){
+    receive(msg: UserClaim){
         //requireOwner();
         //require(self.itemCounter >= msg.itemIndex, "Claiming not exisitng NFT");
         //require(self.nftOwner.get(msg.itemIndex) == sender(), "Message sender is not the NFT owner!");
@@ -158,6 +163,25 @@ contract NexTon with Deployable, OwnableTransferable {
         self.itemCounter = self.itemCounter + 1;
     }
 
+    fun getNftItemInit(item_index: Int): Cell {
+        let data: Cell = beginCell().storeUint(item_index,64).storeSlice(self.nFTContractAddress.asSlice()).endCell();
+        let itemInit: Builder = beginCell().storeUint(0, 2);
+        itemInit = storeDict(itemInit, self.nftItemCode);
+        itemInit = storeDict(itemInit, data);
+        return itemInit.storeUint(0, 1).endCell();
+    }
+
+
+    get fun getNftAddressByIndex(item_index: Int): Slice {
+        let stateInit: Cell = self.getNftItemInit(item_index);
+        return beginCell().storeUint(4, 3)
+                     .storeInt(0, 8)
+                     .storeUint(stateInit.hash(), 256)
+                     .endCell()
+                     .beginParse();
+    }
+
+
     // GET methods
 
     // get fun nftContract(): Address{
@@ -176,6 +200,7 @@ contract NexTon with Deployable, OwnableTransferable {
         return self.itemCounter;
     }
 
+    
     // get fun userNFTItemClaimed(index: Int): Bool?{
     //     return self.userItemClaimed.get(index);
     // }

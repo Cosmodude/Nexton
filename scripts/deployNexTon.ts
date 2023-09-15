@@ -33,7 +33,7 @@ export async function run(provider: NetworkProvider) {
 
     // Deploying Nexton !!!
 
-    const nexton = provider.open(await NexTon.fromInit(myAddress, collection.address));
+    const nexton = provider.open(await NexTon.fromInit(await compile("NftItem"), myAddress, collection.address));
 
     await nexton.send(
         provider.sender(),
