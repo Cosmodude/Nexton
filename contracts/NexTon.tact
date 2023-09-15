@@ -181,12 +181,11 @@ contract NexTon with Deployable, OwnableTransferable {
                      .beginParse();
     }
 
-
     // GET methods
 
-    // get fun nftContract(): Address{
-    //     return self.nFTContractAddress;
-    // }
+    get fun nftContract(): Address{
+        return self.nFTContractAddress;
+    }
 
     // get fun stakingPool(): Address{
     //     return self.sPContractAddress;
