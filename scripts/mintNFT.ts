@@ -3,7 +3,7 @@ import { NftCollection } from '../wrappers/NftCollection';
 import { NetworkProvider, sleep } from '@ton-community/blueprint';
 import { sha256_sync } from 'ton-crypto';
 import { randomAddress } from '@ton-community/test-utils';
-import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
+import { buildCollectionContentCell, setItemContentCell, toSha256 } from './collectionContent/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 

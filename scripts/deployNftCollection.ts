@@ -1,7 +1,7 @@
 import { Address, toNano } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
-import { buildCollectionContentCell } from '../wrappers/collectionContent/onChain';
+import { buildCollectionContentCell } from './collectionContent/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
