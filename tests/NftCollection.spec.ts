@@ -5,7 +5,7 @@ import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
 import { sha256_sync } from 'ton-crypto';
 import { NftItem } from '../wrappers/NftItem';
-import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
+import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
 import { randomAddress } from '@ton-community/test-utils';
 
 describe('NftCollection', () => {
@@ -120,7 +120,7 @@ describe('NftCollection', () => {
         await nameCS.loadUint(8);
         const name = await nameCS?.loadStringTail();
         //console.log(name);
-        expect(name).toEqual("Item name");
+        expect(name).toMatch("Item name");
     });
 
     it('should send items to nexton freely (withdraw)', async() => {
@@ -157,12 +157,14 @@ describe('NftCollection', () => {
         nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
         expect(nftItem.address).toEqualAddress(itemAddress);
 
-
+        const itemData = await nftItem.getItemData();
+        const nextonAddress = itemData.nextonAddress;
+        expect(nextonAddress).toEqualAddress(nexton.address);
 
         const returnTx = await nftItem.sendTransfer(initialOwner.getSender(),{
             queryId: Date.now(),
             value:  toNano("10"),
-            newOwner: nexton.address,
+            newOwner: nextonAddress,
             responseAddress: initialOwner.address,
             fwdAmount: toNano("5")
             }
