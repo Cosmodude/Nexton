@@ -1,8 +1,9 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, toNano, fromNano, Cell, beginCell, TupleItemInt, ContractProvider, } from 'ton-core';
+import { Address, toNano, fromNano, Cell, beginCell, TupleItemInt, ContractProvider, Dictionary } from 'ton-core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
-import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../wrappers/collectionContent/onChain';
+import { NftItem } from '../wrappers/NftItem';
+import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
 import '@ton-community/test-utils';
 import { randomAddress } from '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -17,6 +18,7 @@ describe('NexTon', () => {
     let blockchain: Blockchain;
     let nexton: SandboxContract<NexTon>;
     let nftCollection: SandboxContract<NftCollection>;
+    let nftItem: SandboxContract<NftItem>;
     let deployer: SandboxContract<TreasuryContract>;
 
     let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
@@ -77,9 +79,19 @@ describe('NexTon', () => {
         });
 
         const collectionData = await nftCollection.getCollectionData();
-        console.log(collectionData);;
+        // check metadata, diffrence with how item metadata is given
+        //console.log(collectionData.collectionContent.refs);
+        //const prefix = await collectionData.collectionContent.beginParse().loadUint(8);
+        // expect(prefix).toEqual(0);
+        const metadataDict = collectionData.collectionContent.beginParse().loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        //.beginParse().loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        const prefix = await metadataDict.get(toSha256("name"))?.beginParse().loadUint(8);
+        expect(prefix).toEqual(0);
+        const collectionName = await metadataDict.get(toSha256("name"))?.beginParse().loadStringTail();
+        // console.log("Metadata.name: ", collectionName);
         expect(collectionData.ownerAddress).toEqualAddress(nexton.address);
-        expect(collectionData.nextItemId).toEqual(0);
+        expect(collectionName).toMatch("Collection name");
+        expect(collectionData.nextItemId).toEqual(0n);
     });
 
     it('should deploy', async () => {
@@ -131,7 +143,7 @@ describe('NexTon', () => {
     //     expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
     // });
 
-    it('Should Deposit and Mint NFT', async() => {
+    it('Should Deposit and Mint NFT with set metadata', async() => {
 
         console.log("User Depositing!!!");
         
@@ -141,7 +153,7 @@ describe('NexTon', () => {
         //console.log("Balance before deposit: ", fromNano(balanceBefore));
 
         //const mintMessageReceiver = await nexton.getNftContract();
-        console.log("NFTCollection: ", nftCollection.address);
+        //console.log("NFTCollection: ", nftCollection.address);
         //console.log("Mint messsage is sent to ", mintMessageReceiver);
         //expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
 
@@ -157,25 +169,36 @@ describe('NexTon', () => {
                 leverage: 3n
             }
         )
-        console.log(await mintMessage.events);
         
         const index: TupleItemInt = {
             type: "int",
             value: 0n
         }
 
-        const expectedItemAddress =  nftCollection.getItemAddressByIndex(index);
+        const itemAddress =  await nftCollection.getItemAddressByIndex(index);
         //console.log("Balance after: ", fromNano(await nexton.getBalance()));
-
-        console.log("NFTCounter: ", await nexton.getNftCounter())
+        
+        //console.log("NFTCounter: ", await nexton.getNftCounter())
 
         expect(mintMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
             inMessageBounced: false
         });
-
+        //console.log(mintMessage.events.at(-1)?.type)
+        expect(mintMessage.events.at(-1)?.type).toMatch("account_created");
         expect(await nexton.getNftCounter()).toEqual(1n);
-    
+
+        nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
+        expect(nftItem.address).toEqualAddress(itemAddress);
+
+        const itemData = await nftItem.getItemData();
+        expect(itemData.index).toEqual(0n);
+
+        const itemMetadata = itemData.itemContent.beginParse().loadRef().beginParse().loadStringTail();
+        //loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
+        console.log(itemMetadata)
+        
+
     });
 
     // it("Should Deposit and keep track of LPP", async () =>{
