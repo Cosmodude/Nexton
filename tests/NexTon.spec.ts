@@ -148,7 +148,8 @@ describe('NexTon', () => {
         console.log("User Depositing!!!");
         
         const user = await blockchain.treasury('user');
-
+        const lockP = 600n;
+        const leverageR = 3n;
         //const balanceBefore = await nexton.getBalance();
         //console.log("Balance before deposit: ", fromNano(balanceBefore));
 
@@ -165,8 +166,8 @@ describe('NexTon', () => {
             {   
                 $$type: 'UserDeposit',
                 queryId: BigInt(Date.now()),
-                lockPeriod: 600n,
-                leverage: 3n
+                lockPeriod: lockP,
+                leverage: leverageR
             }
         )
         
@@ -182,6 +183,7 @@ describe('NexTon', () => {
 
         expect(mintMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
+            to: itemAddress,
             inMessageBounced: false
         });
         //console.log(mintMessage.events.at(-1)?.type)
@@ -192,37 +194,27 @@ describe('NexTon', () => {
         expect(nftItem.address).toEqualAddress(itemAddress);
 
         const itemData = await nftItem.getItemData();
+        const itemContentSlice = itemData.itemContent.beginParse();
         expect(itemData.index).toEqual(0n);
 
-        const itemMetadata = itemData.itemContent.beginParse().loadRef().beginParse().loadStringTail();
+        const itemName = itemContentSlice.loadRef().beginParse().loadStringTail();
+        const itemDescription = itemContentSlice.loadRef().beginParse().loadStringTail();
+        const image = itemContentSlice.loadRef().beginParse().loadStringTail();
+        const staker = itemContentSlice.loadAddress();
+        expect(staker).toEqualAddress(user.address);
+        const leverage = itemContentSlice.loadUint(32);
+        const principal = itemContentSlice.loadCoins();
+        expect(principal).toEqual(toNano("2")- toNano("0.1"));
+        const lockPeriod = itemContentSlice.loadUint(256);
+        const lockEnd = itemContentSlice.loadUint(256);
+        expect(lockPeriod).toEqual(Number(lockP));
+
+        //loadRef().beginParse().loadRef().beginParse().loadAddress();
         //loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-        console.log(itemMetadata)
+        //console.log(lockPeriod)
         
 
     });
-
-    // it("Should Deposit and keep track of LPP", async () =>{
-    //     console.log();
-    //     console.log("LPP Depositing!!!");
-
-    //     const lpProvider = await blockchain.treasury('provider');
-
-    //     const balanceBefore = await nexton.getBalance();
-    //     console.log("Balance before LP deposit: ", fromNano(balanceBefore));
-
-    //     const depositMessage = await nexton.send(
-    //         lpProvider.getSender(), 
-    //         {
-    //         value: toNano("20000")
-    //         }, 
-    //         'Liquidity Provider Deposit'
-    //     )
-    //     console.log(await depositMessage.events);
-
-
-    //     console.log("Balance after: ", fromNano(await nexton.getBalance()));
-    // });
-    
 
 //     it("Should Deposit and Claim User reward", async () =>{
 //         console.log();
