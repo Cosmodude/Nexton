@@ -29,8 +29,7 @@ struct UserStakeInfo{
     name: String;
     description: String;
     image: String;
-    staker: Address;
-    leverageRatio: Int as uint32 = 1;
+    leverageRatio: Int as uint8 = 1;
     //protocolFee: Int as coins = ton("0.1");
     principal: Int as coins;
     lockPeriod: Int as uint256 = 600;
@@ -45,7 +44,7 @@ contract NexTon with Deployable, OwnableTransferable {
     nftItemCode: Cell;
 
     const MIN: Int = 60;
-    sPContractAddress: Address;      // Staking Contract Address
+    sPContractAddress: Address;      // Staking Pool Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
 
     usersPrincipal: Int as coins = 0;
@@ -54,9 +53,6 @@ contract NexTon with Deployable, OwnableTransferable {
     itemCounter: Int as uint32 = 0;   // next_item_index
     //userItemClaimed: map<Int, Bool>;
     userItemWithdrawn: map<Int, Bool>;
-    //nftOwner: map<Int, Address>;
-    //principalByIndex: map<Int, Int>;
-    principalByAddress: map<Address, Int>;
     
     init(nftItemCode: Cell, _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
@@ -81,11 +77,14 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        let itemContent: Cell = UserStakeInfo{
+        let content: map<Int, Cell> = emptyMap();
+        content.set(sha256("name"), beginCell().storeUint(0, 8).storeSlice("Item name".asSlice()).endCell());
+        let itemContent: Cell = 
+        //content.asCell()!!;
+        UserStakeInfo{
             name: "Nexton User Stake",
             description: "Holds information about the user's stake in the Nexton platform pool",
             image: "https://hipo.finance/hton.png",
-            staker: ctx.sender,
             principal: ctx.value - PROTOCOL_FEE,
             leverageRatio: msg.leverage,
             lockPeriod: msg.lockPeriod,
@@ -104,7 +103,6 @@ contract NexTon with Deployable, OwnableTransferable {
         };
 
         //self.nftOwner.set(self.itemCounter, ctx.sender);  // delete after demo
-        self.principalByAddress.set(sender(), ctx.value);
         self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
     }
@@ -132,11 +130,11 @@ contract NexTon with Deployable, OwnableTransferable {
         //require(self.userItemWithdrawn.get(msg.itemIndex) == false, "Item was already withdrawn!");
         //require(self.userItemClaimed.get(msg.itemIndex) == true, "Message sender is not the NFT owner!");
         //self.userItemWithdrawn.set(msg.itemIndex, true);
-        send(SendParameters{
-            to: sender(),
-            value: self.principalByAddress.get(sender())!! + ton("0.5"),
-            mode: SendPayGasSeparately + SendIgnoreErrors
-        });
+        // send(SendParameters{
+        //     to: sender(),
+        //     value: self.principalByAddress.get(sender())!! + ton("0.5"),
+        //     mode: SendPayGasSeparately + SendIgnoreErrors
+        // });
     }
 
     // Command messages
