@@ -8,7 +8,7 @@ const MIN_USER_DEPOSIT: Int = ton("0.5");  // inform the frontend
 const MIN_LP_DEPOSIT: Int = ton("10000");
 
 @name(store_dict)
-native storeDict(b: Builder, c: Cell): Builder;
+extends native storeDict(self: Builder, c: Cell): Builder;
 
 message StakingReward{
     principal: Int as coins;
@@ -25,15 +25,18 @@ struct BasicMetadata{
     image: String;
 }
 
-// struct UserStakeInfo{
-//     staker: Address;
-//     leverageRatio: Int as uint32 = 1;
-//     protocolFee: Int as coins = ton("0.1");
-//     principal: Int as coins;
-//     lockPeriod: Int as uint256 = 600;
-//     lockEnd: Int as uint256;
-//     isLent: Bool = false;
-// }
+struct UserStakeInfo{
+    name: String;
+    description: String;
+    image: String;
+    staker: Address;
+    leverageRatio: Int as uint32 = 1;
+    //protocolFee: Int as coins = ton("0.1");
+    principal: Int as coins;
+    lockPeriod: Int as uint256 = 600;
+    lockEnd: Int as uint256;
+    //isLent: Bool = false;
+}
 
 contract NexTon with Deployable, OwnableTransferable {
     const MinTonForStorage: Int = ton("0.2");
@@ -78,20 +81,20 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        let nftMetadata: Cell = BasicMetadata{
-                name: "Item name",
-                description: "Item description",
-                image: "https://hipo.finance/hton.png"
-            }.toCell();
-            //NFTContent{
-            // principal: ctx.value - PROTOCOL_FEE,
-            // leverageRatio: msg.leverage,
-            // lockPeriod: msg.lockPeriod,
-            // lockEnd: now() + msg.lockPeriod
+        let itemContent: Cell = UserStakeInfo{
+            name: "Nexton User Stake",
+            description: "Holds information about the user's stake in the Nexton platform pool",
+            image: "https://hipo.finance/hton.png",
+            staker: ctx.sender,
+            principal: ctx.value - PROTOCOL_FEE,
+            leverageRatio: msg.leverage,
+            lockPeriod: msg.lockPeriod,
+            lockEnd: now() + msg.lockPeriod
+        }.toCell();
         let nftItemMessage: Cell = beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
-            .storeRef(nftMetadata)
+            .storeRef(itemContent)
             .endCell();
         let body: MintNFT =  MintNFT{
             queryId: msg.queryId,
@@ -165,10 +168,11 @@ contract NexTon with Deployable, OwnableTransferable {
 
     fun getNftItemInit(item_index: Int): Cell {
         let data: Cell = beginCell().storeUint(item_index,64).storeSlice(self.nFTContractAddress.asSlice()).endCell();
-        let itemInit: Builder = beginCell().storeUint(0, 2);
-        itemInit = storeDict(itemInit, self.nftItemCode);
-        itemInit = storeDict(itemInit, data);
-        return itemInit.storeUint(0, 1).endCell();
+        let itemInit: Cell = beginCell().storeUint(0, 2).storeDict(self.nftItemCode).storeDict(data).storeUint(0, 1).endCell();
+        // itemInit = storeDict(itemInit, self.nftItemCode);
+        // itemInit = storeDict(itemInit, data);
+        // return itemInit.storeUint(0, 1).endCell();
+        return itemInit;
     }
 
 
