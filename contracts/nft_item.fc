@@ -155,14 +155,16 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
       ;;(int bits, int refs) = rcs.slice_bits_refs();
       ;; throw_if(8000, refs == 0);
       ;; throw_if(80001, bits == 0);
-      slice name = rcs~load_ref().begin_parse();
-      slice desc = rcs~load_ref().begin_parse();
+      cell name = rcs~load_ref();
+      slice value = begin_cell().store_ref(name).end_cell().begin_parse();
       cell content_dict = new_dict();
-      content_dict~udict_set(256, string_hash("name"), name);
-      content_dict~udict_set(256, string_hash("description"), desc);
+      content_dict~udict_set(256, string_hash("name"), value);
+      cell desc = rcs~load_ref();
+      value = begin_cell().store_ref(desc).end_cell().begin_parse();
+      content_dict~udict_set(256, string_hash("description"), value);
       throw_if(801, content_dict.dict_empty?());
       (slice res, int success) = content_dict.udict_get?(256, "name"H);
-      throw_unless(802, equal_slices(res, name));
+      ;;throw_unless(802, equal_slices(res, name));
       cell content = begin_cell()
           .store_uint(0,8)
           .store_dict(content_dict)

@@ -215,9 +215,9 @@ describe('NexTon', () => {
 
         const prefix = itemContentSlice.loadUint(8);
         console.log(prefix);
-        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Buffer(17));
-        const name = dict.get(toSha256("name"))?.toString();
-        const description = dict.get(toSha256("description"))?.toString();
+        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
+        const nameCell = dict.get(toSha256("name"));
+        const descriptionCell = dict.get(toSha256("description"));
         //const dict = itemContentSlice.loadRef().beginParse();
         //const dict1 = dict.remainingBits;
         //loadDict(Dictionary.Keys.Uint(256), Dictionary.Values.Cell());
@@ -225,8 +225,8 @@ describe('NexTon', () => {
         //loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
         // //const name = itemData.itemContent.;
         console.log("dict1 ", dict);
-        console.log("name ", name);
-        console.log("desc ", description);
+        console.log("name ", nameCell?.beginParse().loadStringTail());
+        console.log("desc ", descriptionCell?.beginParse().loadStringTail());
         //console.log("dict2 ", dict2.keys());
         
 
