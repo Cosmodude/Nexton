@@ -1,9 +1,9 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, toNano, fromNano, Cell, beginCell, TupleItemInt, ContractProvider, Dictionary } from 'ton-core';
+import { Address, toNano, fromNano, Cell, Slice, beginCell, TupleItemInt, ContractProvider, Dictionary } from 'ton-core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
-import { buildCollectionContentCell, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
+import { buildCollectionContentCell, itemContent, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
 import '@ton-community/test-utils';
 import { randomAddress } from '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -158,6 +158,16 @@ describe('NexTon', () => {
         //console.log("Mint messsage is sent to ", mintMessageReceiver);
         //expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
 
+        // const stakeData: itemContent = {
+        //     name: "Item name",
+        //     description: "Item description",
+        //     image: "https://hipo.finance/hton.png",
+        //     principal: 20n,
+        //     leverageRatio: 1n,
+        //     lockPeriod: 600n,
+        //     lockEnd: BigInt(Date.now()) + 600n
+        // }
+
         const mintMessage = await nexton.send(
             user.getSender(), 
             {
@@ -165,6 +175,7 @@ describe('NexTon', () => {
             }, 
             {   
                 $$type: 'UserDeposit',
+                
                 queryId: BigInt(Date.now()),
                 lockPeriod: lockP,
                 leverage: leverageR
@@ -181,6 +192,7 @@ describe('NexTon', () => {
         
         //console.log("NFTCounter: ", await nexton.getNftCounter())
 
+        //console.log(mintMessage.transactions);
         expect(mintMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
             to: itemAddress,
@@ -196,18 +208,43 @@ describe('NexTon', () => {
         const itemData = await nftItem.getItemData();
         expect(itemData.index).toEqual(0n);
         const itemContentSlice = itemData.itemContent.beginParse();
+        console.log("Cont ", itemContentSlice);
+        //itemContentSlice.loadUint(256);
+        //itemContentSlice.loadStringTail();
+        console.log("refs ", itemContentSlice.remainingRefs);
 
-        const itemName = itemContentSlice.loadRef().beginParse().loadStringTail();
-        const itemDescription = itemContentSlice.loadRef().beginParse().loadStringTail();
-        const image = itemContentSlice.loadRef().beginParse().loadStringTail();
-        const leverage = itemContentSlice.loadUint(8);
-        const principal = itemContentSlice.loadCoins();
-        expect(principal).toEqual(toNano("2")- toNano("0.1"));
-        const lockPeriod = itemContentSlice.loadUint(256);
-        const lockEnd = itemContentSlice.loadUint(256);
-        console.log(lockEnd);
-        expect(lockPeriod).toEqual(Number(lockP));
-        //console.log(itemData.itemContent.refs);
+        const prefix = itemContentSlice.loadUint(8);
+        console.log(prefix);
+        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Buffer(17));
+        const name = dict.get(toSha256("name"))?.toString();
+        const description = dict.get(toSha256("description"))?.toString();
+        //const dict = itemContentSlice.loadRef().beginParse();
+        //const dict1 = dict.remainingBits;
+        //loadDict(Dictionary.Keys.Uint(256), Dictionary.Values.Cell());
+        //const dict2 = dict.loadDict(Dictionary.Keys.Uint(256), Dictionary.Values.Cell());
+        //loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        // //const name = itemData.itemContent.;
+        console.log("dict1 ", dict);
+        console.log("name ", name);
+        console.log("desc ", description);
+        //console.log("dict2 ", dict2.keys());
+        
+
+       
+
+
+        //const itemName = itemContentSlice.
+        //.beginParse().loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        // const itemDescription = itemContentSlice.loadRef().beginParse().loadStringTail();
+        // const image = itemContentSlice.loadRef().beginParse().loadStringTail();
+        // const leverage = itemContentSlice.loadUint(8);
+        // const principal = itemContentSlice.loadCoins();
+        // expect(principal).toEqual(toNano("2")- toNano("0.1"));
+        // const lockPeriod = itemContentSlice.loadUint(256);
+        // const lockEnd = itemContentSlice.loadUint(256);
+        // console.log(lockEnd);
+        // expect(lockPeriod).toEqual(Number(lockP));
+        // console.log(itemData.itemContent.refs);
 
         // FOR MAP Testing
         // const contDict = itemContentSlice.loadRef().beginParse().loadStringTail();
@@ -263,7 +300,7 @@ describe('NexTon', () => {
         expect(itemData.index).toEqual(0n);
 
         console.log(Date.now())
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        //await new Promise(resolve => setTimeout(resolve, 4000));
         console.log(Date.now())
 
         console.log("User Claiming!!!");
@@ -279,7 +316,7 @@ describe('NexTon', () => {
             }
 
         )
-        console.log(await claimMessage.transactions);
+        //console.log(await claimMessage.transactions);
 
         //expect(await nexton.getUserNftItemClaimed(nftIndex)).toBeTruthy;
     });

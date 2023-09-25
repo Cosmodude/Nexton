@@ -164,6 +164,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
       (slice res, int success) = content_dict.udict_get?(256, "name"H);
       throw_unless(802, equal_slices(res, name));
       cell content = begin_cell()
+          .store_uint(0,8)
           .store_dict(content_dict)
           .end_cell();
       store_data(index, collection_address, in_msg_body~load_msg_addr(), in_msg_body~load_msg_addr(), content);  ;; body is crafted in Nexton contract
