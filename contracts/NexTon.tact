@@ -29,9 +29,9 @@ struct UserStakeInfo{
     name: String;
     description: String;
     image: String;
+    principal: Int as coins;
     leverageRatio: Int as uint8 = 1;
     //protocolFee: Int as coins = ton("0.1");
-    principal: Int as coins;
     lockPeriod: Int as uint256 = 600;
     lockEnd: Int as uint256;
     //isLent: Bool = false;
@@ -80,7 +80,6 @@ contract NexTon with Deployable, OwnableTransferable {
         let content: map<Int, Cell> = emptyMap();
         content.set(sha256("name"), beginCell().storeUint(0, 8).storeSlice("Item name".asSlice()).endCell());
         let itemContent: Cell = 
-        //content.asCell()!!;
         UserStakeInfo{
             name: "Nexton User Stake",
             description: "Holds information about the user's stake in the Nexton platform pool",
