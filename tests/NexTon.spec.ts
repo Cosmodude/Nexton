@@ -218,15 +218,14 @@ describe('NexTon', () => {
         const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
         const nameCell = dict.get(toSha256("name"));
         const descriptionCell = dict.get(toSha256("description"));
-        //const dict = itemContentSlice.loadRef().beginParse();
-        //const dict1 = dict.remainingBits;
-        //loadDict(Dictionary.Keys.Uint(256), Dictionary.Values.Cell());
-        //const dict2 = dict.loadDict(Dictionary.Keys.Uint(256), Dictionary.Values.Cell());
-        //loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        // //const name = itemData.itemContent.;
+        const imageCell = dict.get(toSha256("image"));
+        const principalCell = dict.get(toSha256("principal"));
+        const leverageCell = dict.get(toSha256("leverage"));
         console.log("dict1 ", dict);
         console.log("name ", nameCell?.beginParse().loadStringTail());
-        console.log("desc ", descriptionCell?.beginParse().loadStringTail());
+        await console.log("desc ", descriptionCell?.beginParse().loadStringTail());
+        console.log("principal ", principalCell?.beginParse().loadCoins());
+        console.log("leverage ", leverageCell?.beginParse().loadUint(8));
         //console.log("dict2 ", dict2.keys());
         
 
