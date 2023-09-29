@@ -89,6 +89,7 @@ contract NexTon with Deployable, OwnableTransferable {
             lockPeriod: msg.lockPeriod,
             lockEnd: now() + msg.lockPeriod
         }.toCell();
+        
         let nftItemMessage: Cell = beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item

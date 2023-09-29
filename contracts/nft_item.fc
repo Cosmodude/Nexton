@@ -147,13 +147,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     if (~ init?) {
       throw_unless(405, equal_slices(collection_address, sender_address));
       cell raw_content = in_msg_body~load_ref();
-      ;; slice owner = in_msg_body~load_msg_addr();
-      ;; slice nexton = in_msg_body~load_msg_addr();
-      ;; cell raw_content = in_msg_body~load_ref();
       slice rcs = raw_content.begin_parse();
-      ;;(int bits, int refs) = rcs.slice_bits_refs();
-      ;; throw_if(8000, refs == 0);
-      ;; throw_if(80001, bits == 0);
 
       cell name = rcs~load_ref();
       slice value = begin_cell().store_ref(name).end_cell().begin_parse();
@@ -183,9 +177,27 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
               .end_cell()
               .begin_parse();
       content_dict~udict_set(256, string_hash("leverage"), value);
+      int lockPeriod = rcs~load_uint(256);
+      value = begin_cell()
+              .store_ref(
+                  begin_cell()
+                  .store_uint(lockPeriod, 256)
+                  .end_cell())
+              .end_cell()
+              .begin_parse();
+      content_dict~udict_set(256, string_hash("lockPeriod"), value);
+      int lockEnd = rcs~load_uint(256);
+      value = begin_cell()
+              .store_ref(
+                  begin_cell()
+                  .store_uint(lockEnd, 256)
+                  .end_cell())
+              .end_cell()
+              .begin_parse();
+      content_dict~udict_set(256, string_hash("lockEnd"), value);
+
 
       throw_if(801, content_dict.dict_empty?());
-      (slice res, int success) = content_dict.udict_get?(256, "name"H);
       cell content = begin_cell()
           .store_uint(0,8)
           .store_dict(content_dict)
