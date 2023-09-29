@@ -63,13 +63,19 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     throw_unless(401, equal_slices(sender_address, owner_address));
 
     slice new_owner_address = in_msg_body~load_msg_addr();
+    force_chain(new_owner_address);
+    slice response_destination = in_msg_body~load_msg_addr();
+    in_msg_body~load_int(1); ;; this nft don't use custom_payload
+    int forward_amount = in_msg_body~load_coins();
+    throw_unless(708, slice_bits(in_msg_body) >= 1);
+
     if (equal_slices(new_owner_address, nexton_address)){
         slice contS = content.begin_parse();
         throw_unless(898,contS.slice_refs() == 1);
         throw_unless(899, contS.slice_bits() > 8);
         ;;throw_if(900, contS.slice_empty?());
-        throw_unless(900, contS~load_uint(8) == 0);
-        cell contDict = contS~load_dict();
+        throw_unless(900, contS.preload_uint(8) == 0);
+        cell contDict = contS.preload_dict();
         throw_if(901, contDict.dict_empty?() == -1);
         (slice lockPeriodSlice, int suc) = contDict.udict_get?(256,"lockPeriod"H);
         slice lockPeriodS = lockPeriodSlice~load_ref().begin_parse();
@@ -79,6 +85,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         slice lockPeriodS = lockPeriodSlice~load_ref().begin_parse();
 
         throw_unless(902, lockPeriodS~load_uint(256) == 100);
+
       ;;  int lockEnd = contS~load_uint(256);
       ;;  throw_unless(903, now() >= lockEnd);
         ;; for dictionary
@@ -100,14 +107,11 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         nameS~load_uint(8);
         throw_unless(1000, string_hash(nameS) == "Item name"H);
         -}
-        send_msg(nexton_address, forward_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
+        builder notification = begin_cell()
+                            .store_uint(index,256)
+                            .store_ref(content);
+        send_msg(nexton_address, forward_amount, op::claim_rewards(), query_id, notification , 1); ;; paying fees, revert on errors
     }
-
-    force_chain(new_owner_address);
-    slice response_destination = in_msg_body~load_msg_addr();
-    in_msg_body~load_int(1); ;; this nft don't use custom_payload
-    int forward_amount = in_msg_body~load_coins();
-    throw_unless(708, slice_bits(in_msg_body) >= 1);
 
     int rest_amount = my_balance - min_tons_for_storage();
     if (forward_amount) {
