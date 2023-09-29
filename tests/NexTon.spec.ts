@@ -79,12 +79,7 @@ describe('NexTon', () => {
         });
 
         const collectionData = await nftCollection.getCollectionData();
-        // check metadata, diffrence with how item metadata is given
-        //console.log(collectionData.collectionContent.refs);
-        //const prefix = await collectionData.collectionContent.beginParse().loadUint(8);
-        // expect(prefix).toEqual(0);
         const metadataDict = collectionData.collectionContent.beginParse().loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        //.beginParse().loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
         const prefix = await metadataDict.get(toSha256("name"))?.beginParse().loadUint(8);
         expect(prefix).toEqual(0);
         const collectionName = await metadataDict.get(toSha256("name"))?.beginParse().loadStringTail();
@@ -99,50 +94,6 @@ describe('NexTon', () => {
         // blockchain and invicore are ready to use
     });
 
-
-    // it('Should change Staking Pool address', async() => {
-    //     console.log("Changing Address!!!")
-    //     const user = await blockchain.treasury('user');
-    //     const addressBefore = await nexton.getStakingPool();
-    //     //console.log("Address before: ", addressBefore);
-
-    //     const userChange = await nexton.send(
-    //         user.getSender(), 
-    //         {
-    //         value: toNano("0.2")
-    //         }, 
-    //         {   
-    //             $$type: 'ChangeAddr',
-    //             queryId: Date.now(),
-    //             address: await randomAddress(),
-    //             entity: "SP"
-    //         }
-    //     )
-    //     //console.log("user message", userChange.events); // should be bounced
-
-    //     const addressAfterUser = await nexton.getStakingPool();
-    //     //console.log("Address after (user): ", addressAfterUser);
-
-    //     const deployerChange = await nexton.send(
-    //         deployer.getSender(),
-    //         {
-    //             value: toNano("0.2")
-    //         }, 
-    //         {   
-    //             $$type: 'ChangeAddr',
-    //             queryId: Date.now(),
-    //             address: await randomAddress(0),
-    //             entity: "SP"
-    //         }
-    //     )
-    //     //console.log("Deployer message", deployerChange.events);
-        
-    //     const addressAfterDeployer = await nexton.getStakingPool();
-    //     //console.log("Address after (deployer): ", addressAfterDeployer);
-    //     expect(addressAfterDeployer.toString()).not.toEqual(addressBefore.toString());
-    //     expect(addressAfterUser.toString()).toEqual(addressBefore.toString());
-    // });
-
     it('Should Deposit and Mint NFT with set metadata', async() => {
 
         //console.log("User Depositing!!!");
@@ -150,23 +101,6 @@ describe('NexTon', () => {
         const user = await blockchain.treasury('user');
         const lockP = 600n;
         const leverageR = 3n;
-        //const balanceBefore = await nexton.getBalance();
-        //console.log("Balance before deposit: ", fromNano(balanceBefore));
-
-        //const mintMessageReceiver = await nexton.getNftContract();
-        //console.log("NFTCollection: ", nftCollection.address);
-        //console.log("Mint messsage is sent to ", mintMessageReceiver);
-        //expect(mintMessageReceiver.equals(nftCollection.address)).toBe(true);
-
-        // const stakeData: itemContent = {
-        //     name: "Item name",
-        //     description: "Item description",
-        //     image: "https://hipo.finance/hton.png",
-        //     principal: 20n,
-        //     leverageRatio: 1n,
-        //     lockPeriod: 600n,
-        //     lockEnd: BigInt(Date.now()) + 600n
-        // }
 
         const mintMessage = await nexton.send(
             user.getSender(), 
@@ -188,11 +122,7 @@ describe('NexTon', () => {
         }
 
         const itemAddress =  await nftCollection.getItemAddressByIndex(index);
-        //console.log("Balance after: ", fromNano(await nexton.getBalance()));
-        
-        //console.log("NFTCounter: ", await nexton.getNftCounter())
 
-        //console.log(mintMessage.transactions);
         expect(mintMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
             to: itemAddress,
@@ -208,59 +138,34 @@ describe('NexTon', () => {
         const itemData = await nftItem.getItemData();
         expect(itemData.index).toEqual(0n);
         const itemContentSlice = itemData.itemContent.beginParse();
-        console.log("Cont ", itemContentSlice);
-        //itemContentSlice.loadUint(256);
-        //itemContentSlice.loadStringTail();
-        console.log("refs ", itemContentSlice.remainingRefs);
+        //console.log("refs ", itemContentSlice.remainingRefs);
+        expect(itemContentSlice.remainingRefs).toEqual(1);
 
         const prefix = itemContentSlice.loadUint(8);
-        console.log(prefix);
+        expect(prefix).toEqual(0);
+        console.log("Metadata Prefix", prefix);
         const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
         const nameCell = dict.get(toSha256("name"));
         const descriptionCell = dict.get(toSha256("description"));
         const imageCell = dict.get(toSha256("image"));
         const principalCell = dict.get(toSha256("principal"));
         const leverageCell = dict.get(toSha256("leverage"));
-        console.log("dict1 ", dict);
+        const lockPeriodCell = dict.get(toSha256("lockPeriod"));
+        const lockEndCell = dict.get(toSha256("lockEnd"));
         console.log("name ", nameCell?.beginParse().loadStringTail());
         await console.log("desc ", descriptionCell?.beginParse().loadStringTail());
         console.log("principal ", principalCell?.beginParse().loadCoins());
         console.log("leverage ", leverageCell?.beginParse().loadUint(8));
-        //console.log("dict2 ", dict2.keys());
+        console.log("lockPeriod ", lockPeriodCell?.beginParse().loadUint(256));
+        expect(lockPeriodCell?.beginParse().loadUint(256)).toEqual(600);
+        console.log("lockEnd ", lockEndCell?.beginParse().loadUint(256));
         
-
-       
-
-
-        //const itemName = itemContentSlice.
-        //.beginParse().loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        // const itemDescription = itemContentSlice.loadRef().beginParse().loadStringTail();
-        // const image = itemContentSlice.loadRef().beginParse().loadStringTail();
-        // const leverage = itemContentSlice.loadUint(8);
-        // const principal = itemContentSlice.loadCoins();
-        // expect(principal).toEqual(toNano("2")- toNano("0.1"));
-        // const lockPeriod = itemContentSlice.loadUint(256);
-        // const lockEnd = itemContentSlice.loadUint(256);
-        // console.log(lockEnd);
-        // expect(lockPeriod).toEqual(Number(lockP));
-        // console.log(itemData.itemContent.refs);
-
-        // FOR MAP Testing
-        // const contDict = itemContentSlice.loadRef().beginParse().loadStringTail();
-        // const n = itemContentSlice.loadUint(256);
-        //expect(n).toEqual(Number(toSha256("name")));
-        //loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        //loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
-        // console.log(contDict)
-        // console.log(n)
-        
-
     });
 
     it("Should Deposit and Claim User reward", async () =>{
         //console.log();
         
-        console.log("User Depositing!!!");
+        //console.log("User Depositing!!!");
         
         const user = await blockchain.treasury('user');
         const lockP = 1n;
@@ -298,11 +203,11 @@ describe('NexTon', () => {
         const itemData = await nftItem.getItemData();
         expect(itemData.index).toEqual(0n);
 
-        console.log(Date.now())
+        //console.log(Date.now())
         //await new Promise(resolve => setTimeout(resolve, 4000));
-        console.log(Date.now())
+        //console.log(Date.now())
 
-        console.log("User Claiming!!!");
+        //console.log("User Claiming!!!");
 
         const claimMessage = await nftItem.sendTransfer(
             user.getSender(),
