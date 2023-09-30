@@ -150,15 +150,16 @@ describe('NexTon', () => {
         const imageCell = dict.get(toSha256("image"));
         const principalCell = dict.get(toSha256("principal"));
         const leverageCell = dict.get(toSha256("leverage"));
-        //const lockPeriodCell = dict.get(toSha256("lockPeriod"));
+        const lockPeriodCell = dict.get(toSha256("lockPeriod"));
         const lockEndCell = dict.get(toSha256("lockEnd"));
         console.log("name ", nameCell?.beginParse().loadStringTail());
         // await console.log("desc ", descriptionCell?.beginParse().loadStringTail());
         // console.log("principal ", principalCell?.beginParse().loadCoins());
         // console.log("leverage ", leverageCell?.beginParse().loadUint(8));
-        // //console.log("lockPeriod ", lockPeriodCell?.beginParse().loadUint(256));
+        console.log("lockPeriod ", lockPeriodCell?.beginParse().loadUint(256));
         // //expect(lockPeriodCell?.beginParse().loadUint(256)).toEqual(600);
-        // console.log("lockEnd ", lockEndCell?.beginParse().loadUint(256));
+        console.log("Now ", Math.floor(Date.now() / 1000));
+        console.log("lockEnd ", lockEndCell?.beginParse().loadUint(256));
         
     });
 
@@ -179,7 +180,7 @@ describe('NexTon', () => {
             {   
                 $$type: 'UserDeposit',
                 queryId: BigInt(Date.now()),
-                lockPeriod: 100n,
+                lockPeriod: 600n,
                 leverage: 3n
             }
         )
