@@ -15,8 +15,9 @@ message StakingReward{
     rewards: Int as coins;
 }
 
-message(0x05138d91) UserClaim{
-    itemIndex: Int as uint32;
+message(0x636c61696d) UserClaim{
+    itemIndex: Int as uint64;
+    content: Cell;
 }
 
 struct BasicMetadata{
@@ -50,7 +51,7 @@ contract NexTon with Deployable, OwnableTransferable {
     usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
-    itemCounter: Int as uint32 = 0;   // next_item_index
+    itemCounter: Int as uint64 = 0;   // next_item_index
     //userItemClaimed: map<Int, Bool>;
     userItemWithdrawn: map<Int, Bool>;
     
@@ -89,7 +90,7 @@ contract NexTon with Deployable, OwnableTransferable {
             lockPeriod: msg.lockPeriod,
             lockEnd: now() + msg.lockPeriod
         }.toCell();
-        
+
         let nftItemMessage: Cell = beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
