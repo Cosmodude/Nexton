@@ -74,41 +74,16 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         throw_unless(898,contS.slice_refs() == 1);
         throw_unless(899, contS.slice_bits() > 8);
         ;;throw_if(900, contS.slice_empty?());
-        throw_unless(900, contS.preload_uint(8) == 0);
-        cell contDict = contS.preload_dict();
+        throw_unless(900, contS~load_uint(8) == 0);
+        cell contDict = contS~load_dict();
         throw_if(901, contDict.dict_empty?() == -1);
-        (slice lockPeriodSlice, int suc) = contDict.udict_get?(256,"lockPeriod"H);
+        (slice lockPeriodSlice, int suc) = contDict.udict_get?(256, "lockPeriod"H);
         slice lockPeriodS = lockPeriodSlice~load_ref().begin_parse();
 
-        throw_unless(902, lockPeriodS~load_uint(256) == 100);
-        (slice lockPeriodSlice, int suc) = contDict.udict_get?(256,"lockPeriod"H);
-        slice lockPeriodS = lockPeriodSlice~load_ref().begin_parse();
+        throw_unless(902, lockPeriodS~load_uint(256) == 600);
 
-        throw_unless(902, lockPeriodS~load_uint(256) == 100);
-
-      ;;  int lockEnd = contS~load_uint(256);
-      ;;  throw_unless(903, now() >= lockEnd);
-        ;; for dictionary
-        {- throw_unless(900, contS~load_uint(8) == 0);
-        cell dictCell = contS~load_dict();
-        ;;throw_unless(901, contS.slice_empty?() );
-        throw_if(902, dictCell.dict_empty?() == -1);
-        (slice name, int success) = dictCell.udict_get?(256, string_hash("name"));  ;; need to change to lockPeriod later
-        throw_unless(903, success == -1); ;; check that result found
-        ;;(int bits, int refs) = name.slice_bits_refs();
-        ;;throw_unless(904, bits == 0);  ;; strange
-        ;;throw_unless(905, refs == 1);
-        ;; problems were here
-        slice nameS = name~load_ref().begin_parse();
-        throw_if(999, nameS.slice_empty?() == -1);
-        ;;(int nameBits, int nameRefs) = nameS.slice_bits_refs();
-        ;;throw_if(997, nameBits == 0);
-        ;;throw_unless(998, nameRefs == 0);
-        nameS~load_uint(8);
-        throw_unless(1000, string_hash(nameS) == "Item name"H);
-        -}
         builder notification = begin_cell()
-                            .store_uint(index,64)
+                            .store_uint(index, 64)
                             .store_ref(content);
         send_msg(nexton_address, forward_amount, op::claim_rewards(), query_id, notification , 1); ;; paying fees, revert on errors
     }
@@ -212,12 +187,12 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
               .begin_parse();
       content_dict~udict_set(256, string_hash("lockEnd"), value);
 
-
       throw_if(801, content_dict.dict_empty?());
       cell content = begin_cell()
           .store_uint(0,8)
           .store_dict(content_dict)
           .end_cell();
+
       store_data(index, collection_address, in_msg_body~load_msg_addr(), in_msg_body~load_msg_addr(), content);  ;; body is crafted in Nexton contract
       return ();
     }
