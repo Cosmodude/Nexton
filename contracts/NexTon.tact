@@ -24,12 +24,6 @@ message(0x636c6169) UserClaim{
     content: Cell;
 }
 
-struct BasicMetadata{
-    name: String;
-    description: String;
-    image: String;
-}
-
 struct UserStakeInfo{
     name: String;
     description: String;
@@ -66,14 +60,9 @@ contract NexTon with Deployable, OwnableTransferable {
         self.latestStakeBlock = now();  // returns the current BlockNumber
     }
 
-    // Modifiers 
+    // Receive functions
 
-    // Receive functions 
-    // receive("Resume"){...}
-    // receive("Stop"){...}
-
-    // Receive TONCoins
-    receive(){}
+    receive(){} // Receive TONCoins
     
     receive(msg: UserDeposit){
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
@@ -131,20 +120,6 @@ contract NexTon with Deployable, OwnableTransferable {
         self.userItemClaimed.set(msg.itemIndex, true);
     }
 
-    receive(msg: UserClaim){
-        //requireOwner();
-        //require(self.itemCounter >= msg.itemIndex, "Claiming not exisitng NFT");
-        //require(self.nftOwner.get(msg.itemIndex) == sender(), "Message sender is not the NFT owner!");
-        //require(self.userItemWithdrawn.get(msg.itemIndex) == false, "Item was already withdrawn!");
-        //require(self.userItemClaimed.get(msg.itemIndex) == true, "Message sender is not the NFT owner!");
-        //self.userItemWithdrawn.set(msg.itemIndex, true);
-        // send(SendParameters{
-        //     to: sender(),
-        //     value: self.principalByAddress.get(sender())!! + ton("0.5"),
-        //     mode: SendPayGasSeparately + SendIgnoreErrors
-        // });
-    }
-
     // Command messages
     // should be removed later or fixed
     // receive(msg: ChangeAddr){
@@ -163,8 +138,7 @@ contract NexTon with Deployable, OwnableTransferable {
     // Functions
 
     fun buildItemMessage(owner: Address, principal: Int, leverage: Int, lockPeriod: Int): Cell{
-        let itemContent: Cell = 
-        UserStakeInfo{
+        let itemContent: Cell = UserStakeInfo{
             name: "Nexton User Stake",
             description: "Holds information about the user's stake in the Nexton platform pool",
             image: "https://hipo.finance/hton.png",
