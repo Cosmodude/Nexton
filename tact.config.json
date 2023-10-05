@@ -1,0 +1,10 @@
+{
+    "projects": [{
+        "name": "Nexton",
+        "path": "./contracts/NexTon.tact",
+        "output": "./sources/output",
+        "options":{
+            
+        }
+    }]
+}
