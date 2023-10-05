@@ -1,7 +1,9 @@
 #include "imports/stdlib.fc";
 #include "imports/nft_op_codes.fc";
+#include "imports/stdlib.fc";
 int workchain() asm "0 PUSHINT";
 int equal_slices (slice a, slice b) asm "SDEQ";
+int builder_null?(builder b) asm "ISNULL";
 
 () force_chain(slice addr) impure {
   (int wc, _) = parse_std_addr(addr);
