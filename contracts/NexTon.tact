@@ -114,7 +114,7 @@ contract NexTon with Deployable, OwnableTransferable {
             NFTMessage: nftItemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
 
-        self.usersPrincipal = self.usersPrincipal + ctx.value;
+        //self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(body);
     }
 
@@ -123,13 +123,11 @@ contract NexTon with Deployable, OwnableTransferable {
         //self.stopped = true;
     }
 
-    
-
     receive(msg: UserClaim){
         //self.requireNotStopped();
         require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
         require(self.getNftAddressByIndex(msg.itemIndex) == sender(), "Sent not from the nft item!"); // Safety check
-        let dict: Cell = msg.content.beginParse().loadDict();
+        //let dict: Cell = msg.content.beginParse().loadDict();
         self.userItemClaimed.set(msg.itemIndex, true);
     }
 
