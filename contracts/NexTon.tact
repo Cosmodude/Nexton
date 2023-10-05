@@ -167,20 +167,18 @@ contract NexTon with Deployable, OwnableTransferable {
         self.itemCounter = self.itemCounter + 1;
     }
 
-    fun getNftItemInit(item_index: Int): Cell {
+    fun getNftItemInit(item_index: Int): StateInit {
         let data: Cell = beginCell().storeUint(item_index,64).storeSlice(self.nFTContractAddress.asSlice()).endCell();
-        let itemInit: Cell = beginCell().storeUint(0, 2).storeDict(self.nftItemCode).storeDict(data).storeUint(0, 1).endCell();
+        let itemInit: StateInit = StateInit{
+            data: data,
+            code: self.nftItemCode
+        }; 
         return itemInit;
     }
 
 
-    get fun getNftAddressByIndex(item_index: Int): Slice {
-        let stateInit: Cell = self.getNftItemInit(item_index);
-        return beginCell().storeUint(4, 3)
-                     .storeInt(0, 8)
-                     .storeUint(stateInit.hash(), 256)
-                     .endCell()
-                     .beginParse();
+    get fun getNftAddressByIndex(item_index: Int): Address {
+        return contractAddress(self.getNftItemInit(item_index));        
     }
 
     // GET methods
