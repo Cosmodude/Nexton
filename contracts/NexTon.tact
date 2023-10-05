@@ -10,8 +10,8 @@ const MIN_LP_DEPOSIT: Int = ton("10000");
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
 
-@name(load_dict)
-extends native loadDict(self: Slice): Slice, Cell;
+// @name(load_dict)
+// extends native loadDict(self: Slice): (Slice,Cell);
 
 message StakingReward{
     principal: Int as coins;
@@ -20,6 +20,7 @@ message StakingReward{
 
 message(0x636c6169) UserClaim{
     itemIndex: Int as uint64;
+    owner: Address;
     content: Cell;
 }
 
@@ -44,18 +45,18 @@ struct UserStakeInfo{
 contract NexTon with Deployable, OwnableTransferable {
     const MinTonForStorage: Int = ton("0.2");
     owner: Address;
-    stopped: Bool = false;
     nftItemCode: Cell;
 
-    const MIN: Int = 60;
-    sPContractAddress: Address;      // Staking Pool Contract Address
+    //const MIN: Int = 60;
+    //sPContractAddress: Address;      // Staking Pool Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
 
-    usersPrincipal: Int as coins = 0;
+    //usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
     userItemClaimed: map<Int, Bool>;
+    //userItemClaimer: map<Int, Address>;
     
     init(nftItemCode: Cell, _liquidStaking: Address, _nft: Address) {
         self.owner = sender();
@@ -64,12 +65,6 @@ contract NexTon with Deployable, OwnableTransferable {
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
     }
-
-    // Modifiers 
-
-    // Receive functions 
-    // receive("Resume"){...}
-    // receive("Stop"){...}
 
     // Receive TONCoins
     receive(){}
@@ -81,27 +76,27 @@ contract NexTon with Deployable, OwnableTransferable {
 
         let content: map<Int, Cell> = emptyMap();
         content.set(sha256("name"), beginCell().storeUint(0, 8).storeSlice("Item name".asSlice()).endCell());
-        let itemContent: Cell = 
-        UserStakeInfo{
-            name: "Nexton User Stake",
-            description: "Holds information about the user's stake in the Nexton platform pool",
-            image: "https://hipo.finance/hton.png",
-            principal: ctx.value - PROTOCOL_FEE,
-            leverageRatio: msg.leverage,
-            lockPeriod: msg.lockPeriod,
-            lockEnd: now() + msg.lockPeriod
-        }.toCell();
+        // let itemContent: Cell = 
+        // UserStakeInfo{
+        //     name: "Nexton User Stake",
+        //     description: "Holds information about the user's stake in the Nexton platform pool",
+        //     image: "https://hipo.finance/hton.png",
+        //     principal: ctx.value - PROTOCOL_FEE,
+        //     leverageRatio: msg.leverage,
+        //     lockPeriod: msg.lockPeriod,
+        //     lockEnd: now() + msg.lockPeriod
+        // }.toCell();
 
-        let nftItemMessage: Cell = beginCell()
-            .storeAddress(ctx.sender)  //itemOwnerAddress
-            .storeAddress(myAddress())  // setting nexton_aadress for nft_item
-            .storeRef(itemContent)
-            .endCell();
+        // let nftItemMessage: Cell = beginCell()
+        //     .storeAddress(ctx.sender)  //itemOwnerAddress
+        //     .storeAddress(myAddress())  // setting nexton_aadress for nft_item
+        //     .storeRef(itemContent)
+        //     .endCell();
         let body: MintNFT =  MintNFT{
             queryId: msg.queryId,
             itemIndex: self.itemCounter, // nftItemIndex
             amount: ton("0.035"),
-            NFTMessage: nftItemMessage
+            NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
 
         self.usersPrincipal = self.usersPrincipal + ctx.value;
@@ -110,13 +105,11 @@ contract NexTon with Deployable, OwnableTransferable {
 
     bounced(src: bounced<MintNFT>) {
         self.itemCounter = self.itemCounter - 1;
-        //self.stopped = true;
     }
 
     
 
     receive(msg: UserClaim){
-        //self.requireNotStopped();
         require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
         require(self.getNftAddressByIndex(msg.itemIndex) == sender(), "Sent not from the nft item!"); // Safety check
         let dict: Cell = msg.content.beginParse().loadDict();
@@ -153,6 +146,26 @@ contract NexTon with Deployable, OwnableTransferable {
     // }
 
     // Functions
+    fun buildItemMessage(owner: Address, principal: Int, leverage: Int, lockPeriod: Int): Cell{
+        let itemContent: Cell = 
+        UserStakeInfo{
+            name: "Nexton User Stake",
+            description: "Holds information about the user's stake in the Nexton platform pool",
+            image: "https://hipo.finance/hton.png",
+            principal: principal,
+            leverageRatio: leverage,
+            lockPeriod: lockPeriod,
+            lockEnd: now() + lockPeriod
+        }.toCell();
+
+        let nftItemMessage: Cell = beginCell()
+            .storeAddress(owner)  //itemOwnerAddress
+            .storeAddress(myAddress())  // setting nexton_aadress for nft_item
+            .storeRef(itemContent)
+            .endCell();
+        
+        return  nftItemMessage;
+    }
 
     fun mintNFT(body: MintNFT){
         send(SendParameters{
