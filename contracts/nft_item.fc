@@ -144,65 +144,78 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     ;; need to build a conent dictionary here 
     if (~ init?) {
       throw_unless(405, equal_slices(collection_address, sender_address));
-      cell raw_content = in_msg_body~load_ref();
-      slice rcs = raw_content.begin_parse();
+      slice owner = in_msg_body~load_msg_addr();
+      slice nexton =  in_msg_body~load_msg_addr();
+      ;;throw_if(874, in_msg_body.slice_refs() == 0);
+      throw_unless(872, nexton.slice_bits() >= 256);
+      ;;slice content = in_msg_body~load_ref().begin_parse();
+      ;;throw_if(873, content.slice_bits() == 0);
+      cell content_dict = in_msg_body~load_dict();
+      throw_if(873, content_dict.begin_parse().slice_refs() == 0);
+      ;; cell raw_content = in_msg_body~load_ref();
+      ;; slice rcs = raw_content.begin_parse();
 
-      cell name = rcs~load_ref();
-      slice value = begin_cell().store_ref(name).end_cell().begin_parse();
-      cell content_dict = new_dict();
-      content_dict~udict_set(256, string_hash("name"), value);
-      cell desc = rcs~load_ref();
-      value = begin_cell().store_ref(desc).end_cell().begin_parse();
-      content_dict~udict_set(256, string_hash("description"), value);
-      cell image = rcs~load_ref();
-      value = begin_cell().store_ref(image).end_cell().begin_parse();
-      content_dict~udict_set(256, string_hash("image"), value);
-      int principal = rcs~load_coins();
-      value = begin_cell()
-              .store_ref(
-                  begin_cell()
-                  .store_coins(principal)
-                  .end_cell())
-              .end_cell()
-              .begin_parse();
-      content_dict~udict_set(256, string_hash("principal"), value);
-      int leverageRatio = rcs~load_uint(8);
-      value = begin_cell()
-              .store_ref(
-                  begin_cell()
-                  .store_uint(leverageRatio, 8)
-                  .end_cell())
-              .end_cell()
-              .begin_parse();
-      content_dict~udict_set(256, string_hash("leverage"), value);
-      int lockPeriod = rcs~load_uint(256);
-      value = begin_cell()
-                .store_ref(
-                  begin_cell()
-                  .store_uint(lockPeriod, 256)
-                  .end_cell()
-                )
-              .end_cell()
-              .begin_parse();
-      content_dict~udict_set(256, string_hash("lockPeriod"), value);
-      int lockEnd = rcs~load_uint(256);
-      value = begin_cell()
-              .store_ref(
-                  begin_cell()
-                  .store_uint(lockEnd, 256)
-                  .end_cell())
-              .end_cell()
-              .begin_parse();
-      content_dict~udict_set(256, string_hash("lockEnd"), value);
+      ;; cell name = rcs~load_ref();
+      ;; slice value = begin_cell().store_ref(name).end_cell().begin_parse();
+      ;; cell content_dict = new_dict();
+      ;; content_dict~udict_set(256, string_hash("name"), value);
+      ;; cell desc = rcs~load_ref();
+      ;; value = begin_cell().store_ref(desc).end_cell().begin_parse();
+      ;; content_dict~udict_set(256, string_hash("description"), value);
+      ;; cell image = rcs~load_ref();
+      ;; value = begin_cell().store_ref(image).end_cell().begin_parse();
+      ;; content_dict~udict_set(256, string_hash("image"), value);
+      ;; int principal = rcs~load_coins();
+      ;; value = begin_cell()
+      ;;         .store_ref(
+      ;;             begin_cell()
+      ;;             .store_coins(principal)
+      ;;             .end_cell())
+      ;;         .end_cell()
+      ;;         .begin_parse();
+      ;; content_dict~udict_set(256, string_hash("principal"), value);
+      ;; int leverageRatio = rcs~load_uint(8);
+      ;; value = begin_cell()
+      ;;         .store_ref(
+      ;;             begin_cell()
+      ;;             .store_uint(leverageRatio, 8)
+      ;;             .end_cell())
+      ;;         .end_cell()
+      ;;         .begin_parse();
+      ;; content_dict~udict_set(256, string_hash("leverage"), value);
+      ;; int lockPeriod = rcs~load_uint(256);
+      ;; value = begin_cell()
+      ;;           .store_ref(
+      ;;             begin_cell()
+      ;;             .store_uint(lockPeriod, 256)
+      ;;             .end_cell()
+      ;;           )
+      ;;         .end_cell()
+      ;;         .begin_parse();
+      ;; content_dict~udict_set(256, string_hash("lockPeriod"), value);
+      ;; int lockEnd = rcs~load_uint(256);
+      ;; value = begin_cell()
+      ;;         .store_ref(
+      ;;             begin_cell()
+      ;;             .store_uint(lockEnd, 256)
+      ;;             .end_cell())
+      ;;         .end_cell()
+      ;;         .begin_parse();
+      ;; content_dict~udict_set(256, string_hash("lockEnd"), value);
 
-      throw_if(801, content_dict.dict_empty?());
-      cell content = begin_cell()
+        throw_if(801, content_dict.dict_empty?() == -1);
+        (slice nameCs, int success) = content_dict.udict_get?(256, string_hash("name"));
+        throw_if(875, nameCs.null?());
+        throw_if(876, success == 0);
+        int name = nameCs~load_uint(256);
+        throw_if(867, name == "Item name"H);
+
+        cell content = begin_cell()
           .store_uint(0,8)
           .store_dict(content_dict)
           .end_cell();
-
-      store_data(index, collection_address, in_msg_body~load_msg_addr(), in_msg_body~load_msg_addr(), content);  ;; body is crafted in Nexton contract
-      return ();
+        store_data(index, collection_address, owner, nexton, content);  ;; body is crafted in Nexton contract
+        return ();
     }
 
     int op = in_msg_body~load_uint(32);

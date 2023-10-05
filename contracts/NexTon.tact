@@ -69,16 +69,15 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        let content: map<Int, Cell> = emptyMap();
-        content.set(sha256("name"), 
-        beginCell()
-        .storeUint(0, 8)
-        .storeRef(
-            beginCell()
-            .storeSlice("Item name".asSlice())
-            .endCell())
-        .endCell()
-        );
+        let content: map<Int, Int> = emptyMap();
+
+        content.set(sha256("name"), sha256("Item name"));
+
+        // content.set(sha256("description"), 
+        //     beginCell()
+        //     .storeUint(sha256("Item name"), 256)
+        //     .endCell()
+        // );
 
         // let itemContent: Cell = 
         // UserStakeInfo{
@@ -91,20 +90,21 @@ contract NexTon with Deployable, OwnableTransferable {
         //     lockEnd: now() + msg.lockPeriod
         // }.toCell();
 
-        let nftItemMessage: Cell = beginCell()
+        let nftItemMessage: Cell = 
+            beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
-            .storeRef(content.asCell()!!)//itemContent)
+            .storeDict(content.asCell()!!) //itemContent)
             .endCell();
-        let body: MintNFT =  MintNFT{
+        let contentBody: MintNFT =  MintNFT{
             queryId: msg.queryId,
             itemIndex: self.itemCounter, // nftItemIndex
             amount: ton("0.035"),
             NFTMessage: nftItemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
-
+        nftItemMessage.beginParse()
         //self.usersPrincipal = self.usersPrincipal + ctx.value;
-        self.mintNFT(body);
+        self.mintNFT(contentBody);
     }
 
     bounced(src: bounced<MintNFT>) {
