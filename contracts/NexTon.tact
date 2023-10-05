@@ -198,10 +198,6 @@ contract NexTon with Deployable, OwnableTransferable {
     get fun nftCounter(): Int{
         return self.itemCounter;
     }
-
-    get fun now(): Int {
-        return now();
-    }
     
     // get fun userNFTItemClaimed(index: Int): Bool?{
     //     return self.userItemClaimed.get(index);

@@ -52,7 +52,7 @@ describe('NexTon', () => {
             success: true,
         });
         
-        nexton = blockchain.openContract(await NexTon.fromInit(await compile("NftItem"), myAddress, nftCollection.address));
+        nexton = blockchain.openContract(await NexTon.fromInit(await compile("NftItem"), nftCollection.address));
 
         const nexTonDeployResult = await nexton.send(
             deployer.getSender(),
