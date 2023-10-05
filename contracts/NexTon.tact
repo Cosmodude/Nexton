@@ -164,7 +164,26 @@ contract NexTon with Deployable, OwnableTransferable {
 
     // Functions
 
+    fun buildItemMessage(owner: Address, principal: Int, leverage: Int, lockPeriod: Int): Cell{
+        let itemContent: Cell = 
+        UserStakeInfo{
+            name: "Nexton User Stake",
+            description: "Holds information about the user's stake in the Nexton platform pool",
+            image: "https://hipo.finance/hton.png",
+            principal: principal,
+            leverageRatio: leverage,
+            lockPeriod: lockPeriod,
+            lockEnd: now() + lockPeriod
+        }.toCell();
 
+        let nftItemMessage: Cell = beginCell()
+            .storeAddress(owner)  //itemOwnerAddress
+            .storeAddress(myAddress())  // setting nexton_aadress for nft_item
+            .storeRef(itemContent)
+            .endCell();
+
+        return  nftItemMessage;
+    }
     
     fun mintNFT(body: MintNFT){
         send(SendParameters{
