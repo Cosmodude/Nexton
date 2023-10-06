@@ -146,12 +146,13 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
       throw_unless(405, equal_slices(collection_address, sender_address));
       slice owner = in_msg_body~load_msg_addr();
       slice nexton =  in_msg_body~load_msg_addr();
-      ;;throw_if(874, in_msg_body.slice_refs() == 0);
-      throw_unless(872, nexton.slice_bits() >= 256);
+      throw_unless(874, in_msg_body.slice_refs() == 1);
+      throw_unless(873, in_msg_body.slice_bits() == 1);
+      throw_unless(872, in_msg_body.preload_uint(1) == 1);
       ;;slice content = in_msg_body~load_ref().begin_parse();
       ;;throw_if(873, content.slice_bits() == 0);
       cell content_dict = in_msg_body~load_dict();
-      throw_if(873, content_dict.begin_parse().slice_refs() == 0);
+      ;;throw_if(873, content_dict.begin_parse().slice_refs() == 0);
       ;; cell raw_content = in_msg_body~load_ref();
       ;; slice rcs = raw_content.begin_parse();
 
@@ -203,10 +204,10 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
       ;;         .begin_parse();
       ;; content_dict~udict_set(256, string_hash("lockEnd"), value);
 
-        throw_if(801, content_dict.dict_empty?() == -1);
-        (slice nameCs, int success) = content_dict.udict_get?(256, string_hash("name"));
+        throw_if(801, content_dict.dict_empty?());
+        (slice nameCs, int success) = content_dict.idict_get?(257, string_hash("name"));
         throw_if(875, nameCs.null?());
-        throw_if(876, success == 0);
+        throw_unless(876, success == -1);
         int name = nameCs~load_uint(256);
         throw_if(867, name == "Item name"H);
 
