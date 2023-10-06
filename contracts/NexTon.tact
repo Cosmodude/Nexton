@@ -10,8 +10,16 @@ const MIN_LP_DEPOSIT: Int = ton("10000");
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
 
-//@name(load_dict)
-//extends native loadDict(self: Slice): Slice, Cell;
+// struct DictGetRes{
+//     slice: Slice;
+//     dict: Cell;
+// }
+
+// @name(load_dict)
+// extends native loadDict(self: Slice): DictGetRes;
+
+// @name(udict_get?)
+// extends native udictGet(self: Cell, kl: Int, k: Int): Slice;
 
 message StakingReward{
     principal: Int as coins;
@@ -102,7 +110,10 @@ contract NexTon with Deployable, OwnableTransferable {
             amount: ton("0.035"),
             NFTMessage: nftItemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
-        nftItemMessage.beginParse()
+        // let dict: Cell = nftItemMessage.beginParse().load_dict();
+        // let res: DictGetRes = dict.udictGet(256, sha256("name"));
+        // let name: Int = nameS.loadUint(256);
+        // require(name == sha256("Item nam"), "  Not working ");
         //self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(contentBody);
     }
