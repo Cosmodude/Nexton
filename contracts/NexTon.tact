@@ -10,6 +10,9 @@ const MIN_LP_DEPOSIT: Int = ton("10000");
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
 
+@name(store_slice)
+extends native store_slice(self: Builder, s: Slice): Builder;
+
 // struct DictGetRes{
 //     slice: Slice;
 //     dict: Cell;
@@ -77,9 +80,15 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        let content: map<Int, Int> = emptyMap();
+        let content: map<Int, Cell> = emptyMap();
 
-        content.set_ref(sha256("name"), begin_cell().store_uint(0, 8).store_slice("Item name").end_cell());
+        content.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
+        content.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
+        content.set(sha256("image"), beginCell().storeUint(0, 8).store_slice("https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png".asSlice()).endCell());
+        content.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());
+        content.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
+        content.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
+
 
         // content.set(sha256("description"), 
         //     beginCell()
