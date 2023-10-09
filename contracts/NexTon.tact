@@ -79,7 +79,7 @@ contract NexTon with Deployable, OwnableTransferable {
 
         let content: map<Int, Int> = emptyMap();
 
-        content.set(sha256("name"), sha256("Item name"));
+        content.set_ref(sha256("name"), begin_cell().store_uint(0, 8).store_slice("Item name").end_cell());
 
         // content.set(sha256("description"), 
         //     beginCell()
