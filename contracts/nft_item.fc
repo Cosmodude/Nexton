@@ -145,6 +145,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     if (~ init?) {
       throw_unless(405, equal_slices(collection_address, sender_address));
       throw_unless(801, in_msg_body.preload_uint(1) == 1);
+      slice nexton = in_msg_body~load_msg_addr();
+      slice owner =  in_msg_body~load_msg_addr();
       cell content_dict = in_msg_body~load_dict();
       throw_if(802, content_dict.dict_empty?());
 
@@ -162,7 +164,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         .store_uint(0,8)
         .store_dict(content_dict)
         .end_cell();
-      store_data(index, collection_address, in_msg_body~load_msg_addr(), in_msg_body~load_msg_addr(), content);  ;; body is crafted in Nexton contract
+      store_data(index, collection_address, owner, nexton, content);  ;; body is crafted in Nexton contract
       return ();
     }
 
