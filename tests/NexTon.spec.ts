@@ -99,7 +99,7 @@ describe('NexTon', () => {
         //console.log("User Depositing!!!");
         
         const user = await blockchain.treasury('user');
-        const lockP = 600n;
+        const lockP = 3n;
         const leverageR = 3n;
 
         const mintMessage = await nexton.send(
@@ -143,25 +143,31 @@ describe('NexTon', () => {
         //console.log("refs ", itemContentSlice.remainingRefs);
         expect(itemContentSlice.remainingRefs).toEqual(1);
 
-        // const prefix = itemContentSlice.loadUint(8);
-        // expect(prefix).toEqual(0);
+        const prefix = itemContentSlice.loadUint(8);
+        expect(prefix).toEqual(0);
         // console.log("Metadata Prefix", prefix);
-        // const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
-        // const nameCell = dict.get(toSha256("name"));
+        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(257)), Dictionary.Values.Cell());
+        const nameCell = dict.get(toSha256("name"));
         // const descriptionCell = dict.get(toSha256("description"));
         // const imageCell = dict.get(toSha256("image"));
-        // const principalCell = dict.get(toSha256("principal"));
+        const principalCell = dict.get(toSha256("principal"));
         // const leverageCell = dict.get(toSha256("leverage"));
-        // const lockPeriodCell = dict.get(toSha256("lockPeriod"));
-        // const lockEndCell = dict.get(toSha256("lockEnd"));
-        // console.log("name ", nameCell?.beginParse().loadStringTail());
+        const lockPeriodCell = dict.get(toSha256("lockPeriod"));
+        const lockEndCell = dict.get(toSha256("lockEnd"));
+        console.log("name ", nameCell?.beginParse().loadStringTail());
         // // await console.log("desc ", descriptionCell?.beginParse().loadStringTail());
-        // // console.log("principal ", principalCell?.beginParse().loadCoins());
+        const pr = principalCell?.beginParse()!!;
+        pr.loadUint(8);
+        console.log("principal ", pr.loadCoins());
+        const lp = lockPeriodCell?.beginParse()!!;
+        lp.loadUint(8);
+        console.log("lockPeriod ", lp.loadUint(256));
         // // console.log("leverage ", leverageCell?.beginParse().loadUint(8));
-        // console.log("lockPeriod ", lockPeriodCell?.beginParse().loadUint(256));
-        // // //expect(lockPeriodCell?.beginParse().loadUint(256)).toEqual(600);
-        // console.log("Now ", Math.floor(Date.now() / 1000));
-        // console.log("lockEnd ", lockEndCell?.beginParse().loadUint(256));
+        const le = lockEndCell?.beginParse()!!;
+        le.loadUint(8)
+        //expect(lockPeriodCell?.beginParse().loadUint(256)).toEqual(600);
+        console.log("Now ", Math.floor(Date.now() / 1000));
+        console.log("lockEnd ", le.loadUint(256));
         
     });
 
