@@ -153,14 +153,14 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
       cell content_dict = in_msg_body~load_dict();
     
       throw_if(801, content_dict.dict_empty?());
-      (cell nameC, int success) = content_dict.idict_get_ref?(257, string_hash("marketplace"));
+      (cell nameC, int success) = content_dict.idict_get_ref?(257, string_hash("description"));
       throw_if(875, nameC.cell_null?());
       throw_unless(876, success == -1);
       slice res = nameC.begin_parse();
       int prefix = res~load_uint(8);
       throw_unless(877, prefix == 0);
       
-      throw_unless(867, equal_slices(res, "getgems.io"));
+      throw_unless(867, equal_slices(res, "Holds information about the user's stake in the Nexton platform pool"));
 
       cell content = begin_cell()
         .store_uint(0,8)

@@ -88,6 +88,8 @@ contract NexTon with Deployable, OwnableTransferable {
         content.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());
         content.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         content.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
+        content.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
+        content.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
 
         // content.set(sha256("description"), 
@@ -135,7 +137,7 @@ contract NexTon with Deployable, OwnableTransferable {
     receive(msg: UserClaim){
         //self.requireNotStopped();
         require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
-        require(self.getNftAddressByIndex(msg.itemIndex) == sender(), "Sent not from the nft item!"); // Safety check
+        require(self.getNftAddressByIndex(msg.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
         //let dict: Cell = msg.content.beginParse().loadDict();
         self.userItemClaimed.set(msg.itemIndex, true);
     }
