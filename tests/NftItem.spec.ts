@@ -49,4 +49,10 @@ describe('NftItem', () => {
         // the check is done inside beforeEach
         // blockchain and nftItem are ready to use
     });
+
+    it("should get item data", async () => {
+        const itemData = await nftItem.getItemData();
+        const index = itemData.index;
+        //console.log(index)
+    })
 });

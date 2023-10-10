@@ -128,19 +128,20 @@ describe('NexTon', () => {
             to: itemAddress,
             inMessageBounced: false
         });
-        //console.log(mintMessage.events.at(-1)?.type)
-        //expect(mintMessage.events.at(-1)?.type).toMatch("account_created");
+        //console.log(mintMessage.events);
+        expect(mintMessage.events.at(-1)?.type).toMatch("account_created");
         expect(await nexton.getNftCounter()).toEqual(1n);
 
-        console.log(await mintMessage.transactions);
-        //nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
-        //expect(nftItem.address).toEqualAddress(itemAddress);
+        //console.log(await mintMessage.transactions);
+        nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
+        expect(nftItem.address).toEqualAddress(itemAddress);
 
-        // const itemData = await nftItem.getItemData();
-        // expect(itemData.index).toEqual(0n);
-        // const itemContentSlice = itemData.itemContent.beginParse();
-        // //console.log("refs ", itemContentSlice.remainingRefs);
-        // expect(itemContentSlice.remainingRefs).toEqual(1);
+        //console.log(nftItem.address, itemAddress)
+        const itemData = await nftItem.getItemData();
+        expect(itemData.index).toEqual(0n);
+        const itemContentSlice = itemData.itemContent.beginParse();
+        //console.log("refs ", itemContentSlice.remainingRefs);
+        expect(itemContentSlice.remainingRefs).toEqual(1);
 
         // const prefix = itemContentSlice.loadUint(8);
         // expect(prefix).toEqual(0);
