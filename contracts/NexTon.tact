@@ -91,13 +91,6 @@ contract NexTon with Deployable, OwnableTransferable {
         content.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
         content.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
-
-        // content.set(sha256("description"), 
-        //     beginCell()
-        //     .storeUint(sha256("Item name"), 256)
-        //     .endCell()
-        // );
-
         // let itemContent: Cell = 
         // UserStakeInfo{
         //     name: "Nexton User Stake",
@@ -109,24 +102,24 @@ contract NexTon with Deployable, OwnableTransferable {
         //     lockEnd: now() + msg.lockPeriod
         // }.toCell();
 
-        let nftItemMessage: Cell = 
+        let itemMessage: Cell = 
             beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
             .storeDict(content.asCell()!!) //itemContent)
             .endCell();
-        let contentBody: MintNFT =  MintNFT{
+        let messageBody: MintNFT =  MintNFT{
             queryId: msg.queryId,
             itemIndex: self.itemCounter, // nftItemIndex
             amount: ton("0.035"),
-            NFTMessage: nftItemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
+            NFTMessage: itemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
         // let dict: Cell = nftItemMessage.beginParse().load_dict();
         // let res: DictGetRes = dict.udictGet(256, sha256("name"));
         // let name: Int = nameS.loadUint(256);
         // require(name == sha256("Item nam"), "  Not working ");
         //self.usersPrincipal = self.usersPrincipal + ctx.value;
-        self.mintNFT(contentBody);
+        self.mintNFT(messageBody);
     }
 
     bounced(src: bounced<MintNFT>) {
@@ -158,26 +151,6 @@ contract NexTon with Deployable, OwnableTransferable {
     // }
 
     // Functions
-
-    fun buildItemMessage(owner: Address, principal: Int, leverage: Int, lockPeriod: Int): Cell{
-        let itemContent: Cell = UserStakeInfo{
-            name: "Nexton User Stake",
-            description: "Holds information about the user's stake in the Nexton platform pool",
-            image: "https://hipo.finance/hton.png",
-            principal: principal,
-            leverageRatio: leverage,
-            lockPeriod: lockPeriod,
-            lockEnd: now() + lockPeriod
-        }.toCell();
-
-        let nftItemMessage: Cell = beginCell()
-            .storeAddress(owner)  //itemOwnerAddress
-            .storeAddress(myAddress())  // setting nexton_aadress for nft_item
-            .storeRef(itemContent)
-            .endCell();
-
-        return  nftItemMessage;
-    }
     
     fun mintNFT(body: MintNFT){
         send(SendParameters{
