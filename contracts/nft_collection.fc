@@ -107,8 +107,8 @@ slice calculate_nft_item_address(int wc, cell state_init) {
 
     if (op == 1) { ;; deploy new nft
       int item_index = in_msg_body~load_uint(64);
-      throw_unless(402, item_index == next_item_index);
-      deploy_nft_item(next_item_index, nft_item_code, in_msg_body~load_coins(), in_msg_body~load_ref());  ;; gets the value to be sent with item deploy and the body
+      throw_unless(402, item_index <= next_item_index);
+      deploy_nft_item(next_item_index, nft_item_code, in_msg_body~load_coins(), in_msg_body~load_ref());  ;; gets the value to be sent with item deploy and the content
       next_item_index += 1;
       save_data(owner_address, next_item_index, content, nft_item_code, royalty_params);
       return ();
@@ -154,7 +154,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
 slice get_nft_address_by_index(int index) method_id {
     var (_, _, _, nft_item_code, _) = load_data();
     cell state_init = calculate_nft_item_state_init(index, nft_item_code);
-    return calculate_nft_item_address(0, state_init);
+    return calculate_nft_item_address(workchain(), state_init);
 }
 
 (int, int, slice) royalty_params() method_id {
