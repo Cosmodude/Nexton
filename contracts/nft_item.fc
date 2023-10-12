@@ -73,27 +73,29 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     slice response_destination = in_msg_body~load_msg_addr();
     in_msg_body~load_int(1); ;; this nft don't use custom_payload
     int forward_amount = in_msg_body~load_coins();
-    throw_unless(708, slice_bits(in_msg_body) >= 1);
+    throw_unless(700, slice_bits(in_msg_body) >= 1);
 
     if (equal_slices(new_owner_address, nexton_address)){
         slice contS = content.begin_parse();
         throw_unless(898,contS.slice_refs() == 1);
-        throw_unless(899, contS.slice_bits() > 8);
-        ;;throw_if(900, contS.slice_empty?());
+        throw_unless(899, contS.slice_bits() == 9);
+        ;; ;;throw_if(900, contS.slice_empty?());
         throw_unless(900, contS~load_uint(8) == 0);
         cell contDict = contS~load_dict();
         throw_if(901, contDict.dict_empty?() == -1);
-        (slice lockPeriodSlice, int suc) = contDict.udict_get?(256, "lockPeriod"H);
-        slice lockPeriodS = lockPeriodSlice~load_ref().begin_parse();
+        (slice lockPeriodSlice, int suc) = contDict.udict_get?(257, "lockPeriod"H);
+        throw_unless(902, suc);
+        lockPeriodSlice 
+        slice lockPeriodS = ;
 
-        throw_unless(902, lockPeriodS~load_uint(256) == 600);
+        ;;throw_unless(902, lockPeriodS~load_uint(256) == 600);
 
-        builder notification = begin_cell()
-                            .store_uint(index, 64)
-                            .store_slice(owner_address)
-                            .store_ref(content);
+        ;; builder notification = begin_cell()
+        ;;                     .store_uint(index, 64)
+        ;;                     .store_slice(owner_address)
+        ;;                     .store_ref(content);
                             
-        send_msg(nexton_address, forward_amount, op::claim_rewards(), query_id, notification, 1); ;; paying fees, revert on errors
+        ;; send_msg(nexton_address, forward_amount, 101, query_id, notification, 1); ;; paying fees, revert on errors
     }
 
     int rest_amount = my_balance - min_tons_for_storage();
@@ -143,21 +145,21 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     (int init?, int index, slice collection_address, slice owner_address, slice nexton_address, cell content) = load_data();
     ;; need to build a conent dictionary here 
     if (~ init?) {
-      throw_unless(405, equal_slices(collection_address, sender_address));
-      throw_unless(801, in_msg_body.preload_uint(1) == 1);
-      slice nexton = in_msg_body~load_msg_addr();
+      throw_unless(403, equal_slices(collection_address, sender_address));
       slice owner =  in_msg_body~load_msg_addr();
+      slice nexton = in_msg_body~load_msg_addr();
+      throw_unless(101, in_msg_body.preload_uint(1) == 1);
       cell content_dict = in_msg_body~load_dict();
-      throw_if(802, content_dict.dict_empty?());
+      throw_if(102, content_dict.dict_empty?());
 
       (cell nameC, int success) = content_dict.idict_get_ref?(257, string_hash("description"));
-      throw_if(803, nameC.cell_null?());
-      throw_unless(804, success == -1);
+      throw_if(103, nameC.cell_null?());
+      throw_unless(104, success == -1);
 
       slice res = nameC.begin_parse();
       int prefix = res~load_uint(8);
-      throw_unless(805, prefix == 0);
-      throw_unless(806, equal_slices(res, "Holds information about the user's stake in the Nexton platform pool"));
+      throw_unless(105, prefix == 0);
+      throw_unless(106, equal_slices(res, "Holds information about the user's stake in the Nexton platform pool"));
 
 
       cell content = begin_cell()
