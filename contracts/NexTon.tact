@@ -35,17 +35,27 @@ message(0x636c6169) UserClaim{
     content: Cell;
 }
 
-struct UserStakeInfo{
-    name: String;
-    description: String;
-    image: String;
-    principal: Int as coins;
-    leverageRatio: Int as uint8 = 1;
-    //protocolFee: Int as coins = ton("0.1");
-    lockPeriod: Int as uint256 = 600;
-    lockEnd: Int as uint256;
-    //isLent: Bool = false;
-}
+// let itemContent: Cell = 
+        // UserStakeInfo{
+        //     name: "Nexton User Stake",
+        //     description: "Holds information about the user's stake in the Nexton platform pool",
+        //     image: "https://hipo.finance/hton.png",
+        //     principal: ctx.value - PROTOCOL_FEE,
+        //     leverageRatio: msg.leverage,
+        //     lockPeriod: msg.lockPeriod,
+        //     lockEnd: now() + msg.lockPeriod
+        // }.toCell();
+// struct UserStakeInfo{
+//     name: String;
+//     description: String;
+//     image: String;
+//     principal: Int as coins;
+//     leverageRatio: Int as uint8 = 1;
+//     //protocolFee: Int as coins = ton("0.1");
+//     lockPeriod: Int as uint256 = 600;
+//     lockEnd: Int as uint256;
+//     //isLent: Bool = false;
+// }
 
 contract NexTon with Deployable, OwnableTransferable {
     const MinTonForStorage: Int = ton("0.2");
@@ -62,6 +72,7 @@ contract NexTon with Deployable, OwnableTransferable {
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
     userItemClaimed: map<Int, Bool>;
+    claimers: map<Int, Address>;
     
     init(nftItemCode: Cell, _nft: Address) {
         self.owner = sender();
@@ -91,16 +102,7 @@ contract NexTon with Deployable, OwnableTransferable {
         content.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
         content.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
-        // let itemContent: Cell = 
-        // UserStakeInfo{
-        //     name: "Nexton User Stake",
-        //     description: "Holds information about the user's stake in the Nexton platform pool",
-        //     image: "https://hipo.finance/hton.png",
-        //     principal: ctx.value - PROTOCOL_FEE,
-        //     leverageRatio: msg.leverage,
-        //     lockPeriod: msg.lockPeriod,
-        //     lockEnd: now() + msg.lockPeriod
-        // }.toCell();
+        
 
         let itemMessage: Cell = 
             beginCell()

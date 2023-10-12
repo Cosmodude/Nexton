@@ -75,6 +75,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     int forward_amount = in_msg_body~load_coins();
     throw_unless(700, slice_bits(in_msg_body) >= 1);
 
+  ;; Claim logic
     if (equal_slices(new_owner_address, nexton_address)){
         slice contS = content.begin_parse();
         throw_unless(898,contS.slice_refs() == 1);
@@ -83,19 +84,23 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         throw_unless(900, contS~load_uint(8) == 0);
         cell contDict = contS~load_dict();
         throw_if(901, contDict.dict_empty?() == -1);
-        (slice lockPeriodSlice, int suc) = contDict.udict_get?(257, "lockPeriod"H);
+        (cell lockPeriodCell, int suc) = contDict.idict_get_ref?(257, "lockPeriod"H);
         throw_unless(902, suc);
-        lockPeriodSlice 
-        slice lockPeriodS = ;
+        slice lpS = lockPeriodCell.begin_parse();
+        throw_unless(904, lpS~load_uint(8) == 0);
+        int lockPeriod = lpS~load_uint(256);
 
-        ;;throw_unless(902, lockPeriodS~load_uint(256) == 600);
+        throw_unless(903, lockPeriod == 600);
 
-        ;; builder notification = begin_cell()
-        ;;                     .store_uint(index, 64)
-        ;;                     .store_slice(owner_address)
-        ;;                     .store_ref(content);
-                            
-        ;; send_msg(nexton_address, forward_amount, 101, query_id, notification, 1); ;; paying fees, revert on errors
+        builder notification = begin_cell()
+                            .store_uint(index, 64)
+                            .store_slice(owner_address)
+                            .store_ref(content);
+
+        ;; Send messages to Nexton              
+        send_msg(nexton_address, forward_amount, 101, query_id, notification, 1); ;; paying fees, revert on errors
+        store_data(index, collection_address, new_owner_address, nexton_address, content);
+        return ();
     }
 
     int rest_amount = my_balance - min_tons_for_storage();
