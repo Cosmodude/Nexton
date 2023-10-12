@@ -29,7 +29,7 @@ message StakingReward{
     rewards: Int as coins;
 }
 
-message(0x636c6169) UserClaim{
+message(0x636c616) UserClaim{
     itemIndex: Int as uint64;
     owner: Address;
     content: Cell;
@@ -84,7 +84,7 @@ contract NexTon with Deployable, OwnableTransferable {
 
     // Receive functions
 
-    receive(){} // Receive TONCoins
+    //receive(){} // Receive TONCoins
     
     receive(msg: UserDeposit){
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
@@ -135,6 +135,7 @@ contract NexTon with Deployable, OwnableTransferable {
         require(self.getNftAddressByIndex(msg.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
         //let dict: Cell = msg.content.beginParse().loadDict();
         self.userItemClaimed.set(msg.itemIndex, true);
+        self.claimers.set(msg.itemIndex, msg.owner);
     }
 
     // Command messages
@@ -164,8 +165,8 @@ contract NexTon with Deployable, OwnableTransferable {
         self.itemCounter = self.itemCounter + 1;
     }
 
-    fun getNftItemInit(item_index: Int): StateInit {
-        let data: Cell = beginCell().storeUint(item_index,64).storeSlice(self.nFTContractAddress.asSlice()).endCell();
+    fun getNftItemInit(itemIndex: Int): StateInit {
+        let data: Cell = beginCell().storeUint(itemIndex,64).storeSlice(self.nFTContractAddress.asSlice()).endCell();
         let itemInit: StateInit = StateInit{
             data: data,
             code: self.nftItemCode
@@ -173,14 +174,13 @@ contract NexTon with Deployable, OwnableTransferable {
         return itemInit;
     }
 
-
-    get fun getNftAddressByIndex(item_index: Int): Address {
-        return contractAddress(self.getNftItemInit(item_index));        
+    get fun getNftAddressByIndex(itemIndex: Int): Address {
+        return contractAddress(self.getNftItemInit(itemIndex));        
     }
 
     // GET methods
 
-    get fun nftContract(): Address{
+    get fun CollectionAddress(): Address{
         return self.nFTContractAddress;
     }
 
@@ -196,9 +196,13 @@ contract NexTon with Deployable, OwnableTransferable {
         return self.itemCounter;
     }
     
-    // get fun userNFTItemClaimed(index: Int): Bool?{
-    //     return self.userItemClaimed.get(index);
-    // }
+    get fun userNFTItemClaimed(index: Int): Bool?{
+        return self.userItemClaimed.get(index);
+    }
+
+    get fun claimer(index: Int): Address?{
+        return self.claimers.get(index);
+    }
 }
 
 
