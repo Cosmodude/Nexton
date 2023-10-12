@@ -159,9 +159,9 @@ describe('NexTon', () => {
         const pr = principalCell?.beginParse()!!;
         pr.loadUint(8);
         console.log("principal ", pr.loadCoins());
-        const lp = lockPeriodCell?.beginParse()!!;
-        lp.loadUint(8);
-        console.log("lockPeriod ", lp.loadUint(256));
+        //const lp = lockPeriodCell?.beginParse()!!;
+        //lp.loadUint(8);
+        //console.log("lockPeriod ", lp.loadUint(256));
         // // console.log("leverage ", leverageCell?.beginParse().loadUint(8));
         const le = lockEndCell?.beginParse()!!;
         le.loadUint(8)
@@ -171,66 +171,77 @@ describe('NexTon', () => {
         
     });
 
-    // it("Should Deposit and Claim User reward", async () =>{
-    //     //console.log();
+    it("Should Deposit and Claim User reward", async () =>{
+        //console.log();
         
-    //     //console.log("User Depositing!!!");
+        //console.log("User Depositing!!!");
         
-    //     const user = await blockchain.treasury('user');
-    //     const lockP = 1n;
-    //     const leverageR = 3n;
+        const user = await blockchain.treasury('user');
+        const lockP = 1n;
+        const leverageR = 3n;
 
-    //     const depositMessage = await nexton.send(
-    //         user.getSender(), 
-    //         {
-    //             value: toNano("2")
-    //         }, 
-    //         {   
-    //             $$type: 'UserDeposit',
-    //             queryId: BigInt(Date.now()),
-    //             lockPeriod: 600n,
-    //             leverage: 3n
-    //         }
-    //     )
-    //     //console.log(await depositMessage.events);
-    //     const index: TupleItemInt = {
-    //         type: "int",
-    //         value: 0n
-    //     }
+        const depositMessage = await nexton.send(
+            user.getSender(), 
+            {
+                value: toNano("2")
+            }, 
+            {   
+                $$type: 'UserDeposit',
+                queryId: BigInt(Date.now()),
+                lockPeriod: 600n,
+                leverage: 3n
+            }
+        )
+        //console.log(await depositMessage.events);
+        const index: TupleItemInt = {
+            type: "int",
+            value: 0n
+        }
 
-    //     const itemAddress =  await nftCollection.getItemAddressByIndex(index);
+        const itemAddress =  await nftCollection.getItemAddressByIndex(index);
 
-    //     expect(depositMessage.transactions).toHaveTransaction({
-    //         from: nftCollection.address,
-    //         to: itemAddress,
-    //         inMessageBounced: false
-    //     });
-    //     expect(await nexton.getNftCounter()).toEqual(1n);
+        expect(depositMessage.transactions).toHaveTransaction({
+            from: nftCollection.address,
+            to: itemAddress,
+            inMessageBounced: false
+        });
+        expect(await nexton.getNftCounter()).toEqual(1n);
 
-    //     nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
-    //     expect(nftItem.address).toEqualAddress(itemAddress);
-    //     const itemData = await nftItem.getItemData();
-    //     expect(itemData.index).toEqual(0n);
+        nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
+        expect(nftItem.address).toEqualAddress(itemAddress);
+        const itemData = await nftItem.getItemData();
+        expect(itemData.index).toEqual(0n);
+        // console.log(itemData.itemOwner)
+        // console.log(user.address)
+        // console.log(nexton.address)
 
-    //     //console.log(Date.now())
-    //     //await new Promise(resolve => setTimeout(resolve, 4000));
-    //     //console.log(Date.now())
+        //console.log(Date.now())
+        //await new Promise(resolve => setTimeout(resolve, 4000));
+        //console.log(Date.now())
 
-    //     //console.log("User Claiming!!!");
+        //console.log("User Claiming!!!");
 
-    //     const claimMessage = await nftItem.sendTransfer(
-    //         user.getSender(),
-    //         {
-    //             queryId: Date.now(),
-    //             value: toNano("0.2"),
-    //             newOwner: nexton.address,
-    //             responseAddress: user.address,
-    //             fwdAmount: toNano("0.1")
-    //         }
+        const claimMessage = await nftItem.sendTransfer(
+            user.getSender(),
+            {
+                queryId: Date.now(),
+                value: toNano("0.2"),
+                newOwner: nexton.address,
+                responseAddress: user.address,
+                fwdAmount: toNano("0.1")
+            }
 
-    //     )
-    //     console.log(await claimMessage.transactions);
+        )
+        console.log(await claimMessage.events);
+        //console.log(await nexton.address);
 
-    //     //expect(await nexton.getUserNftItemClaimed(nftIndex)).toBeTruthy;
-    // });
+        //expect(await nexton.getUserNftItemClaimed(nftIndex)).toBeTruthy;
+    });
+
+    it("Should return nftItem address by index", async () =>{
+        const res = await nexton.getGetNftAddressByIndex(0n);
+        expect((await nftItem.getItemData()).index).toEqual(0n);
+        expect(nftItem.address).toEqualAddress(res);
+
+    })
 });
