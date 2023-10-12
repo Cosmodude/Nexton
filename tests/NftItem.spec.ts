@@ -33,10 +33,11 @@ describe('NftItem', () => {
             nextonAddress: nexton.address,
             itemContent: beginCell()
             .storeUint(0,8)  // onchain prefix
-            .storeDict(Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
+            .storeDict(Dictionary.empty(Dictionary.Keys.BigUint(257), Dictionary.Values.Cell())
             .set(toSha256("name"), toTextCell("Item name"))
-            .set(toSha256("description"), toTextCell("Item description"))
-            .set(toSha256("image"), toTextCell(" ")))
+            .set(toSha256("description"), toTextCell("Holds information about the user's stake in the Nexton platform pool"))
+            .set(toSha256("image"), toTextCell(" "))
+            .set(toSha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(600, 256).endCell()))
             .endCell()
         }, code));
 
@@ -58,6 +59,11 @@ describe('NftItem', () => {
     it("should get item data", async () => {
         const itemData = await nftItem.getItemData();
         const index = itemData.index;
+        const itemContentSlice = itemData.itemContent.beginParse();
+        const prefix = itemContentSlice.loadUint(8);
+        expect(prefix).toEqual(0);
+        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(257)), Dictionary.Values.Cell());
+        const nameCell = dict.get(toSha256("name"));
         //console.log(index)
     })
 
@@ -72,7 +78,7 @@ describe('NftItem', () => {
                 fwdAmount: toNano("0.1")
             }
         )
-        console.log(claim.transactions)
+        //console.log(claim.transactions)
         //console.log(index)
     })
 
