@@ -1,5 +1,6 @@
-import { Blockchain, SandboxContract } from '@ton-community/sandbox';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
 import { Cell, toNano, Dictionary, beginCell } from 'ton-core';
+import { NexTon } from '../wrappers/NexTon';
 import { NftItem } from '../wrappers/NftItem';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -15,15 +16,21 @@ describe('NftItem', () => {
 
     let blockchain: Blockchain;
     let nftItem: SandboxContract<NftItem>;
+    let deployer: SandboxContract<TreasuryContract>;
+    let nexton: SandboxContract<NexTon>;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
+        
+        nexton = blockchain.openContract(await NexTon.fromInit(await compile("NftItem"), randomAddress()));
+
+        deployer = await blockchain.treasury('deployer');
 
         nftItem = blockchain.openContract(NftItem.createFromConfig({
             index: 0, 
             collectionAddress: randomAddress(),
-            ownerAddress: randomAddress(),
-            nextonAddress: randomAddress(),
+            ownerAddress: deployer.address,
+            nextonAddress: nexton.address,
             itemContent: beginCell()
             .storeUint(0,8)  // onchain prefix
             .storeDict(Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
@@ -32,8 +39,6 @@ describe('NftItem', () => {
             .set(toSha256("image"), toTextCell(" ")))
             .endCell()
         }, code));
-
-        const deployer = await blockchain.treasury('deployer');
 
         const deployResult = await nftItem.sendDeploy(deployer.getSender(), toNano('0.05'));
 
@@ -55,4 +60,20 @@ describe('NftItem', () => {
         const index = itemData.index;
         //console.log(index)
     })
+
+    it("should transfer to nexton freely", async () => {
+        const claim = await nftItem.sendTransfer(
+            deployer.getSender(),
+            {
+                queryId: Date.now(),
+                value: toNano("0.2"),
+                newOwner: nexton.address,
+                responseAddress: deployer.address,
+                fwdAmount: toNano("0.1")
+            }
+        )
+        console.log(claim.transactions)
+        //console.log(index)
+    })
+
 });
