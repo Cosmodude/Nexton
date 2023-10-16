@@ -29,13 +29,18 @@ message StakingReward{
     rewards: Int as coins;
 }
 
-message(0x636c616) UserClaim{
+struct ClaimInfo{
     itemIndex: Int as uint64;
     owner: Address;
     content: Cell;
 }
 
-// let itemContent: Cell = 
+message(0x636c616) UserClaim{
+    queryId: Int as uint64;
+    info: ClaimInfo;
+}
+
+// let itemContent: Cell =
         // UserStakeInfo{
         //     name: "Nexton User Stake",
         //     description: "Holds information about the user's stake in the Nexton platform pool",
@@ -45,6 +50,7 @@ message(0x636c616) UserClaim{
         //     lockPeriod: msg.lockPeriod,
         //     lockEnd: now() + msg.lockPeriod
         // }.toCell();
+
 // struct UserStakeInfo{
 //     name: String;
 //     description: String;
@@ -131,11 +137,11 @@ contract NexTon with Deployable, OwnableTransferable {
 
     receive(msg: UserClaim){
         //self.requireNotStopped();
-        require(self.itemCounter > msg.itemIndex, "Claiming not exisitng NFT");
-        require(self.getNftAddressByIndex(msg.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
+        require(self.itemCounter > msg.info.itemIndex, "Claiming not exisitng NFT");
+        require(self.getNftAddressByIndex(msg.info.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
         //let dict: Cell = msg.content.beginParse().loadDict();
-        self.userItemClaimed.set(msg.itemIndex, true);
-        self.claimers.set(msg.itemIndex, msg.owner);
+        self.userItemClaimed.set(msg.info.itemIndex, true);
+        self.claimers.set(msg.info.itemIndex, msg.info.owner);
     }
 
     // Command messages
