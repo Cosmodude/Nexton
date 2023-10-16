@@ -232,7 +232,7 @@ describe('NexTon', () => {
             }
         )
         console.log(await claimMessage.events);
-        //console.log(await claimMessage.transactions);
+        console.log(await claimMessage.transactions);
         //console.log(await nexton.address);
 
         expect(await nexton.getUserNftItemClaimed(0n)).toBe(true);

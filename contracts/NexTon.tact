@@ -1,11 +1,15 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "./imports/messages";
+import "./imports/stdlib.fc";
 
 const PROTOCOL_FEE: Int = ton("0.1");
 const MAX_LEVERAGE: Int = 5;
 const MIN_USER_DEPOSIT: Int = ton("0.5");  // inform the frontend
 const MIN_LP_DEPOSIT: Int = ton("10000");
+
+@name(equal_slices)
+native equalSlices(s2: Slice, s1: Slice): Int;
 
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
@@ -13,16 +17,16 @@ extends native storeDict(self: Builder, c: Cell): Builder;
 @name(store_slice)
 extends native store_slice(self: Builder, s: Slice): Builder;
 
-// struct DictGetRes{
-//     slice: Slice;
-//     dict: Cell;
-// }
+struct DictGetRes{
+    slice: Slice;
+    success: Int;
+}
 
 // @name(load_dict)
 // extends native loadDict(self: Slice): DictGetRes;
 
-// @name(udict_get?)
-// extends native udictGet(self: Cell, kl: Int, k: Int): Slice;
+@name(udict_get?)
+extends native udictGet(self: Cell, kl: Int, k: Int): DictGetRes;
 
 message StakingReward{
     principal: Int as coins;
@@ -40,36 +44,12 @@ message(0x636c616) UserClaim{
     info: ClaimInfo;
 }
 
-// let itemContent: Cell =
-        // UserStakeInfo{
-        //     name: "Nexton User Stake",
-        //     description: "Holds information about the user's stake in the Nexton platform pool",
-        //     image: "https://hipo.finance/hton.png",
-        //     principal: ctx.value - PROTOCOL_FEE,
-        //     leverageRatio: msg.leverage,
-        //     lockPeriod: msg.lockPeriod,
-        //     lockEnd: now() + msg.lockPeriod
-        // }.toCell();
-
-// struct UserStakeInfo{
-//     name: String;
-//     description: String;
-//     image: String;
-//     principal: Int as coins;
-//     leverageRatio: Int as uint8 = 1;
-//     //protocolFee: Int as coins = ton("0.1");
-//     lockPeriod: Int as uint256 = 600;
-//     lockEnd: Int as uint256;
-//     //isLent: Bool = false;
-// }
-
 contract NexTon with Deployable, OwnableTransferable {
     const MinTonForStorage: Int = ton("0.2");
     owner: Address;
     stopped: Bool = false;
     nftItemCode: Cell;
 
-    //const MIN: Int = 60;
     //sPContractAddress: Address;      // Staking Pool Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
 
@@ -108,8 +88,6 @@ contract NexTon with Deployable, OwnableTransferable {
         content.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
         content.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
-        
-
         let itemMessage: Cell = 
             beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
@@ -122,11 +100,6 @@ contract NexTon with Deployable, OwnableTransferable {
             amount: ton("0.035"),
             NFTMessage: itemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
-        // let dict: Cell = nftItemMessage.beginParse().load_dict();
-        // let res: DictGetRes = dict.udictGet(256, sha256("name"));
-        // let name: Int = nameS.loadUint(256);
-        // require(name == sha256("Item nam"), "  Not working ");
-        //self.usersPrincipal = self.usersPrincipal + ctx.value;
         self.mintNFT(messageBody);
     }
 
@@ -136,10 +109,18 @@ contract NexTon with Deployable, OwnableTransferable {
     }
 
     receive(msg: UserClaim){
-        //self.requireNotStopped();
         require(self.itemCounter > msg.info.itemIndex, "Claiming not exisitng NFT");
         require(self.getNftAddressByIndex(msg.info.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
-        //let dict: Cell = msg.content.beginParse().loadDict();
+        let cs: Slice = msg.info.content.beginParse();
+        require(cs.bits() == 0, "0000");
+        cs.loadUint(8);
+        let dict: Cell= cs.loadRef();
+        let res: DictGetRes= dict.udictGet(257, sha256("name"));
+        require(res.success == -1, "Not found");
+        require(res.slice.bits() == 0, "0000");
+        let nameS: Slice = res.slice;
+        nameS.loadUint(8);
+        require(equalSlices(nameS,"Item name".asSlice()) == -1, "wrong name");
         self.userItemClaimed.set(msg.info.itemIndex, true);
         self.claimers.set(msg.info.itemIndex, msg.info.owner);
     }
