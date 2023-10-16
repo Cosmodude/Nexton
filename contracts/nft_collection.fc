@@ -1,7 +1,6 @@
 #include "imports/stdlib.fc";
 #include "imports/nft_op_codes.fc";
 #include "imports/params.fc";
-int equal_slices (slice a, slice b) asm "SDEQ";
 
 ;; NFT collection smart contract
 
