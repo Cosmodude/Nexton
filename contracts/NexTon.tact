@@ -58,7 +58,7 @@ contract NexTon with Deployable, OwnableTransferable {
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
     userItemClaimed: map<Int, Bool>;
-    claimers: map<Int, Address>;
+    claimers: map<Int as uint64, Address>;
     
     init(nftItemCode: Cell, _nft: Address) {
         self.owner = sender();
@@ -77,7 +77,7 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        let content: map<Int, Cell> = emptyMap();
+        let content: map<Int as uint256, Cell> = emptyMap();
 
         content.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
         content.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
