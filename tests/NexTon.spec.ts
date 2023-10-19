@@ -146,7 +146,7 @@ describe('NexTon', () => {
         const prefix = itemContentSlice.loadUint(8);
         expect(prefix).toEqual(0);
         // console.log("Metadata Prefix", prefix);
-        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(257)), Dictionary.Values.Cell());
+        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
         const nameCell = dict.get(toSha256("name"));
         // const descriptionCell = dict.get(toSha256("description"));
         // const imageCell = dict.get(toSha256("image"));
