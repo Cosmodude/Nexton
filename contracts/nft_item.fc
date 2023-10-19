@@ -79,7 +79,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         throw_unless(900, contS~load_uint(8) == 0);
         cell contDict = contS~load_dict();
         throw_if(901, contDict.dict_empty?() == -1);
-        (cell lockPeriodCell, int suc) = contDict.idict_get_ref?(257, "lockPeriod"H);
+        (cell lockPeriodCell, int suc) = contDict.udict_get_ref?(256, "lockPeriod"H);
         throw_unless(902, suc);
         slice lpS = lockPeriodCell.begin_parse();
         throw_unless(904, lpS~load_uint(8) == 0);
@@ -152,7 +152,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
       cell content_dict = in_msg_body~load_dict();
       throw_if(102, content_dict.dict_empty?());
 
-      (cell nameC, int success) = content_dict.idict_get_ref?(257, string_hash("description"));
+      (cell nameC, int success) = content_dict.udict_get_ref?(256, string_hash("description"));
       throw_if(103, nameC.cell_null?());
       throw_unless(104, success == -1);
 

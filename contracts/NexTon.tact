@@ -59,6 +59,7 @@ contract NexTon with Deployable, OwnableTransferable {
     itemCounter: Int as uint64 = 0;   // next_item_index
     userItemClaimed: map<Int, Bool>;
     claimers: map<Int as uint64, Address>;
+    itemContent: map<Int as uint256, Cell>;
     
     init(nftItemCode: Cell, _nft: Address) {
         self.owner = sender();
@@ -77,22 +78,20 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        let content: map<Int as uint256, Cell> = emptyMap();
-
-        content.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
-        content.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
-        content.set(sha256("image"), beginCell().storeUint(0, 8).store_slice("https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png".asSlice()).endCell());
-        content.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());
-        content.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
-        content.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
-        content.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
-        content.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
+        self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
+        self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
+        self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).store_slice("https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png".asSlice()).endCell());
+        self.itemContent.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());
+        self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
+        self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
+        self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
+        self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
         let itemMessage: Cell = 
             beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
-            .storeDict(content.asCell()!!) //itemContent)
+            .storeDict(self.itemContent.asCell()!!) //itemContent)
             .endCell();
         let messageBody: MintNFT =  MintNFT{
             queryId: msg.queryId,
@@ -111,16 +110,16 @@ contract NexTon with Deployable, OwnableTransferable {
     receive(msg: UserClaim){
         require(self.itemCounter > msg.info.itemIndex, "Claiming not exisitng NFT");
         require(self.getNftAddressByIndex(msg.info.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
-        let cs: Slice = msg.info.content.beginParse();
-        require(cs.bits() == 0, "0000");
-        cs.loadUint(8);
-        let dict: Cell= cs.loadRef();
-        let res: DictGetRes= dict.udictGet(257, sha256("name"));
-        require(res.success == -1, "Not found");
-        require(res.slice.bits() == 0, "0000");
-        let nameS: Slice = res.slice;
-        nameS.loadUint(8);
-        require(equalSlices(nameS,"Item name".asSlice()) == -1, "wrong name");
+        // let cs: Slice = msg.info.content.beginParse();
+        // require(cs.bits() == 0, "0000");
+        // cs.loadUint(8);
+        // let dict: Cell= cs.loadRef();
+        // let res: DictGetRes= dict.udictGet(257, sha256("name"));
+        // require(res.success == -1, "Not found");
+        // require(res.slice.bits() == 0, "0000");
+        // let nameS: Slice = res.slice;
+        // nameS.loadUint(8);
+        // require(equalSlices(nameS,"Item name".asSlice()) == -1, "wrong name");
         self.userItemClaimed.set(msg.info.itemIndex, true);
         self.claimers.set(msg.info.itemIndex, msg.info.owner);
     }
