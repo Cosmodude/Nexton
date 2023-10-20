@@ -76,7 +76,7 @@ contract NexTon with Deployable, OwnableTransferable {
 
     // Receive functions
 
-    //receive(){} // Receive TONCoins
+    receive(){} // Receive TONCoins
     
     receive(msg: UserDeposit){
         require(msg.leverage <= MAX_LEVERAGE, "Too big leverage, should be less than 5");
