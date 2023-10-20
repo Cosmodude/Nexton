@@ -23,8 +23,7 @@ export async function run(provider: NetworkProvider) {
                 collectionContent: "https://github.com/Cosmodude/Nexton/blob/main/collectionMetadata.json",
                 commonContent: " "
             }
-        )
-        
+        ),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
             royaltyFactor: 15,
