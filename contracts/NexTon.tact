@@ -67,6 +67,11 @@ contract NexTon with Deployable, OwnableTransferable {
         //self.sPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
+
+        self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
+        self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
+        self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).store_slice("https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png".asSlice()).endCell());
+        self.itemContent.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());
     }
 
     // Receive functions
@@ -78,10 +83,6 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
-        self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
-        self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).store_slice("https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png".asSlice()).endCell());
-        self.itemContent.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
@@ -144,7 +145,7 @@ contract NexTon with Deployable, OwnableTransferable {
     fun mintNFT(body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
-            value: ton("0.04"),
+            value: ton("0.05"),
             mode: SendPayGasSeparately + SendIgnoreErrors,
             body: body.toCell()
         });
