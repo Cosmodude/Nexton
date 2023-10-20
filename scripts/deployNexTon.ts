@@ -20,7 +20,7 @@ export async function run(provider: NetworkProvider) {
         nextItemIndex: 0,
         collectionContent: buildNftCollectionContentCell(
             {
-                collectionContent: "https://github.com/Cosmodude/Nexton/blob/main/collectionMetadata.json",
+                collectionContent: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/collectionMetadata.json",
                 commonContent: " "
             }
         ),

@@ -1,6 +1,6 @@
 {
-    "name": "NexTon Liquid Staking",
+    "name": "NexTon Liquid Derivatives Staking",
     "description": "Collection of liquidity staking derivatives, issued by NexTon",
-    "image": "",
+    "image": "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.png",
     "marketplace": "getgems.io"
 }
