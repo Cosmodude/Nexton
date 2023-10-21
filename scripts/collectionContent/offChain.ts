@@ -83,7 +83,7 @@ export function decodeOffChainContent(content: Cell) {
   return data.slice(1).toString()
 }
 
-export function buildNftCollectionContentCell(data: NftCollectionContent): Cell {
+export function buildCollectionContentCell(data: NftCollectionContent): Cell {
   let contentCell = beginCell();
 
   let collectionContent = encodeOffChainContent(data.collectionContent);
