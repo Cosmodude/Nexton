@@ -7,7 +7,7 @@ const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf
 const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
 
 export async function run(provider: NetworkProvider) {
-    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQBV5Z2pAy1rjLrDxhaFGEUnH8Gtwd_h3pTB1zWmjVhwbe6s")));
+    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQCyZUCV9PETmpLArV7ZHtnuoLDvjmx58ksbX2o4AMvtgCji")));
         //fromInit(myAddress, nftCollection));
     const ui = provider.ui();
 

@@ -1,7 +1,7 @@
 import { Address, toNano } from 'ton-core';
 import { NftCollection } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
-import { buildCollectionContentCell } from './collectionContent/onChain';
+import { buildCollectionContentCell } from './collectionContent/offChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
@@ -11,14 +11,13 @@ export async function run(provider: NetworkProvider) {
         ownerAddress: myAddress, 
         nextItemIndex: 0,
         collectionContent: buildCollectionContentCell({
-            name: "Nexton collection name",
-            description:"Nexton collection description 06.09",
-            image: ""
+            collectionContent: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/collectionMetadata.json",
+            commonContent: " "
         }),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
-            royaltyFactor: 9,
-            royaltyBase: 900,
+            royaltyFactor: Math.floor(Math.random() * 100), 
+            royaltyBase: 100,
             royaltyAddress: provider.sender().address as Address
         }
     }, await compile('NftCollection')));
