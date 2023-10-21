@@ -68,7 +68,7 @@ contract NexTon with Deployable, OwnableTransferable {
         self.nFTContractAddress = _nft;
         self.latestStakeBlock = now();  // returns the current BlockNumber
 
-        self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Item name".asSlice()).endCell());
+        self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).store_slice("Nexton Staking Derivative".asSlice()).endCell());
         self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).store_slice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
         self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).store_slice("https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png".asSlice()).endCell());
         self.itemContent.set(sha256("marketplace"), beginCell().storeUint(0, 8).store_slice("getgems.io".asSlice()).endCell());

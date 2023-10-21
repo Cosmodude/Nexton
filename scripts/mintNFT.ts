@@ -15,14 +15,6 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const nextonAddress = Address.parse("EQBDqObEyc8KYOuHCKm0evBNp0hJ9derp8eSIdhYMjIeMRSZ");
 
     const address = Address.parse(args.length > 0 ? args[0] : await ui.input('Collection address'));
-    
-    function toSha256(s: string): bigint {
-        return BigInt('0x' + sha256_sync(s).toString('hex'))
-    }
-    
-    function toTextCell(s: string): Cell {
-        return beginCell().storeUint(0, 8).storeStringTail(s).endCell()
-    }
 
     const nftCollection = provider.open(NftCollection.createFromAddress(address));
 
@@ -34,10 +26,14 @@ export async function run(provider: NetworkProvider, args: string[]) {
         itemOwnerAddress: myAddress,
         nextonAddress: nextonAddress,
         itemContent: setItemContentCell({
-            name: "Item name",
-            description: "Item description",
-            image: "https://hipo.finance/hton.png"
+            name: "Nexton Staking Derivative",
+            description: "Holds information about the user's stake in the Nexton platform pool",
+            image: "https://raw.githubusercontent.com/Cosmodude/TAP/main/TAP_Logo.png",
+            principal: 10n,
+            leverageRatio: 1n,
+            lockPeriod: 600n,
+            lockEnd: 10n
         })
     })
-    ui.write('NFT Item deployed');
+    ui.write(`NFT Item deployed at https://testnet.tonscan.org/address/${nftCollection.address}`);
 }
