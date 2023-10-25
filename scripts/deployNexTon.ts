@@ -26,8 +26,8 @@ export async function run(provider: NetworkProvider) {
         ),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
-            royaltyFactor: Math.floor(Math.random() * 100), 
-            royaltyBase: 100,
+            royaltyFactor: Math.floor(Math.random() * 500), 
+            royaltyBase: 1000,
             royaltyAddress: provider.sender().address as Address
         }
     }, await compile('NftCollection')));
