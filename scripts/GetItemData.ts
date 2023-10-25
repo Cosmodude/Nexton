@@ -15,12 +15,12 @@ export async function run(provider: NetworkProvider, args: string[]) {
     console.log(data);
 
     const contentS = data.itemContent.beginParse();
-    const prefix = contentS.loadUint(8)
-    console.log("Prefix: ", prefix )
+    //const prefix = contentS.loadUint(8)
+    //console.log("Prefix: ", prefix )
     //const contDict = data.itemContent.get(toSha256("name"))?.beginParse();
-    //const contDict = contentS.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+    //const contDict = contentS.loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
     //const nameS = await contDict.get(toSha256("name"))?.beginParse();
     //const prefix1 = nameS?.loadUint(8);
-    console.log("Prefix: ", contentS);
+    console.log("Dict: ", data.itemContent.beginParse());
     //console.log(nameS?.loadStringTail());
 }
