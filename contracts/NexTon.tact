@@ -92,7 +92,8 @@ contract NexTon with Deployable, OwnableTransferable {
             beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
-            .storeDict(self.itemContent.asCell()!!) //itemContent)
+            .storeRef(beginCell().storeUint(0,8).storeDict(self.itemContent.asCell()!!).endCell())
+            //.storeDict(self.itemContent.asCell()!!) //itemContent)
             .endCell();
         let messageBody: MintNFT =  MintNFT{
             queryId: msg.queryId,
