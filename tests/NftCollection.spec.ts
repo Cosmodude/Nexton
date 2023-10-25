@@ -88,7 +88,7 @@ describe('NftCollection', () => {
             }),
             queryId: Date.now()
         })
-        console.log("EVENT: ", mint.transactions);
+        //console.log("EVENT: ", mint.events);
 
         
 
