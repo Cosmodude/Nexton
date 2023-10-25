@@ -78,7 +78,6 @@ export class NftItem implements Contract {
             index: res.stack.readBigNumber(),
             collectionAddress: res.stack.readAddress(),
             itemOwner: res.stack.readAddress(),
-            nextonAddress: res.stack.readAddress(),
             itemContent: res.stack.readCell()
         };
     }
