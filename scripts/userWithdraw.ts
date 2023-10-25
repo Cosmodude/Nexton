@@ -15,16 +15,7 @@ export async function run(provider: NetworkProvider) {
 
     //const maxLeverage = await nexton.getMaxLeverage;
 
-    await nexton.send(
-        provider.sender(),
-        {
-            value: toNano('0.1'),
-        },
-        {
-            $$type: 'UserClaimWithdraw',
-            itemIndex: 0n
-        }
-    );
+    
 
     console.log("Withdrawn!");
 
