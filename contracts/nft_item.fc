@@ -146,27 +146,28 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     ;; need to build a conent dictionary here 
     if (~ init?) {
       throw_unless(403, equal_slices(collection_address, sender_address));
-      slice owner =  in_msg_body~load_msg_addr();
-      slice nexton = in_msg_body~load_msg_addr();
-      throw_unless(101, in_msg_body.preload_uint(1) == 1);
-      cell content_dict = in_msg_body~load_dict();
-      throw_if(102, content_dict.dict_empty?());
+      ;; slice owner =  in_msg_body~load_msg_addr();
+      ;; slice nexton = in_msg_body~load_msg_addr();
+      ;; throw_unless(101, in_msg_body.preload_uint(1) == 1);
+      ;; cell content_dict = in_msg_body~load_dict();
+      ;; throw_if(102, content_dict.dict_empty?());
 
-      (cell nameC, int success) = content_dict.udict_get_ref?(256, string_hash("description"));
-      throw_if(103, nameC.cell_null?());
-      throw_unless(104, success == -1);
+      ;; (cell nameC, int success) = content_dict.udict_get_ref?(256, string_hash("description"));
+      ;; throw_if(103, nameC.cell_null?());
+      ;; throw_unless(104, success == -1);
 
-      slice res = nameC.begin_parse();
-      int prefix = res~load_uint(8);
-      throw_unless(105, prefix == 0);
-      throw_unless(106, equal_slices(res, "Holds information about the user's stake in the Nexton platform pool"));
+      ;; slice res = nameC.begin_parse();
+      ;; int prefix = res~load_uint(8);
+      ;; throw_unless(105, prefix == 0);
+      ;; throw_unless(106, equal_slices(res, "Holds information about the user's stake in the Nexton platform pool"));
 
 
-      cell content = begin_cell()
-        .store_uint(0,8)
-        .store_dict(content_dict)
-        .end_cell();
-      store_data(index, collection_address, owner, nexton, content);  ;; body is crafted in Nexton contract
+      ;; cell content = begin_cell()
+      ;;   .store_uint(0,8)
+      ;;   .store_dict(content_dict)
+      ;;   .end_cell();
+      ;; store_data(index, collection_address, owner, nexton, content);  ;; body is crafted in Nexton contract
+      store_data(index, collection_address, in_msg_body~load_msg_addr(), in_msg_body~load_msg_addr(), in_msg_body~load_ref());
       return ();
     }
 
