@@ -43,12 +43,11 @@ export function setItemContentCell(content: itemContent): Cell {
         .set(toSha256("name"), toTextCell(content.name))
         .set(toSha256("description"), toTextCell(content.description))
         .set(toSha256("image"), toTextCell(content.image))
-        .set(toSha256("principal"), beginCell().storeUint(content.principal, 256).endCell())
-        .set(toSha256("leverageRatio"), beginCell().storeUint(content.leverageRatio, 8).endCell())
-        .set(toSha256("lockPeriod"), beginCell().storeUint(content.lockPeriod, 256).endCell())
-        .set(toSha256("lockEnd"), beginCell().storeUint(content.lockEnd, 256).endCell());
+        // .set(toSha256("principal"), beginCell().storeUint(content.principal, 256).endCell())
+        // .set(toSha256("leverageRatio"), beginCell().storeUint(content.leverageRatio, 8).endCell())
+        // .set(toSha256("lockPeriod"), beginCell().storeUint(content.lockPeriod, 256).endCell())
+        // .set(toSha256("lockEnd"), beginCell().storeUint(content.lockEnd, 256).endCell());
     return beginCell()
-            .storeUint(0,8)  // onchain prefix
             .storeDict(itemContentDict)
             .endCell(); 
 }
