@@ -12,15 +12,16 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const nftItem = provider.open(NftItem.createFromAddress(address));
 
     const data = await nftItem.getItemData()
-    console.log(data);
+    //console.log(data);
 
     const contentS = data.itemContent.beginParse();
-    //const prefix = contentS.loadUint(8)
-    //console.log("Prefix: ", prefix )
+    console.log(contentS.remainingBits)
+    // const prefix = contentS.loadUint(8)
+    // console.log("Prefix: ", prefix )
     //const contDict = data.itemContent.get(toSha256("name"))?.beginParse();
-    //const contDict = contentS.loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-    //const nameS = await contDict.get(toSha256("name"))?.beginParse();
-    //const prefix1 = nameS?.loadUint(8);
-    console.log("Dict: ", data.itemContent.beginParse());
-    //console.log(nameS?.loadStringTail());
+    const contDict = contentS.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+    const nameS = await contDict.get(toSha256("name"))?.beginParse();
+    const prefix1 = nameS?.loadUint(8);
+    
+    console.log(nameS?.loadStringTail());
 }
