@@ -1,14 +1,3 @@
-import {
-    JettonsApi,
-    DNSApi,
-    NFTApi,
-    BlockchainApi,
-    Subscription,
-    TracesApi,
-    WalletApi,
-    Configuration,
-    AccountsApi
-} from 'tonapi-sdk-js';
 import axios from 'axios';
 import { load } from 'ts-dotenv';
 import { Address } from 'ton-core';
