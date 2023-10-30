@@ -64,7 +64,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
             .store_ref(state_init)
             ;; msg_body
             .store_ref(item_content);
-  send_raw_message(msg.end_cell(), 1); ;; pay transfer fees separately, revert on errors
+  send_raw_message(msg.end_cell(), 64); ;; send remaining value 
 }
 
 ;; Send royalty parameters
