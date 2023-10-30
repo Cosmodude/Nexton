@@ -5,7 +5,7 @@ import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
 import { randomAddress } from '@ton-community/test-utils';
-import { buildCollectionContentCell } from './collectionContent/offChain';
+import { buildCollectionContentCell } from './collectionContent/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
@@ -20,22 +20,22 @@ export async function run(provider: NetworkProvider) {
         nextItemIndex: 0,
         collectionContent: buildCollectionContentCell(
             {
-                collectionContent: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/collectionMetadata.json",
-                commonContent: " "
+                name: "NexTon Liquid Derivatives Staking",
+                description: "Collection of liquidity staking derivatives, issued by NexTon",
+                image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.jpg"
             }
         ),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
             royaltyFactor: Math.floor(Math.random() * 500), 
             royaltyBase: 1000,
-            royaltyAddress: provider.sender().address as Address
+            royaltyAddress: myAddress
         }
     }, await compile('NftCollection')));
 
     await collection.sendDeploy(provider.sender(), toNano('0.2'));
 
     await provider.waitForDeploy(collection.address);
-
 
     // Deploying Nexton !!!
 
