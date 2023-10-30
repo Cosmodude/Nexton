@@ -32,8 +32,8 @@ export function buildCollectionContentCell(content: collectionContent): Cell {
         .set(toSha256("image"), toTextCell(content.image));
     
     return beginCell() // need to fix 
+            .storeUint(0,8)
             .storeDict(collectionContentDict)
-            .storeRef(beginCell().endCell())
             .endCell(); 
     }
 
@@ -47,6 +47,7 @@ export function setItemContentCell(content: itemContent): Cell {
         // .set(toSha256("lockPeriod"), beginCell().storeUint(content.lockPeriod, 256).endCell())
         // .set(toSha256("lockEnd"), beginCell().storeUint(content.lockEnd, 256).endCell());
     return beginCell()
+            .storeUint(0,8)
             .storeDict(itemContentDict)
             .endCell(); 
 }
