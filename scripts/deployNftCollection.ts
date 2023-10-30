@@ -16,7 +16,7 @@ export async function run(provider: NetworkProvider) {
         collectionContent: buildCollectionContentCell({
             name: "NexTon Liquid Derivatives Staking",
             description: "Collection of liquidity staking derivatives, issued by NexTon",
-            image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.png"
+            image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.jpg"
         }),
         //off chain
         // collectionContent: buildCollectionContentCell({
@@ -39,7 +39,7 @@ export async function run(provider: NetworkProvider) {
     const mint = await nftCollection.sendMintNft(provider.sender(),{
         value: toNano("0.04"),
         queryId: randomSeed,
-        amount: toNano("0.025"),
+        amount: 0n,
         itemIndex: 0,
         itemOwnerAddress: myAddress,
         nextonAddress: nextonAddress,
