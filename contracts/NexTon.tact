@@ -97,7 +97,7 @@ contract NexTon with Deployable, OwnableTransferable {
         let messageBody: MintNFT =  MintNFT{
             queryId: msg.queryId,
             itemIndex: self.itemCounter, // nftItemIndex
-            amount: ton("0.035"),
+            amount: 0,
             NFTMessage: itemMessage //NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
         self.mintNFT(messageBody);
