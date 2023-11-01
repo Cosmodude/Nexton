@@ -59,7 +59,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
   var msg = begin_cell()
             .store_uint(0x18, 6)
             .store_slice(item_address)
-            .store_coins(amount)  ;; value
+            .store_coins(amount)  ;; value: should be 0 if mode = 64 
             .store_uint(4 + 2 + 1, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
             .store_ref(state_init)
             ;; msg_body
