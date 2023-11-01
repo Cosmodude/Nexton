@@ -79,10 +79,15 @@ describe('NexTon', () => {
         });
 
         const collectionData = await nftCollection.getCollectionData();
-        const metadataDict = collectionData.collectionContent.beginParse().loadDictDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
-        const prefix = await metadataDict.get(toSha256("name"))?.beginParse().loadUint(8);
-        expect(prefix).toEqual(0);
-        const collectionName = await metadataDict.get(toSha256("name"))?.beginParse().loadStringTail();
+        const contentS = collectionData.collectionContent.beginParse();
+        const outPrefix = contentS.loadUint(8);
+        expect(outPrefix).toEqual(0);
+        const metadataDict = contentS.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        
+        const collectionNameS = await metadataDict.get(toSha256("name"))?.beginParse();
+        const inPrefix = collectionNameS?.loadUint(8);
+        expect(inPrefix).toEqual(0);
+        const collectionName = collectionNameS?.loadStringTail();
         // console.log("Metadata.name: ", collectionName);
         expect(collectionData.ownerAddress).toEqualAddress(nexton.address);
         expect(collectionName).toMatch("Collection name");
@@ -99,7 +104,7 @@ describe('NexTon', () => {
         //console.log("User Depositing!!!");
         
         const user = await blockchain.treasury('user');
-        const lockP = 3n;
+        const lockP = 3n;  // 3 seconds 
         const leverageR = 3n;
 
         const mintMessage = await nexton.send(
@@ -143,9 +148,9 @@ describe('NexTon', () => {
         //console.log("refs ", itemContentSlice.remainingRefs);
         expect(itemContentSlice.remainingRefs).toEqual(1);
 
-        const prefix = itemContentSlice.loadUint(8);
-        expect(prefix).toEqual(0);
-        // console.log("Metadata Prefix", prefix);
+        const outPrefix = itemContentSlice.loadUint(8);
+        expect(outPrefix).toEqual(0);
+        
         const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
         const nameCell = dict.get(toSha256("name"));
         // const descriptionCell = dict.get(toSha256("description"));
@@ -154,27 +159,24 @@ describe('NexTon', () => {
         // const leverageCell = dict.get(toSha256("leverage"));
         const lockPeriodCell = dict.get(toSha256("lockPeriod"));
         const lockEndCell = dict.get(toSha256("lockEnd"));
-        console.log("name ", nameCell?.beginParse().loadStringTail());
-        // // await console.log("desc ", descriptionCell?.beginParse().loadStringTail());
         const pr = principalCell?.beginParse()!!;
         pr.loadUint(8);
-        console.log("principal ", pr.loadCoins());
-        //const lp = lockPeriodCell?.beginParse()!!;
-        //lp.loadUint(8);
-        //console.log("lockPeriod ", lp.loadUint(256));
-        // // console.log("leverage ", leverageCell?.beginParse().loadUint(8));
+        const principal = pr.loadCoins();
+        console.log("principal ", principal);
+        expect(principal).toEqual(toNano("1.9"));
+
         const le = lockEndCell?.beginParse()!!;
         le.loadUint(8)
-        //expect(lockPeriodCell?.beginParse().loadUint(256)).toEqual(600);
+        const lockEnd = le.loadUint(256)
         console.log("Now ", Math.floor(Date.now() / 1000));
-        console.log("lockEnd ", le.loadUint(256));
+        console.log("lockEnd ", lockEnd);
+        expect(Math.floor(Date.now() / 1000) + Number(lockP)).toEqual(lockEnd);
         
     });
 
     it("Should Deposit and Claim User reward", async () =>{
-        //console.log();
         
-        //console.log("User Depositing!!!");
+        // console.log("User Depositing!!!");
         
         const user = await blockchain.treasury('user');
         const lockP = 1n;
@@ -211,15 +213,10 @@ describe('NexTon', () => {
         expect(nftItem.address).toEqualAddress(itemAddress);
         const itemData = await nftItem.getItemData();
         expect(itemData.index).toEqual(0n);
-        // console.log(itemData.itemOwner)
-        // console.log(user.address)
-        // console.log(nexton.address)
-
-        //console.log(Date.now())
         //await new Promise(resolve => setTimeout(resolve, 4000));
         //console.log(Date.now())
 
-        //console.log("User Claiming!!!");
+        // console.log("User Claiming!!!");
 
         const claimMessage = await nftItem.sendTransfer(
             user.getSender(),
@@ -231,13 +228,11 @@ describe('NexTon', () => {
                 fwdAmount: toNano("0.1")
             }
         )
-        console.log(await claimMessage.events);
-        console.log(await claimMessage.transactions);
-        //console.log(await nexton.address);
+        //console.log(await claimMessage.events);
+        //console.log(await claimMessage.transactions);
 
         expect(await nexton.getUserNftItemClaimed(0n)).toBe(true);
         expect(await nexton.getClaimer(0n)).toEqualAddress(user.address);
-        //console.log(await nexton.getClaimer(0n), user.address)
     });
 
     it("Should return nftItem address by index", async () =>{
