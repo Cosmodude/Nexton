@@ -84,6 +84,7 @@ contract NexTon with Deployable, OwnableTransferable {
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
+        // this needs to be calculated in contract for safety
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
         self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
@@ -145,7 +146,7 @@ contract NexTon with Deployable, OwnableTransferable {
     fun mintNFT(body: MintNFT){
         send(SendParameters{
             to: self.nFTContractAddress,
-            value: ton("0.05"),
+            value: ton("0.04"),
             mode: SendPayGasSeparately + SendIgnoreErrors,
             body: body.toCell()
         });
