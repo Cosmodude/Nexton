@@ -1,0 +1,9 @@
+{
+    "name": "Nexton Staking Derivative",
+    "description": "Holds information about the user's stake in the Nexton platform pool",
+    "image": "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Item_Image.jpg",
+    "principal": 100,
+    "leverageRatio": 1,
+    "lockEnd": 186845784,
+    "lockPeriod": 2000
+}
