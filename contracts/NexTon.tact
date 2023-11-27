@@ -82,12 +82,19 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
+        let attr: StringBuilder = beginString();
+        attr.append("[{'trait_type': 'principal','value': '");
+        attr.append((ctx.value - PROTOCOL_FEE).toCoinsString());
+        attr.append("'}]");
+        let attributes: String = attr.toString();
+
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
         // this needs to be calculated in contract for safety
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod, 256).endCell());
         self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(msg.lockPeriod + now(), 256).endCell());
 
+        self.itemContent.set(sha256("attributes"), beginCell().storeUint(0, 8).storeSlice(attributes.asSlice()).endCell());
         let itemMessage: Cell = 
             beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
