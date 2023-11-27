@@ -93,7 +93,7 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
                             .store_ref(content);
 
         ;; Send messages to Nexton              
-        send_msg(nexton_address, forward_amount, op::claim_rewards(), query_id, notification, 1); ;; paying fees, revert on errors
+        send_msg(nexton_address, forward_amount, op::claim_rewards(), query_id, notification, 0); ;; paying fees, revert on errors
         store_data(index, collection_address, new_owner_address, nexton_address, content);
         return ();
     }
