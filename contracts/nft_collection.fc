@@ -162,11 +162,5 @@ slice get_nft_address_by_index(int index) method_id {
 }
 
 cell get_nft_content(int index, cell individual_nft_content) method_id { 
-  ;; var (_, _, content, _, _) = load_data();
-  ;; slice cs = content.begin_parse();
-  ;; cs~load_ref();  ;; skip collection content
-  ;; slice common_content = cs~load_ref().begin_parse();
-  return (begin_cell()
-                      .store_slice(individual_nft_content.begin_parse())
-          .end_cell());
+  return individual_nft_content;       
 }
