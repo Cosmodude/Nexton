@@ -143,7 +143,6 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 
     (int init?, int index, slice collection_address, slice owner_address, slice nexton_address, cell content) = load_data();
-    ;; need to build a conent dictionary here 
     if (~ init?) {
       throw_unless(403, equal_slices(collection_address, sender_address));
       ;; slice owner =  in_msg_body~load_msg_addr();

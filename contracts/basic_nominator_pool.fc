@@ -322,7 +322,7 @@ cell distribute_share(int reward, cell nominators) inline_ref {
 }
 
 () recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    int balance = pair_first(get_balance());
+    int balance = pair_first(get_balance()); ;; Returns the first element of a pair.
 
     slice cs = in_msg_full.begin_parse();
     int flags = cs~load_uint(4);
@@ -378,7 +378,7 @@ cell distribute_share(int reward, cell nominators) inline_ref {
         int is_vote = (action == 121) | (action == 110); ;; "y" or "n"
         throw_unless(64, (action == 100) | (action == 119) | is_vote); ;; "d" or "w" or "y" or "n"
 
-        if (~ is_vote) {
+        if (~ is_vote) {  ;; ~ - not operator 
             in_msg_body.end_parse();
             throw_unless(61, sender_wc == 0); ;; nominators only in basechain
             throw_unless(62, sender_addr != validator_address);
@@ -396,16 +396,17 @@ cell distribute_share(int reward, cell nominators) inline_ref {
             throw_unless(66, msg_value > 0);
 
             (int amount, int pending_deposit_amount) = found ? unpack_nominator(nominator) : (0, 0);
-            if (state == 0) {
+            if (state == 0) {  ;; need to figure out this states 
                 amount += msg_value;
             } else {
-                pending_deposit_amount += msg_value;
+                pending_deposit_amount += msg_value;  ;; state 1
             }
             throw_unless(67, amount + pending_deposit_amount >= min_nominator_stake);
             throw_unless(68, cell_depth(nominators) < max(5, binary_log_ceil(nominators_count) * 2) ); ;; prevent dict depth ddos
             nominators~udict_set_builder(ADDR_SIZE(), sender_addr, pack_nominator(amount, pending_deposit_amount));
         }
 
+''here 
         if (action == 119) { ;; "w" - withdraw request (any time)
             if (state == 0) {
                 (nominators, withdraw_requests, int new_balance, nominators_count) = withdraw_nominator(sender_addr, nominators, withdraw_requests, balance, nominators_count);
