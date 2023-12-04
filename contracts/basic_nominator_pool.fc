@@ -1,3 +1,7 @@
+#include "imports/stdlib.fc";
+#include "imports/nft_op_codes.fc";
+#include "imports/params.fc";
+
 ;;https://github.com/ton-blockchain/nominator-pool/blob/main/func/pool.fc
 
 ;; The validator has his own wallet in the masterchain, on which he holds his own coins for operating.
