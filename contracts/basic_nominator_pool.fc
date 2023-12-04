@@ -243,9 +243,9 @@ cell pack_config(int validator_address, int validator_reward_share, int max_nomi
     int withdraw_amount = amount + pending_deposit_amount;
 
     if (withdraw_amount > balance - MIN_TONS_FOR_STORAGE()) {
-        return (nominators, withdraw_requests, balance, nominators_count);
+        return (nominators, withdraw_requests, balance, nominators_count);  ;; do nothing
     }
-
+    ;; withdraw
     nominators~udict_delete?(ADDR_SIZE(), address);
     withdraw_requests~udict_delete?(ADDR_SIZE(), address);
     nominators_count -= 1;
@@ -368,7 +368,7 @@ cell distribute_share(int reward, cell nominators) inline_ref {
 
    (int state, int nominators_count, int stake_amount_sent, int validator_amount, (int validator_address, int validator_reward_share, int max_nominators_count, int min_validator_stake, int min_nominator_stake), cell nominators, cell withdraw_requests, int stake_at, int saved_validator_set_hash, int validator_set_changes_count, int validator_set_change_time, int stake_held_for, cell config_proposal_votings) = load_data();
 
-    if (op == 0) {
+    if (op == 0) {  ;; for user calls 
         ;; We use simple text comments for nominator operations so nominators can do it from any wallet app.
         ;; In other cases, they will need to put a stake on a browser extension, or use scripts, which can be inconvenient.
 
@@ -406,10 +406,9 @@ cell distribute_share(int reward, cell nominators) inline_ref {
             nominators~udict_set_builder(ADDR_SIZE(), sender_addr, pack_nominator(amount, pending_deposit_amount));
         }
 
-''here 
         if (action == 119) { ;; "w" - withdraw request (any time)
             if (state == 0) {
-                (nominators, withdraw_requests, int new_balance, nominators_count) = withdraw_nominator(sender_addr, nominators, withdraw_requests, balance, nominators_count);
+                (nominators, withdraw_requests, int new_balance, nominators_count) = withdraw_nominator(sender_addr, nominators, withdraw_requests, balance, nominators_count); ;; need to update this function, withdraws whole stake
                 if (new_balance - msg_value >= MIN_TONS_FOR_STORAGE()) {
                     send_excesses(sender_address);
                 }
@@ -468,7 +467,7 @@ cell distribute_share(int reward, cell nominators) inline_ref {
 
         if (is_elector_address(sender_wc, sender_addr)) { ;; response from elector
 
-            accept_message();
+            accept_message(); ;; https://docs.ton.org/develop/func/stdlib/#accept_message
 
             if (op == op::recover_stake_ok()) {
                 state = 0;
