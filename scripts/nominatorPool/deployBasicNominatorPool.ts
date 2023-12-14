@@ -1,5 +1,5 @@
 import { toNano, Address, Dictionary } from 'ton-core';
-import { BasicNominatorPool } from '../wrappers/BasicNominatorPool';
+import { BasicNominatorPool } from '../../wrappers/BasicNominatorPool';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
 import { randomAddress } from '@ton-community/test-utils';
 

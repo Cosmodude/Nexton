@@ -1,5 +1,5 @@
 import { toNano, Address, Dictionary, beginCell } from 'ton-core';
-import { WhalesNominator } from '../wrappers/WhalesNominator';
+import { WhalesNominator } from '../../wrappers/WhalesNominator';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
 
 export async function run(provider: NetworkProvider) {
