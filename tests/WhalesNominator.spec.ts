@@ -45,7 +45,7 @@ describe('WhalesNominator', () => {
 
         const deployResult = await whalesNominator.sendDeploy(deployer.getSender(), toNano('6'));
 
-        console.log(deployResult.transactions)
+        //console.log(deployResult.transactions)
         // expect(deployResult.transactions).toHaveTransaction({
         //     from: deployer.address,
         //     to: whalesNominator.address,
