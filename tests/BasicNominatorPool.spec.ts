@@ -17,7 +17,9 @@ describe('BasicNominatorPool', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        basicNominatorPool = blockchain.openContract(BasicNominatorPool.createFromConfig({}, code));
+        basicNominatorPool = blockchain.openContract(BasicNominatorPool.createFromConfig({
+            
+        }, code));
 
         const deployer = await blockchain.treasury('deployer');
 
