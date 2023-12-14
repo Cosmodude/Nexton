@@ -1,7 +1,7 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
 
 export type InnerConfig = {
-    validator_address: Address;
+    validator_address: bigint;
     validator_reward_share: number;
     max_nominators_count: number;
     min_validator_stake: number;
@@ -12,7 +12,7 @@ export type BasicNominatorPoolConfig = {
     nominators_count: number;
     stake_amount_sent: number;
     validator_amount: number;
-    config: any; //InnerConfig;
+    config: InnerConfig; //InnerConfig;
     nominators: any; //dict
     withdraw_requests: any; //dict
     stake_at: number;
@@ -29,7 +29,7 @@ export function basicNominatorPoolConfigToCell(config: BasicNominatorPoolConfig)
         .storeUint(config.nominators_count, 16)
         .storeCoins(config.stake_amount_sent)
         .storeCoins(config.validator_amount)
-        .storeRef(config.config)
+        .storeRef(InnerConfigToCell(config.config))
         .storeDict(config.nominators)
         .storeDict(config.withdraw_requests)
         .storeUint(config.stake_at, 32)
@@ -38,6 +38,16 @@ export function basicNominatorPoolConfigToCell(config: BasicNominatorPoolConfig)
         .storeUint(config.validator_set_change_time, 32)
         .storeUint(config.stake_held_for, 32)
         .storeDict(config.config_proposal_votings)
+    .endCell();
+}
+
+export function InnerConfigToCell(config: InnerConfig): Cell {
+    return beginCell()
+        .storeUint(config.validator_address, 256)
+        .storeUint(config.validator_reward_share, 16)
+        .storeUint(config.max_nominators_count, 16)
+        .storeCoins(config.min_validator_stake)
+        .storeCoins(config.min_nominator_stake)
     .endCell();
 }
 

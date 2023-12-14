@@ -18,11 +18,11 @@ export async function run(provider: NetworkProvider) {
             stake_amount_sent: 0,
             validator_amount: 0,
             config: {
-                validator_address: randomAddress(),
+                validator_address: 100n,
                 validator_reward_share: 10,
-                max_nominator_count: 2, 
+                max_nominators_count: 2, 
                 min_validator_stake: 100,
-                min_Nominator_stake: 100
+                min_nominator_stake: 100
             },
             nominators: Dictionary.empty(Dictionary.Keys.BigUint(256),Dictionary.Values.Cell() ),
             withdraw_requests: Dictionary.empty(Dictionary.Keys.BigUint(256),Dictionary.Values.Cell()),
