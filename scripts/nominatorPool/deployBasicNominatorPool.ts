@@ -21,8 +21,8 @@ export async function run(provider: NetworkProvider) {
                 validator_address: 100n,
                 validator_reward_share: 10,
                 max_nominators_count: 2, 
-                min_validator_stake: 100,
-                min_nominator_stake: 100
+                min_validator_stake: 100n,
+                min_nominator_stake: 100n
             },
             nominators: Dictionary.empty(Dictionary.Keys.BigUint(256),Dictionary.Values.Cell() ),
             withdraw_requests: Dictionary.empty(Dictionary.Keys.BigUint(256),Dictionary.Values.Cell()),
