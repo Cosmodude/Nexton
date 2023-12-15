@@ -1,11 +1,11 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
+import { Address, beginCell, Cell, Contract, contractAddress, Slice, ContractProvider, Sender, SendMode } from 'ton-core';
 
 export type InnerConfig = {
     validator_address: bigint;
     validator_reward_share: number;
     max_nominators_count: number;
-    min_validator_stake: number;
-    min_nominator_stake: number;
+    min_validator_stake: bigint;
+    min_nominator_stake: bigint;
 }
 
 export function InnerConfigToCell(config: InnerConfig): Cell {
@@ -17,7 +17,18 @@ export function InnerConfigToCell(config: InnerConfig): Cell {
         .storeCoins(config.min_nominator_stake)
     .endCell();
 }
+export function InnerConfigFromCell(cell: Cell): InnerConfig{
+    let cs: Slice = cell.beginParse();
+    const validator_address = cs.loadUint(256)
 
+    return  {
+        validator_address: BigInt(cs.loadUint(256)),
+        validator_reward_share: cs.loadUint(16),
+        max_nominators_count: cs.loadUint(16),
+        min_validator_stake:  cs.loadCoins(),
+        min_nominator_stake: cs.loadCoins()
+    }
+}
 export type BasicNominatorPoolConfig = {
     state: number;
     nominators_count: number;
@@ -73,5 +84,26 @@ export class BasicNominatorPool implements Contract {
                // .storeUint(1000,32) 
             .endCell()
         });
+    }
+
+    async getPoolData(provider: ContractProvider){
+        const res = await provider.get("get_pool_data", [] );
+        const data: BasicNominatorPoolConfig = {
+            state: res.stack.readNumber(),
+            nominators_count: res.stack.readNumber(),
+            stake_amount_sent: res.stack.readNumber(),
+            validator_amount: res.stack.readNumber(),
+            config: res.stack.readCell(),
+            nominators: res.stack.readCell(),
+            withdraw_requests: res.stack.readCell(),
+            stake_at: res.stack.readNumber(),
+            saved_validator_set_hash: res.stack.readBigNumber(),
+            validator_set_changes_count: res.stack.readBigNumber(),
+            validator_set_change_time: res.stack.readBigNumber(),
+            stake_held_for: res.stack.readBigNumber(),
+            config_proposal_votings: res.stack.readCell(),
+
+        }
+        return data;
     }
 }
