@@ -7,6 +7,17 @@ export type InnerConfig = {
     min_validator_stake: number;
     min_nominator_stake: number;
 }
+
+export function InnerConfigToCell(config: InnerConfig): Cell {
+    return beginCell()
+        .storeUint(config.validator_address, 256)
+        .storeUint(config.validator_reward_share, 16)
+        .storeUint(config.max_nominators_count, 16)
+        .storeCoins(config.min_validator_stake)
+        .storeCoins(config.min_nominator_stake)
+    .endCell();
+}
+
 export type BasicNominatorPoolConfig = {
     state: number;
     nominators_count: number;
@@ -41,16 +52,6 @@ export function basicNominatorPoolConfigToCell(config: BasicNominatorPoolConfig)
     .endCell();
 }
 
-export function InnerConfigToCell(config: InnerConfig): Cell {
-    return beginCell()
-        .storeUint(config.validator_address, 256)
-        .storeUint(config.validator_reward_share, 16)
-        .storeUint(config.max_nominators_count, 16)
-        .storeCoins(config.min_validator_stake)
-        .storeCoins(config.min_nominator_stake)
-    .endCell();
-}
-
 export class BasicNominatorPool implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
@@ -68,7 +69,9 @@ export class BasicNominatorPool implements Contract {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().endCell(),
+            body: beginCell()
+               // .storeUint(1000,32) 
+            .endCell()
         });
     }
 }
