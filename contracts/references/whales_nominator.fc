@@ -1,4 +1,4 @@
-#include "imports/stdlib.fc";
+#include "../imports/stdlib.fc";
 ;;
 ;; Errors
 ;;
