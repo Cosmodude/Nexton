@@ -19,7 +19,6 @@ export function InnerConfigToCell(config: InnerConfig): Cell {
 }
 export function InnerConfigFromCell(cell: Cell): InnerConfig{
     let cs: Slice = cell.beginParse();
-    const validator_address = cs.loadUint(256)
 
     return  {
         validator_address: BigInt(cs.loadUint(256)),
@@ -29,6 +28,7 @@ export function InnerConfigFromCell(cell: Cell): InnerConfig{
         min_nominator_stake: cs.loadCoins()
     }
 }
+
 export type BasicNominatorPoolConfig = {
     state: number;
     nominators_count: number;
@@ -93,7 +93,7 @@ export class BasicNominatorPool implements Contract {
             nominators_count: res.stack.readNumber(),
             stake_amount_sent: res.stack.readNumber(),
             validator_amount: res.stack.readNumber(),
-            config: res.stack.readCell(),
+            config: InnerConfigFromCell(res.stack.readCell()),
             nominators: res.stack.readCell(),
             withdraw_requests: res.stack.readCell(),
             stake_at: res.stack.readNumber(),
