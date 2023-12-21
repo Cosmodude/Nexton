@@ -46,8 +46,6 @@ describe('NftCollection', () => {
             }
         }, code));
 
-        deployer = await blockchain.treasury('deployer');
-
         const deployResult = await nftCollection.sendDeploy(deployer.getSender(), toNano('0.05'));
 
         expect(deployResult.transactions).toHaveTransaction({
