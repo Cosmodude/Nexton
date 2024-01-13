@@ -168,7 +168,7 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {  ;; ???
   cs~load_ref();  ;; skip collection content
   slice common_content = cs~load_ref().begin_parse();
   return (begin_cell()
-                      .store_uint(0, 8) ;; onchain tag https://github.com/ton-blockchain/TEPs/blob/master/text/0064-token-data-standard.md
+                      .store_uint(1, 8) ;; offchain tag https://github.com/ton-blockchain/TEPs/blob/master/text/0064-token-data-standard.md
                       .store_slice(common_content)
                       .store_ref(individual_nft_content)
           .end_cell());

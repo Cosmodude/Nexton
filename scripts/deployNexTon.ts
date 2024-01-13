@@ -5,6 +5,7 @@ import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
 import { randomAddress } from '@ton-community/test-utils';
+import { buildNftCollectionContentCell } from './collectionContent/offChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 
@@ -17,7 +18,13 @@ export async function run(provider: NetworkProvider) {
     const collection = provider.open(NftCollection.createFromConfig({
         ownerAddress: myAddress,
         nextItemIndex: 0,
-        collectionContent: beginCell().storeUint(randomSeed,256).endCell(),
+        collectionContent: buildNftCollectionContentCell(
+            {
+                collectionContent: "https://github.com/Cosmodude/Nexton/blob/main/collectionMetadata.json",
+                commonContent: " "
+            }
+        )
+        
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
             royaltyFactor: 15,
@@ -33,7 +40,7 @@ export async function run(provider: NetworkProvider) {
 
     // Deploying Nexton !!!
 
-    const nexton = provider.open(await NexTon.fromInit(await compile("NftItem"), myAddress, collection.address));
+    const nexton = provider.open(await NexTon.fromInit(await compile("NftItem"), collection.address));
 
     await nexton.send(
         provider.sender(),
