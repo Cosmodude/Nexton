@@ -14,12 +14,13 @@ describe('WhalesNominator', () => {
 
     let blockchain: Blockchain;
     let deployer: SandboxContract<TreasuryContract>;
-    let nexton: SandboxContract<TreasuryContract>;
     let whalesNominator: SandboxContract<WhalesNominator>;
+    let owner: SandboxContract<TreasuryContract>;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
+        owner = await blockchain.treasury('owner');
 
         whalesNominator = blockchain.openContract(WhalesNominator.createFromConfig({
             owner: deployer.address,

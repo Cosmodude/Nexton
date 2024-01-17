@@ -25,23 +25,23 @@ export function whalesNominatorConfigToCell(config: WhalesNominatorConfig): Cell
                 .storeCoins(0n) // balance 
                 .storeCoins(0n) // balance sent 
                 .storeCoins(0n) // blance withdraw 
-                .storeCoins(0n)
-                .storeCoins(0n)  // pending deposits
+                .storeCoins(0n) 
+                .storeCoins(0n) // pending deposits
             .endCell()
         )
         .storeDict(config.nominators)
         .storeRef(config.proxy_state)
-        // .storeRef(  // extras cell
-        //     beginCell()
-        //         .storeInt(-1n,1)  // enabled
-        //         .storeInt(0n,1) // updates enabled
-        //         .storeCoins(config.min_stake)
-        //         .storeCoins(config.deposit_fee)
-        //         .storeCoins(config.withdraw_fee)
-        //         .storeCoins(config.pool_fee)
-        //         .storeCoins(0) // receipt price
-        //     .endCell()
-        // )
+        .storeRef(  // extras cell
+                beginCell()
+                    .storeInt(-1n,1)  // enabled
+                    .storeInt(0n,1) // updates enabled
+                    .storeCoins(config.min_stake)
+                    .storeCoins(config.deposit_fee)
+                    .storeCoins(config.withdraw_fee)
+                    .storeCoins(config.pool_fee)
+                    .storeCoins(0) // receipt price
+                .endCell()
+        )
     .endCell();
 }
 
