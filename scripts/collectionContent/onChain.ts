@@ -34,6 +34,7 @@ export function buildCollectionContentCell(content: collectionContent): Cell {
     return beginCell()
             .storeUint(0,8)  // onchain prefix
             .storeDict(collectionContentDict)
+            .storeRef(beginCell().endCell())
             .endCell(); 
     }
 
