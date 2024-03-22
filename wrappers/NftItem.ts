@@ -6,7 +6,7 @@ import { Address,
     ContractProvider, 
     Sender, 
     SendMode
- } from 'ton-core';
+ } from '@ton/core';
 
 export type NftItemConfig = {
     index: number;
