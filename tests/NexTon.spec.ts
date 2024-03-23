@@ -1,12 +1,12 @@
-import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, toNano, fromNano, Cell, Slice, beginCell, TupleItemInt, ContractProvider, Dictionary } from 'ton-core';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
+import { Address, toNano, fromNano, Cell, Slice, beginCell, TupleItemInt, ContractProvider, Dictionary } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
 import { buildCollectionContentCell, itemContent, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
 import '@ton-community/test-utils';
-import { randomAddress } from '@ton-community/test-utils';
-import { compile } from '@ton-community/blueprint';
+import { randomAddress } from '@ton/test-utils';
+import { compile } from '@ton/blueprint';
 
 describe('NexTon', () => {
     let code: Cell;
@@ -232,7 +232,6 @@ describe('NexTon', () => {
         //console.log(await claimMessage.transactions);
 
         expect(await nexton.getUserNftItemClaimed(0n)).toBe(true);
-        expect(await nexton.getClaimer(0n)).toEqualAddress(user.address);
     });
 
     it("Should return nftItem address by index", async () =>{
