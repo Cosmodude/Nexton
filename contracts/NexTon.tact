@@ -58,7 +58,7 @@ contract NexTon with Deployable, OwnableTransferable {
     //sPContractAddress: Address;      // Staking Pool Contract Address
     nFTContractAddress: Address;      // NFT Contract Address
 
-    //usersPrincipal: Int as coins = 0;
+    usersPrincipal: Int as coins = 0;
     counter: Int as uint32 = 0;      // Counter of messages to the contract 
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
@@ -87,14 +87,6 @@ contract NexTon with Deployable, OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 0.5 Ton");
 
-        // let attr: StringBuilder = beginString();
-        // attr.append("[{'trait_type': 'principal','value': '");
-        // attr.append((ctx.value - PROTOCOL_FEE).toCoinsString());
-        // attr.append("'}]");
-        // let attributes: String = attr.toString();
-
-        
-
         let attributes: Attribute = Attribute{ trait_type: "principal", value: ctx.value - PROTOCOL_FEE };
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
@@ -109,7 +101,6 @@ contract NexTon with Deployable, OwnableTransferable {
             .storeAddress(ctx.sender)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
             .storeRef(beginCell().storeUint(0,8).storeDict(self.itemContent.asCell()!!).endCell())
-            //.storeDict(self.itemContent.asCell()!!) //itemContent)
             .endCell();
         let messageBody: MintNFT =  MintNFT{
             queryId: msg.queryId,
@@ -127,35 +118,13 @@ contract NexTon with Deployable, OwnableTransferable {
 
     receive(msg: UserClaim){
         require(self.itemCounter > msg.info.itemIndex, "Claiming not exisitng NFT");
-        require(self.getNftAddressByIndex(msg.info.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
-        // let cs: Slice = msg.info.content.beginParse();
-        // require(cs.bits() == 0, "0000");
-        // cs.loadUint(8);
-        // let dict: Cell= cs.loadRef();
-        // let res: DictGetRes= dict.udictGet(257, sha256("name"));
-        // require(res.success == -1, "Not found");
-        // require(res.slice.bits() == 0, "0000");
-        // let nameS: Slice = res.slice;
-        // nameS.loadUint(8);
-        // require(equalSlices(nameS,"Item name".asSlice()) == -1, "wrong name");
+        // update here 
+        require(!self.userItemClaimed.get(msg.info.itemIndex)!!, "Item already claimed");
         self.userItemClaimed.set(msg.info.itemIndex, true);
-        self.claimers.set(msg.info.itemIndex, msg.info.owner);
+        require(self.getNftAddressByIndex(msg.info.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
+        self.userItemClaimed.set(msg.info.itemIndex, true);
+        //self.claimers.set(msg.info.itemIndex, msg.info.owner);
     }
-
-    // Command messages
-    // should be removed later or fixed
-    // receive(msg: ChangeAddr){
-    //     self.requireOwner();
-    //     if(msg.entity.asSlice().hash() == "nft".asSlice().hash()){  // NFT
-    //         self.nFTContractAddress = msg.address;
-    //     }
-    //     if(msg.entity.asSlice().hash() == "SP".asSlice().hash()){  // Staking Pool
-    //         self.sPContractAddress  = msg.address;
-    //     }
-    //     else{
-    //         self.reply("Wrong entity".asComment());
-    //     }
-    // }
 
     // Functions
     
@@ -188,12 +157,12 @@ contract NexTon with Deployable, OwnableTransferable {
         return self.nFTContractAddress;
     }
 
-    // get fun stakingPool(): Address{
-    //     return self.sPContractAddress;
-    // }
-
     get fun balance(): Int{
         return myBalance();
+    }
+
+    get fun staked(): Int{
+        return self.usersPrincipal;
     }
 
     get fun nftCounter(): Int{
@@ -204,9 +173,9 @@ contract NexTon with Deployable, OwnableTransferable {
         return self.userItemClaimed.get(index);
     }
 
-    get fun claimer(index: Int): Address?{
-        return self.claimers.get(index);
-    }
+    // get fun claimer(index: Int): Address?{
+    //     return self.claimers.get(index);
+    // }
 }
 
 
