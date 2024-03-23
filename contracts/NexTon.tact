@@ -7,6 +7,7 @@ const PROTOCOL_FEE: Int = ton("0.1");
 const MAX_LEVERAGE: Int = 5;
 const MIN_USER_DEPOSIT: Int = ton("0.5");  // inform the frontend
 const MIN_LP_DEPOSIT: Int = ton("10000");
+const MIN_CONTRACT_BALANCE: Int = ton("0.2");
 
 @name(equal_slices)
 native equalSlices(s2: Slice, s1: Slice): Int;
@@ -47,6 +48,11 @@ struct ClaimInfo{
 message(0x636c616) UserClaim{
     queryId: Int as uint64;
     info: ClaimInfo;
+}
+
+message AdminWithdraw{
+    queryId: Int as uint64;
+    amount: Int as coins;
 }
 
 contract NexTon with Deployable, OwnableTransferable {
@@ -124,6 +130,17 @@ contract NexTon with Deployable, OwnableTransferable {
         require(self.getNftAddressByIndex(msg.info.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
         self.userItemClaimed.set(msg.info.itemIndex, true);
         //self.claimers.set(msg.info.itemIndex, msg.info.owner);
+    }
+
+    receive(msg: AdminWithdraw){
+        require(msg.amount <= myBalance(), "Not enough balance to withdraw");
+        nativeReserve(MIN_CONTRACT_BALANCE, 0);
+        send(SendParameters{
+            to: sender(),
+            value: myBalance(),
+            mode: SendIgnoreErrors + SendPayGasSeparately,
+            body: null
+        });
     }
 
     // Functions
