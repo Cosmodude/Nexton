@@ -1,4 +1,4 @@
-import { beginCell, Cell } from 'ton-core'
+import { beginCell, Cell } from '@ton/core'
 
 const OFF_CHAIN_CONTENT_PREFIX = 0x01
 

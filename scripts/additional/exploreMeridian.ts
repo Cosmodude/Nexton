@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { load } from 'ts-dotenv';
-import { Address } from 'ton-core';
+import { Address } from '@ton/core';
 
 const env = load({
     TONAPI_KEY: String

@@ -1,10 +1,10 @@
 // Deploys NFT Collection contract + deploys Nexton core contract, funds it + changes NFT contract owner address
 
-import { toNano, beginCell, Address } from 'ton-core';
+import { toNano, beginCell, Address } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
-import { compile, NetworkProvider } from '@ton-community/blueprint';
-import { randomAddress } from '@ton-community/test-utils';
+import { compile, NetworkProvider } from '@ton/blueprint';
+import { randomAddress } from '@ton/test-utils';
 import { buildCollectionContentCell } from './collectionContent/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");

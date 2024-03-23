@@ -1,7 +1,7 @@
-import { toNano, Address, Dictionary } from 'ton-core';
+import { toNano, Address, Dictionary } from '@ton/core';
 import { BasicNominatorPool } from '../../wrappers/BasicNominatorPool';
-import { compile, NetworkProvider } from '@ton-community/blueprint';
-import { randomAddress } from '@ton-community/test-utils';
+import { compile, NetworkProvider } from '@ton/blueprint';
+import { randomAddress } from '@ton/test-utils';
 
 export async function run(provider: NetworkProvider) {
 

@@ -1,7 +1,7 @@
-import { Address, toNano } from 'ton-core';
+import { Address, toNano } from '@ton/core';
 import { NftItem } from '../wrappers/NftItem';
-import { NetworkProvider, sleep } from '@ton-community/blueprint';
-import { randomAddress } from '@ton-community/test-utils';
+import { NetworkProvider, sleep } from '@ton/blueprint';
+import { randomAddress } from '@ton/test-utils';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
