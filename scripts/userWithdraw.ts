@@ -1,7 +1,7 @@
-import { toNano, Address } from 'ton-core';
+import { toNano, Address } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
-import { NetworkProvider } from '@ton-community/blueprint';
-import { randomAddress } from '@ton-community/test-utils';
+import { NetworkProvider } from '@ton/blueprint';
+import { randomAddress } from '@ton/test-utils';
 
 const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");

@@ -1,11 +1,4 @@
 import {
-    JettonsApi,
-    DNSApi,
-    NFTApi,
-    BlockchainApi,
-    Subscription,
-    TracesApi,
-    WalletApi,
     Configuration,
     AccountsApi
 } from 'tonapi-sdk-js';
