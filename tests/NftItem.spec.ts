@@ -1,11 +1,11 @@
-import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Cell, toNano, Dictionary, beginCell } from 'ton-core';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
+import { Cell, toNano, Dictionary, beginCell } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftItem } from '../wrappers/NftItem';
 import '@ton-community/test-utils';
-import { compile } from '@ton-community/blueprint';
-import { randomAddress } from '@ton-community/test-utils';
-import { buildCollectionContentCell, setItemContentCell, toSha256, toTextCell } from '../scripts/collectionContent/onChain';
+import { compile } from '@ton/blueprint';
+import { randomAddress } from '@ton/test-utils';
+import { toSha256, toTextCell } from '../scripts/collectionContent/onChain';
 
 describe('NftItem', () => {
     let code: Cell;
