@@ -1,22 +1,23 @@
-import { toNano, Address } from '@ton/core';
-import { NexTon } from '../wrappers/NexTon';
-import { NetworkProvider } from '@ton/blueprint';
+import { Address, toNano } from '@ton/core';
+import { NftItem } from '../wrappers/NftItem';
+import { NetworkProvider, sleep } from '@ton/blueprint';
 import { randomAddress } from '@ton/test-utils';
 
-const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
-const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
-
-export async function run(provider: NetworkProvider) {
-    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQCfzomgaD0jPvqC2isSLu1b3S8NGme4B8R0EKCDHJlWIMO9")));
-        //fromInit(myAddress, nftCollection));
+export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
 
-    const command =  await ui.input('Continue?');
+    const itemAddress = Address.parse(args.length > 0 ? args[0] : await ui.input('NFT address'));
+    let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
+    const nextonAddress = Address.parse("EQAVA5b-fDM6tH1runR2HCdqgGCDaaYsfGdvAeEamUOeKAXM");
 
-    //const maxLeverage = await nexton.getMaxLeverage;
+    const nftItem = provider.open(NftItem.createFromAddress(itemAddress));
 
-    
-
-    console.log("Withdrawn!");
-
+    await nftItem.sendTransfer(provider.sender(),{
+        value: toNano("0.3"),
+        fwdAmount: toNano("0.08"),
+        newOwner: nextonAddress,
+        responseAddress: nextonAddress,
+        queryId: Date.now()
+    })
+    ui.write('Transfer succesful');
 }
