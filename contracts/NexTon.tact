@@ -48,7 +48,7 @@ contract NexTon with Deployable, OwnableTransferable {
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
     lockPeriod: Int as uint256 = 0;
-    userItemClaimed: map<Int, Bool>;
+    itemClaimed: map<Int, Bool>;
     itemContent: map<Int as uint256, Cell>;
     
     init(nftItemCode: Cell, _nft: Address) {
@@ -75,6 +75,7 @@ contract NexTon with Deployable, OwnableTransferable {
 
         let attributes: Attribute = Attribute{ trait_type: "principal", value: ctx.value - PROTOCOL_FEE };
         self.latestStakeBlock = now(); // returns the current BlockNumber
+        self.itemClaimed.set(self.itemCounter, false);
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         // self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
@@ -104,10 +105,11 @@ contract NexTon with Deployable, OwnableTransferable {
 
     receive(msg: UserClaim){
         require(!self.stopped, "Contract is stopped");
-        require(self.itemCounter > msg.payload.itemIndex, "Claiming not exisitng NFT");
-        require(!self.userItemClaimed.get(msg.payload.itemIndex)!!, "Item already claimed");
-        require(self.getNftAddressByIndex(msg.payload.itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
-        self.userItemClaimed.set(msg.payload.itemIndex, true);
+        let itemIndex: Int = msg.payload.itemIndex;
+        require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
+        require(!self.itemClaimed.get(itemIndex)!!, "Item already claimed");
+        require(self.NftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
+        self.itemClaimed.set(itemIndex, true); // Int 
 
         let owner: Address = msg.payload.owner;
         let res: DictLoadRes = msg.payload.content.asSlice().loadDict();  
@@ -162,13 +164,13 @@ contract NexTon with Deployable, OwnableTransferable {
         return itemInit;
     }
 
-    get fun getNftAddressByIndex(itemIndex: Int): Address {
+    get fun NftAddressByIndex(itemIndex: Int): Address {
         return contractAddress(self.getNftItemInit(itemIndex));        
     }
 
     // GET methods
 
-    get fun CollectionAddress(): Address{
+    get fun collectionAddress(): Address{
         return self.nFTContractAddress;
     }
 
@@ -180,11 +182,15 @@ contract NexTon with Deployable, OwnableTransferable {
         return self.itemCounter;
     }
     
-    get fun userNFTItemClaimed(index: Int): Bool?{
-        return self.userItemClaimed.get(index);
+    // get fun itemClaimed(index: Int): Bool{
+    //     return self.itemClaimed.get(index)!!;
+    // }
+
+    get fun itemClaimed(index: Int): Bool?{
+        return self.itemClaimed.get(index);
     }
 
-    get fun getLockPeriod(): Int{
+    get fun lockPeriod(): Int{
         return self.lockPeriod;
     }
 }
