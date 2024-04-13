@@ -77,15 +77,15 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         throw_unless(900, contS~load_uint(8) == 0);
         cell contDict = contS~load_dict();
         throw_if(901, contDict.dict_empty?() == -1);
-        (cell lockPeriodCell, int suc) = contDict.udict_get_ref?(256, "lockPeriod"H);
+        (cell lockEndCell, int suc) = contDict.udict_get_ref?(256, "lockEnd"H);
         ;;check that value was returned
         throw_unless(902, suc);
-        slice lpS = lockPeriodCell.begin_parse();
+        slice leS = lockEndCell.begin_parse();
         ;; check the prefix
-        throw_unless(904, lpS~load_uint(8) == 0);
-        int lockPeriod = lpS~load_uint(256);
+        throw_unless(904, leS~load_uint(8) == 0);
+        int lockEnd = leS~load_uint(256);
 
-        throw_unless(903, lockPeriod == 600);
+        throw_unless(903, lockEnd <= now());
 
         builder notification = begin_cell()
                             .store_uint(index, 64)
