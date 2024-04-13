@@ -4,7 +4,7 @@ import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
 import { buildCollectionContentCell, itemContent, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
-import '@ton-community/test-utils';
+import '@ton/test-utils';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';
 
@@ -116,8 +116,6 @@ describe('NexTon', () => {
                 $$type: 'UserDeposit',
                 
                 queryId: BigInt(Date.now()),
-                lockPeriod: lockP,
-                leverage: leverageR
             }
         )
         

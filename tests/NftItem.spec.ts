@@ -2,7 +2,7 @@ import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { Cell, toNano, Dictionary, beginCell } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftItem } from '../wrappers/NftItem';
-import '@ton-community/test-utils';
+import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
 import { randomAddress } from '@ton/test-utils';
 import { toSha256, toTextCell } from '../scripts/collectionContent/onChain';
