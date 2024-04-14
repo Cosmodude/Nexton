@@ -239,6 +239,8 @@ describe('NexTon', () => {
             inMessageBounced: false,
         });
 
+        //console.log(claimMessage.transactions);
+
         const itemD = await nftItem.getItemData();
         const itemOwner = await itemD.itemOwner;
         expect(itemOwner).toEqualAddress(nexton.address);
@@ -246,6 +248,7 @@ describe('NexTon', () => {
         const claimed = await nexton.getItemClaimed(0n);
         expect(claimed).toBe(true);
 
+    
         //console.log(await claimMessage.events);
         //console.log(await claimMessage.transactions);
 
