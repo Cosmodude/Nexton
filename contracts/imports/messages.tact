@@ -20,7 +20,6 @@ message(0x05138d91) ItemTransfer{
     payload: ItemTransferPayload;
 }
 
-
 struct ItemClaimPayload {
     itemIndex: Int as uint64;
     owner: Address;
