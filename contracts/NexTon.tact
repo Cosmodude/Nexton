@@ -113,20 +113,32 @@ contract NexTon with Deployable, OwnableTransferable {
 
         let owner: Address = msg.payload.owner;
 
-        // reading conentent 
+        // reading content 
         let contentS: Slice = msg.payload.content.beginParse();
-        nativeThrowUnless(906, contentS.loadUint(8) == 0);
-        let res: DictLoadRes = contentS.loadDict();  
-        nativeThrowUnless(907, res.dict != null);
-        //nativeThrowWhen(906, res.dict.beginParse().empty());
-        let lockEndRes: DictGetRes = res.dict.udictGetRef(256, sha256("lockEnd"));
-        nativeThrowUnless(908, lockEndRes.success == 0);
+        nativeThrowUnless(905, contentS.loadUint(8) == 0);
+        let contDict: DictLoadRes = contentS.loadDict();  
+        nativeThrowUnless(906, contDict.dict != null);
+
+        // checking lockEnd
+        let lockEndRes: DictGetRes = contDict.dict.udictGetRef(256, sha256("lockEnd"));
+        nativeThrowUnless(907, lockEndRes.success == -1);
         let lockEndS: Slice = lockEndRes.cell.beginParse();
-        // // skipping the prefix
+        // skipping the prefix
         let prefix: Int = lockEndS.loadUint(8);
-        //require(prefix == 0, "Invalid prefix");
-        // let lockEnd: Int = lockEndS.loadUint(256);
-        
+        nativeThrowUnless(908, prefix == 0);
+        let lockEnd: Int = lockEndS.loadUint(256);
+        nativeThrowUnless(909, lockEnd >= now());
+
+        // checking principal
+        let principalRes: DictGetRes = contDict.dict.udictGetRef(256, sha256("principal"));
+        nativeThrowUnless(910, principalRes.success == -1);
+        let principalS: Slice = principalRes.cell.beginParse();
+        // skipping the prefix
+        prefix = principalS.loadUint(8);
+        nativeThrowUnless(911, prefix == 0);
+        let principal: Int = principalS.loadCoins();
+        nativeThrowUnless(912, principal > 0);
+
         //let content: Cell = msg.payload.content.asSlice().loadDict();   
     }
 
