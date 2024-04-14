@@ -15,11 +15,6 @@ native equal_slices(s2: Slice, s1: Slice): Int;
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
 
-struct DictGetRes{
-    slice: Slice;
-    success: Int;
-}
-
 struct Attribute{
             trait_type: String;
             value: Int;
@@ -33,8 +28,13 @@ struct DictLoadRes{
 @name(load_dict)
 extends native loadDict(self: Slice): DictLoadRes;
 
-@name(udict_get?)
-extends native udictGet(self: Cell, kl: Int, k: Int): DictGetRes;
+struct DictGetRes{
+    cell: Cell;
+    success: Int;
+}
+
+@name(udict_get_ref?)
+extends native udictGetRef(self: Cell, kl: Int, k: Int): DictGetRes;
 
 contract NexTon with Deployable, OwnableTransferable {
     const MinTonForStorage: Int = ton("0.2");
@@ -112,7 +112,21 @@ contract NexTon with Deployable, OwnableTransferable {
         self.itemClaimed.set(itemIndex, true); // Int 
 
         let owner: Address = msg.payload.owner;
-        let res: DictLoadRes = msg.payload.content.asSlice().loadDict();  
+
+        // reading conentent 
+        let contentS: Slice = msg.payload.content.beginParse();
+        nativeThrowUnless(906, contentS.loadUint(8) == 0);
+        let res: DictLoadRes = contentS.loadDict();  
+        nativeThrowUnless(907, res.dict != null);
+        //nativeThrowWhen(906, res.dict.beginParse().empty());
+        let lockEndRes: DictGetRes = res.dict.udictGetRef(256, sha256("lockEnd"));
+        nativeThrowUnless(908, lockEndRes.success == 0);
+        let lockEndS: Slice = lockEndRes.cell.beginParse();
+        // // skipping the prefix
+        let prefix: Int = lockEndS.loadUint(8);
+        //require(prefix == 0, "Invalid prefix");
+        // let lockEnd: Int = lockEndS.loadUint(256);
+        
         //let content: Cell = msg.payload.content.asSlice().loadDict();   
     }
 
