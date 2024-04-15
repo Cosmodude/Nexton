@@ -78,6 +78,9 @@ describe('NexTon', () => {
             deploy: true,
             success: true,
         });
+        const nextonOwner = await nexton.getOwner();
+
+        expect(nextonOwner).toEqualAddress(deployer.address);
 
         await nftCollection.sendChangeOwner(deployer.getSender(),{
             value: toNano("0.02"),
@@ -85,6 +88,7 @@ describe('NexTon', () => {
             queryId: BigInt(Date.now())
         });
 
+        // checkng nft collection data
         const collectionData = await nftCollection.getCollectionData();
         const contentS = collectionData.collectionContent.beginParse();
         const outPrefix = contentS.loadUint(8);
@@ -95,7 +99,6 @@ describe('NexTon', () => {
         const inPrefix = collectionNameS?.loadUint(8);
         expect(inPrefix).toEqual(0);
         const collectionName = collectionNameS?.loadStringTail();
-        // console.log("Metadata.name: ", collectionName);
         expect(collectionData.ownerAddress).toEqualAddress(nexton.address);
         expect(collectionName).toMatch("Collection name");
         expect(collectionData.nextItemId).toEqual(0n);
@@ -248,17 +251,77 @@ describe('NexTon', () => {
         const claimed = await nexton.getItemClaimed(0n);
         expect(claimed).toBe(true);
 
-    
-        //console.log(await claimMessage.events);
-        //console.log(await claimMessage.transactions);
+        const usersPrinciple = await nexton.getStaked();
+        expect(usersPrinciple).toEqual(0n);
 
-        //expect(await nexton.getUserNftItemClaimed(0n)).toBe(true);
+        //const userBalance = await user.getBalance()
+        //expect(userBalance).toEqual(toNano("0.2"));
+        
+        console.log(await claimMessage.events);
+
+        const nextonBalance = await nexton.getBalance();
+
+        console.log("Nexton Balance after claim: ", fromNano(nextonBalance));
     });
+
+
+    it("Should allow owner withdraw only to owner", async () =>{
+
+        const user = await blockchain.treasury('user');
+
+        await nexton.send(
+            deployer.getSender(),
+            {
+                value: toNano("101")
+            },
+            null
+        )
+
+        const nextonBalance = await nexton.getBalance();
+        expect(nextonBalance).toBeGreaterThan(toNano("100"));
+
+        const userWithdraw = await nexton.send(
+            user.getSender(),
+            {
+                value: toNano("0.1")
+            },
+            {
+                $$type: 'OwnerWithdraw',
+                queryId: BigInt(Date.now()),
+                amount: toNano("50")
+            }
+        )
+
+        expect(userWithdraw.transactions).toHaveTransaction({   
+            from: nexton.address,
+            to: user.address,
+            inMessageBounced: true
+        });
+
+        const ownerWithdraw = await nexton.send(
+            deployer.getSender(),
+            {
+                value: toNano("0.1")
+            },
+            {
+                $$type: 'OwnerWithdraw',
+                queryId: BigInt(Date.now()),
+                amount: toNano("50")
+            }
+        )
+
+        expect(ownerWithdraw.transactions).toHaveTransaction({   
+            from: nexton.address,
+            to: deployer.address,
+            inMessageBounced: false,
+            value: toNano("50.1")
+        });
+
+    })
 
     it("Should return nftItem address by index", async () =>{
         const res = await nexton.getNftAddressByIndex(0n);
         expect((await nftItem.getItemData()).index).toEqual(0n);
         expect(nftItem.address).toEqualAddress(res);
-
     })
 });
