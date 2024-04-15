@@ -1,13 +1,14 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
+import "@stdlib/stoppable";
 import "./imports/messages";
 import "./imports/stdlib.fc";
 
 const PROTOCOL_FEE: Int = ton("0.1");
-const MAX_LEVERAGE: Int = 5;
 const MIN_USER_DEPOSIT: Int = ton("1");  // inform the frontend
 const MIN_CONTRACT_BALANCE: Int = ton("0.2");
 const DEFAULT_LOCK_PERIOD: Int = 86400; // 1 day
+const BASE_DEVISOR: Int = 10000;  // 10000 = 100%
 
 @name(equal_slices)
 native equal_slices(s2: Slice, s1: Slice): Int;
@@ -16,8 +17,8 @@ native equal_slices(s2: Slice, s1: Slice): Int;
 extends native storeDict(self: Builder, c: Cell): Builder;
 
 struct Attribute{
-            trait_type: String;
-            value: Int;
+    trait_type: String;
+    value: Int;
 }
 
 struct DictLoadRes{
@@ -36,18 +37,19 @@ struct DictGetRes{
 @name(udict_get_ref?)
 extends native udictGetRef(self: Cell, kl: Int, k: Int): DictGetRes;
 
-contract NexTon with Deployable, OwnableTransferable {
+contract NexTon with Deployable, OwnableTransferable, Resumable{
     const MinTonForStorage: Int = ton("0.2");
     owner: Address;
     stopped: Bool = false;
     nftItemCode: Cell;
 
-    nFTContractAddress: Address;      // NFT Contract Address
+    nFTContractAddress: Address;      // NFT Collection Address
 
     usersPrincipal: Int as coins = 0;
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
     lockPeriod: Int as uint256 = 0;
+    apr: Int = 1000; // 10% per year
     itemClaimed: map<Int, Bool>;
     itemContent: map<Int as uint256, Cell>;
     
@@ -69,9 +71,11 @@ contract NexTon with Deployable, OwnableTransferable {
     receive(){} // Receive TONCoins
     
     receive(msg: UserDeposit){
-        require(!self.stopped, "Contract is stopped");
+        self.requireNotStopped();
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 1 Ton");
+
+        nativeReserve(MIN_CONTRACT_BALANCE, 0);
 
         let attributes: Attribute = Attribute{ trait_type: "principal", value: ctx.value - PROTOCOL_FEE };
         self.latestStakeBlock = now(); // returns the current BlockNumber
@@ -97,6 +101,10 @@ contract NexTon with Deployable, OwnableTransferable {
             NFTMessage: itemMessage //  NFTMessage: buildItemMessage(sender(), ctx.value - PROTOCOL_FEE, msg.leverage, msg.lockPeriod)
         };
         self.mintNFT(messageBody);
+
+        self.usersPrincipal = self.usersPrincipal + ctx.value - PROTOCOL_FEE;
+        self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(0).endCell());
+        self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(0, 256).endCell());
     }
 
     bounced(src: bounced<MintNFT>) {
@@ -104,11 +112,12 @@ contract NexTon with Deployable, OwnableTransferable {
     }
 
     receive(msg: UserClaim){
-        require(!self.stopped, "Contract is stopped");
+        self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
         require(!self.itemClaimed.get(itemIndex)!!, "Item already claimed");
         require(self.NftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
+        nativeReserve(MIN_CONTRACT_BALANCE, 0);
         self.itemClaimed.set(itemIndex, true); // Int 
 
         let owner: Address = msg.payload.owner;
@@ -129,7 +138,7 @@ contract NexTon with Deployable, OwnableTransferable {
         let lockEnd: Int = lockEndS.loadUint(256);
         nativeThrowUnless(909, lockEnd >= now());
 
-        // checking principal
+        // reading principal
         let principalRes: DictGetRes = contDict.dict.udictGetRef(256, sha256("principal"));
         nativeThrowUnless(910, principalRes.success == -1);
         let principalS: Slice = principalRes.cell.beginParse();
@@ -139,33 +148,40 @@ contract NexTon with Deployable, OwnableTransferable {
         let principal: Int = principalS.loadCoins();
         nativeThrowUnless(912, principal > 0);
 
-        //let content: Cell = msg.payload.content.asSlice().loadDict();   
+        //reading lockPeriod
+        let lockPeriodRes: DictGetRes = contDict.dict.udictGetRef(256, sha256("lockPeriod"));
+        nativeThrowUnless(913, lockPeriodRes.success == -1);
+        let lockPeriodS: Slice = lockPeriodRes.cell.beginParse();
+        // skipping the prefix
+        prefix = lockPeriodS.loadUint(8);
+        nativeThrowUnless(914, prefix == 0);   
+        let lockPeriod: Int = lockPeriodS.loadUint(256);
+        nativeThrowUnless(915, lockPeriod > 0);
+
+        let reward: Int = principal * lockPeriod * self.apr / 31536000 / BASE_DEVISOR; // 31536000 = seconds in a year
+        send(SendParameters{
+            to: owner,
+            value: reward + principal,
+            mode: SendPayGasSeparately + SendIgnoreErrors + SendRemainingValue,
+            body: "Nexton reward".asComment()
+        });
+        self.usersPrincipal = self.usersPrincipal - principal;
     }
 
-    receive(msg: AdminWithdraw) {
-        require(sender() == self.owner, "Only owner can withdraw");
-        require(msg.amount <= myBalance(), "Not enough balance to withdraw");
+    receive(msg: OwnerWithdraw) {
+        self.requireOwner();
+        nativeThrowUnless(1000, msg.amount <= myBalance()); 
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
         send(SendParameters{
             to: sender(),
             value: msg.amount,
-            mode: SendIgnoreErrors + SendPayGasSeparately,
+            mode: SendIgnoreErrors + SendPayGasSeparately + SendRemainingValue,
             body: "Assets withdrawn".asComment()
         });
     }
 
-    receive(msg: StopContract){
-        require(sender() == self.owner, "Only owner can stop the contract");
-        self.stopped = true;
-    }
-
-    receive(msg: StartContract){
-        require(sender() == self.owner, "Only owner can start the contract");
-        self.stopped = false;
-    }
-
     receive(msg: SetLockPeriod){
-        require(sender() == self.owner, "Only owner can set lock period");
+        self.requireOwner();
         self.lockPeriod = msg.lockPeriod;
     }
 
@@ -207,10 +223,6 @@ contract NexTon with Deployable, OwnableTransferable {
     get fun nftCounter(): Int{
         return self.itemCounter;
     }
-    
-    // get fun itemClaimed(index: Int): Bool{
-    //     return self.itemClaimed.get(index)!!;
-    // }
 
     get fun itemClaimed(index: Int): Bool?{
         return self.itemClaimed.get(index);
@@ -218,6 +230,10 @@ contract NexTon with Deployable, OwnableTransferable {
 
     get fun lockPeriod(): Int{
         return self.lockPeriod;
+    }
+
+    get fun balance(): Int {
+        return myBalance();
     }
 }
 

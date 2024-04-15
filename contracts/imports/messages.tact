@@ -31,17 +31,9 @@ message(0x636c616) UserClaim{
     payload: ItemClaimPayload;
 }
 
-message AdminWithdraw{
+message OwnerWithdraw{
     queryId: Int as uint64;
     amount: Int as coins;
-}
-
-message StopContract{
-    queryId: Int as uint64;
-}
-
-message StartContract{
-    queryId: Int as uint64;
 }
 
 message SetLockPeriod{
