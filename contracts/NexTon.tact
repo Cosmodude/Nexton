@@ -159,12 +159,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         nativeThrowUnless(915, lockPeriod > 0);
 
         let reward: Int = principal * lockPeriod * self.apr / 31536000 / BASE_DEVISOR; // 31536000 = seconds in a year
+
         send(SendParameters{
             to: owner,
             value: reward + principal,
-            mode: SendPayGasSeparately + SendIgnoreErrors + SendRemainingValue,
+            mode: SendIgnoreErrors + SendRemainingValue,
             body: "Nexton reward".asComment()
         });
+
         self.usersPrincipal = self.usersPrincipal - principal;
     }
 
@@ -183,6 +185,11 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     receive(msg: SetLockPeriod){
         self.requireOwner();
         self.lockPeriod = msg.lockPeriod;
+    }
+
+    receive(msg: SetApr){
+        self.requireOwner();
+        self.apr= msg.apr;
     }
 
     // Functions
@@ -236,20 +243,3 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         return myBalance();
     }
 }
-
-// Two ways of claiming:
-// tic talk with users nfts (only one withdraw message from user), no extra reward from overtime staking(even for us)
-// through 2 user messages
-
-// receive("Liquidity Provider Deposit"){
-    //     self.requireNotStopped();
-    //     let ctx: Context = context();
-    //     require(ctx.value >= MIN_LP_DEPOSIT, "Too small deposit amount, min LP deposit is 10000 Ton");
-        
-    //     // let currentPosition: LPProvider = (self.lpProviders.get(sender()))!!;
-    //     // self.lpProviders.set(ctx.sender, LPProvider{
-    //     //     principal: currentPosition.principal + ctx.value,
-    //     //     rewards: currentPosition.rewards,
-    //     //     lastStakePrincipal:  currentPosition.lastStakePrincipal
-    //     // });
-    // }

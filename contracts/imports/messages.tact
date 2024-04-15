@@ -40,3 +40,8 @@ message SetLockPeriod{
     queryId: Int as uint64;
     lockPeriod: Int as uint256;
 }
+
+message SetApr{
+    queryId: Int as uint64;
+    apr: Int as uint256;
+}
