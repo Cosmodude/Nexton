@@ -27,7 +27,7 @@ describe('NexTon', () => {
     const nextonSetup = {
         ownerAddress: myAddress,
         lockPeriod: 86400,
-        userDeposit: toNano("2"),
+        userDeposit: toNano("2") + toNano("0.1"),
         protocolFee: toNano("0.1"),
     }
     beforeEach(async () => {
@@ -80,6 +80,14 @@ describe('NexTon', () => {
         });
         const nextonOwner = await nexton.getOwner();
 
+        await nexton.send(
+            deployer.getSender(),
+            {
+                value: toNano("50")
+            },
+            null
+        )
+
         expect(nextonOwner).toEqualAddress(deployer.address);
 
         await nftCollection.sendChangeOwner(deployer.getSender(),{
@@ -118,7 +126,7 @@ describe('NexTon', () => {
         const mintMessage = await nexton.send(
             user.getSender(), 
             {
-            value: toNano("2")
+            value: nextonSetup.userDeposit
             }, 
             {   
                 $$type: 'UserDeposit',
@@ -234,11 +242,16 @@ describe('NexTon', () => {
                 fwdAmount: toNano("0.1")
             }
         )
-        
-
+    
         expect(claimMessage.transactions).toHaveTransaction({
             from: itemAddress,
             to: nexton.address,
+            inMessageBounced: false,
+        });
+
+        expect(claimMessage.transactions).toHaveTransaction({
+            from: nexton.address,
+            to: user.address,
             inMessageBounced: false,
         });
 
@@ -256,8 +269,7 @@ describe('NexTon', () => {
 
         //const userBalance = await user.getBalance()
         //expect(userBalance).toEqual(toNano("0.2"));
-        
-        console.log(await claimMessage.events);
+        //console.log(await claimMessage.events);
 
         const nextonBalance = await nexton.getBalance();
 
@@ -322,6 +334,8 @@ describe('NexTon', () => {
     it("Should return nftItem address by index", async () =>{
         const res = await nexton.getNftAddressByIndex(0n);
         expect((await nftItem.getItemData()).index).toEqual(0n);
+        // console.log("NftItem Address: ", nftItem.address);
+        // console.log("Returned Address: ", res);
         expect(nftItem.address).toEqualAddress(res);
     })
 });
