@@ -7,7 +7,8 @@ import "./imports/stdlib.fc";
 const PROTOCOL_FEE: Int = ton("0.1");
 const MIN_USER_DEPOSIT: Int = ton("1");  // inform the frontend
 const MIN_CONTRACT_BALANCE: Int = ton("0.2");
-const DEFAULT_LOCK_PERIOD: Int = 86400; // 1 day
+const DEFAULT_LOCK_PERIOD: Int = 5184000; // 60 days
+// 60 days = 5184000; 90 days = 7776000; 180 days = 15552000; 365 days = 31536000
 const BASE_DEVISOR: Int = 10000;  // 10000 = 100%
 
 @name(equal_slices)
@@ -50,7 +51,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     itemCounter: Int as uint64 = 0;   // next_item_index
     lockPeriod: Int as uint256 = 0;
     apr: Int = 1000; // 10% per year
-    itemClaimed: map<Int, Bool>;
     itemContent: map<Int as uint256, Cell>;
     
     init(nftItemCode: Cell, _nft: Address) {
@@ -79,7 +79,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
         let attributes: Attribute = Attribute{ trait_type: "principal", value: ctx.value - PROTOCOL_FEE };
         self.latestStakeBlock = now(); // returns the current BlockNumber
-        self.itemClaimed.set(self.itemCounter, false);
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         // self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
@@ -115,10 +114,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
-        require(!self.itemClaimed.get(itemIndex)!!, "Item already claimed");
         require(self.NftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
-        self.itemClaimed.set(itemIndex, true); // Int 
 
         let owner: Address = msg.payload.owner;
 
@@ -231,15 +228,15 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         return self.itemCounter;
     }
 
-    get fun itemClaimed(index: Int): Bool?{
-        return self.itemClaimed.get(index);
-    }
-
     get fun lockPeriod(): Int{
         return self.lockPeriod;
     }
 
     get fun balance(): Int {
         return myBalance();
+    }
+
+    get fun apr(): Int{
+        return self.apr;
     }
 }

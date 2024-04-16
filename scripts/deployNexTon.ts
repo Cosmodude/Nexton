@@ -22,7 +22,8 @@ export async function run(provider: NetworkProvider) {
             {
                 name: "NexTon Liquid Derivatives Staking",
                 description: "Collection of liquidity staking derivatives, issued by NexTon",
-                image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.jpg"
+                image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.jpg",
+                social_links: [ "https://twitter.com/NextonNode", "https://www.nexton.solutions/", "https://t.me/nextonglobal" ],
             }
         ),
         nftItemCode: await compile("NftItem"),

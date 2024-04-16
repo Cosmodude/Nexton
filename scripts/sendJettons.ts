@@ -24,24 +24,19 @@ export const returnTonWallet = (publicKey: Buffer): WalletContractV4 => {
   return WalletContractV4.create({ workchain, publicKey })
 }
 
-export const returnTonWebWallet = (provider: HttpProvider, publicKey: Buffer): WalletV4ContractR2 => {
-  const tonweb = new TonWeb(provider)
-  const WalletClass = tonweb.wallet.all.v4R2
-  return new WalletClass(provider, { publicKey })
-}
-
-const httpProvider = new TonWeb.HttpProvider(env.RPC_URL, { apiKey })
 const client = new TonClient({ endpoint: env.RPC_URL, apiKey })
 
-export async function swap (jetton: string, amount: bigint, receiver: string, mnemonic: string[] ): Promise<void> {
-   
-
-    const keys = await mnemonicToKeys(mnemonic)
-    const wallet = returnTonWebWallet(httpProvider, keys.publicKey)
-    const openedWallet = client.open(wallet)
-    const sender = openedWallet.sender(keys.secretKey)
-    let swapParams
-
+export async function sendJetton (amount: bigint, receiver: string, mnemonic?: string[], provider?: NetworkProvider): Promise<void> {
+    let sender
+    if (!mnemonic) {
+        mnemonic = env.MNEMONIC.split(' ')
+        const keys = await mnemonicToKeys(mnemonic)
+        const wallet = returnTonWallet(keys.publicKey);
+        const openedWallet = client.open(wallet)
+        sender = openedWallet.sender(keys.secretKey)
+    } else {
+        sender = provider!.sender()
+    }
     const jettonRoot = client.open(JettonRoot.createFromAddress(Address.parse(env.JETTON)))
     const jettonWallet = client.open(await jettonRoot.getWallet(Address.parse(env.WALLET_ADDRESS)))
 
@@ -51,4 +46,17 @@ export async function swap (jetton: string, amount: bigint, receiver: string, mn
         responseAddress: sender.address, // return gas to user
         forwardAmount: toNano('0.25'),
     })
+}
+
+import { NetworkProvider } from '@ton/blueprint';
+
+const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
+const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
+
+export async function run(provider: NetworkProvider) {
+    const transfer = await sendJetton(toNano("1"), myAddress.toString(), undefined , provider);
+
+    console.log("Deposited!");
+    console.log(transfer);
+
 }
