@@ -22,6 +22,9 @@
         "typescript": "^5.3.3"
     },
     "dependencies": {
-        "tonapi-sdk-js": "^1.0.2"
+        "@dedust/sdk": "^0.8.7",
+        "tonapi-sdk-js": "^1.0.2",
+        "tonweb": "^0.0.66",
+        "ts-dotenv": "^0.9.1"
     }
 }
