@@ -1,6 +1,6 @@
 import { Address, toNano } from '@ton/core';
 import { NftItem } from '../wrappers/NftItem';
-import { NetworkProvider, sleep } from '@ton/blueprint';
+import { NetworkProvider } from '@ton/blueprint';
 import { randomAddress } from '@ton/test-utils';
 
 export async function run(provider: NetworkProvider, args: string[]) {

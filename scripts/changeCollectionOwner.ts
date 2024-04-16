@@ -12,7 +12,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const nftCollection = provider.open(NftCollection.createFromAddress(collectionAddress));
 
     const tx = await nftCollection.sendChangeOwner(provider.sender(),{
-        value: toNano("0.02"),
+        value: toNano("0.02401"),
         newOwnerAddress: nextonAddress,
         queryId: BigInt(Date.now())
     })
