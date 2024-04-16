@@ -48,6 +48,8 @@ export async function sendJetton (amount: bigint, receiver: string, mnemonic?: s
     })
 }
 
+
+// for testing purposes
 import { NetworkProvider } from '@ton/blueprint';
 
 const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
