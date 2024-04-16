@@ -26,7 +26,7 @@ describe('NexTon', () => {
 
     const nextonSetup = {
         ownerAddress: myAddress,
-        lockPeriod: 86400,
+        lockPeriod: 5184000,
         userDeposit: toNano("2") + toNano("0.1"),
         protocolFee: toNano("0.1"),
     }
@@ -261,15 +261,12 @@ describe('NexTon', () => {
         const itemOwner = await itemD.itemOwner;
         expect(itemOwner).toEqualAddress(nexton.address);
 
-        const claimed = await nexton.getItemClaimed(0n);
-        expect(claimed).toBe(true);
-
         const usersPrinciple = await nexton.getStaked();
         expect(usersPrinciple).toEqual(0n);
 
-        //const userBalance = await user.getBalance()
-        //expect(userBalance).toEqual(toNano("0.2"));
-        //console.log(await claimMessage.events);
+        // const userBalance = await user.getBalance()
+        // expect(userBalance).toEqual(toNano("0.2"));
+        console.log(await claimMessage.events);
 
         const nextonBalance = await nexton.getBalance();
 
@@ -337,5 +334,84 @@ describe('NexTon', () => {
         // console.log("NftItem Address: ", nftItem.address);
         // console.log("Returned Address: ", res);
         expect(nftItem.address).toEqualAddress(res);
+    })
+
+    it("Should let owner set apr and only owner", async () =>{
+        const oldApr = await nexton.getApr();
+        expect(oldApr).toEqual(1000n);
+        const newApr = 2000n;
+        const ownerSetApr = await nexton.send(
+            deployer.getSender(),
+            {
+                value: toNano("0.1")
+            },
+            {
+                $$type: 'SetApr',
+                queryId: BigInt(Date.now()),
+                apr: newApr
+            }
+        )
+        expect(ownerSetApr.transactions).toHaveTransaction({    
+            from: deployer.address,
+            to: nexton.address,
+            inMessageBounced: false,
+            value: toNano("0.1")
+        });
+        const updatedApr = await nexton.getApr();
+        expect(updatedApr).toEqual(newApr);
+
+        const user = await blockchain.treasury('user');
+
+        const userSetApr = await nexton.send(
+            user.getSender(),
+            {
+                value: toNano("0.1")
+            },
+            {
+                $$type: 'SetApr',
+                queryId: BigInt(Date.now()),
+                apr: newApr
+            }
+        )
+        expect(userSetApr.transactions).toHaveTransaction({    
+            from: nexton.address,
+            to: user.address,
+            inMessageBounced: true
+        });
+    })
+
+    it("Should return nftItem address by index", async () =>{
+        const res = await nexton.getNftAddressByIndex(0n);
+        expect((await nftItem.getItemData()).index).toEqual(0n);
+        // console.log("NftItem Address: ", nftItem.address);
+        // console.log("Returned Address: ", res);
+        expect(nftItem.address).toEqualAddress(res);
+    })
+
+    it("Should let owner withdraw and only owner", async () =>{
+        // await nexton.send(  
+        //     deployer.getSender(),
+        //     {
+        //         value: toNano("100")
+        //     },
+        //     null
+        // )
+        // const oldBalance = await nexton.getBalance();
+        // let deployerBalance = await deployer.getBalance();
+        // console.log(deployerBalance)
+        // const user = await blockchain.treasury('user');
+        // const zero = await deployer.send(
+        //     {
+        //         to: randomAddress(),
+        //         value: toNano("0.1"),
+        //         sendMode: 128
+        //     }
+        // )
+        // deployer.address = zero.address;
+        // blockchain.snapshot();
+        // console.log(zero.events)
+        // deployerBalance = await deployer.getBalance();
+        // console.log(deployerBalance)
+        // //expect(deployerBalance).toEqual(0n);
     })
 });

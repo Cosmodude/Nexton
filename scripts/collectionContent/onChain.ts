@@ -12,7 +12,8 @@ export function toTextCell(s: string): Cell {
 export type collectionContent = {
     name: string,
     description: string,
-    image: string
+    image: string, 
+    social_links?: string[]
 }
 
 export type itemContent = {
