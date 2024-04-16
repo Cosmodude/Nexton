@@ -1,14 +1,14 @@
 import { toNano, Address } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
 import { NetworkProvider } from '@ton/blueprint';
-import { randomAddress } from '@ton/test-utils';
 
 const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
 
 export async function run(provider: NetworkProvider) {
-    const nexton = provider.open(await NexTon.fromAddress(Address.parse("kQAPOLtUoy5BFgC2xC0z67C_BPSMMatvZDEGyB_T_m9A1gGc")));
-        //fromInit(myAddress, nftCollection));
+    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQAWBJo6G0gHFVWE0GVzWHZRUCLlnKxQqID_teDeV_SO-kjk")));
+    // latest tesnet deployment
+    
     const ui = provider.ui();
 
     const command =  await ui.input('Continue?');
@@ -23,8 +23,6 @@ export async function run(provider: NetworkProvider) {
         {
             $$type: 'UserDeposit',
             queryId: BigInt(Date.now()),
-            lockPeriod: 600n,
-            leverage: 3n
         }
     );
 
