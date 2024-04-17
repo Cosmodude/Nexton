@@ -63,7 +63,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
         self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).storeSlice("Nexton Staking Derivative".asSlice()).endCell());
         self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).storeSlice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
-        self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).storeSlice("https://raw.githubusercontent.com/Cosmodude/Nexton/main/NewItem_Image.png".asSlice()).endCell());
+        self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).storeSlice("https://raw.githubusercontent.com/Cosmodude/Nexton/main/NewItem_Image.jpg".asSlice()).endCell());
         self.itemContent.set(sha256("social_links"), beginCell().storeUint(0, 8).storeSlice("[{'trait_type': 'twitter','value': 'https://twitter.com/NextonNode'}]".asSlice()).endCell());
     }
 
