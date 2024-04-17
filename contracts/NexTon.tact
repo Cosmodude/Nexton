@@ -44,7 +44,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     stopped: Bool = false;
     nftItemCode: Cell;
 
-    nFTContractAddress: Address;      // NFT Collection Address
+    nFTContractAddress: Address;  // NFT Collection Address
 
     usersPrincipal: Int as coins = 0;
     latestStakeBlock: Int as uint256;
