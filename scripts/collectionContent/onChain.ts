@@ -31,7 +31,12 @@ export function buildCollectionContentCell(content: collectionContent): Cell {
         .set(toSha256("name"), toTextCell(content.name))
         .set(toSha256("description"), toTextCell(content.description))
         .set(toSha256("image"), toTextCell(content.image));
-    
+        if (content.social_links) {
+            let links = '[ "' + content.social_links.join('", "') + '" ]';
+            content.social_links.join(',');
+            console.log(links)
+            collectionContentDict.set(toSha256("social_links"), toTextCell(links));
+        }
     return beginCell() // need to fix 
             .storeUint(0,8)
             .storeDict(collectionContentDict)
