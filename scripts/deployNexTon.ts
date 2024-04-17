@@ -16,13 +16,13 @@ export async function run(provider: NetworkProvider) {
     // Deploying Collection !!!
 
     const collection = provider.open(NftCollection.createFromConfig({
-        ownerAddress: NextonOwner,
+        ownerAddress:  provider.sender().address!,
         nextItemIndex: 0,
         collectionContent: buildCollectionContentCell(
             {
                 name: "NexTon Liquid Derivatives",
                 description: "Collection of liquidity staking derivatives, issued by NexTon",
-                image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.jpg",
+                image: "https://raw.githubusercontent.com/Nex-TON/Nexton_Contracts/main/Nexton_Logo.jpg",
                 social_links: [ "https://twitter.com/NextonNode", "https://www.nexton.solutions/", "https://t.me/nextonglobal" ],
             }
         ),
