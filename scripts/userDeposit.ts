@@ -6,7 +6,7 @@ const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf
 const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
 
 export async function run(provider: NetworkProvider) {
-    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQAWBJo6G0gHFVWE0GVzWHZRUCLlnKxQqID_teDeV_SO-kjk")));
+    const nexton = provider.open(await NexTon.fromAddress(Address.parse("EQDKglq77JhCczSQCYfsl3nI7SXaeiHspd5kMXuJn8UOJk2n")));
     // latest tesnet deployment
     
     const ui = provider.ui();
@@ -18,7 +18,7 @@ export async function run(provider: NetworkProvider) {
     await nexton.send(
         provider.sender(),
         {
-            value: toNano('2'),
+            value: toNano('1.5'),
         },
         {
             $$type: 'UserDeposit',

@@ -8,7 +8,7 @@ import { randomAddress } from '@ton/test-utils';
 import { buildCollectionContentCell } from './collectionContent/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
-
+let NextonOwner = Address.parse("UQABinqGRk8nJQcyRJqRI_ae4Wr9QW4SPoDQaTEy7TSmn0Yd");
 export async function run(provider: NetworkProvider) {
     const randomSeed= Math.floor(Math.random() * 10000);
     const ui = provider.ui();
@@ -16,11 +16,11 @@ export async function run(provider: NetworkProvider) {
     // Deploying Collection !!!
 
     const collection = provider.open(NftCollection.createFromConfig({
-        ownerAddress: myAddress,
+        ownerAddress: NextonOwner,
         nextItemIndex: 0,
         collectionContent: buildCollectionContentCell(
             {
-                name: "NexTon Liquid Derivatives Staking",
+                name: "NexTon Liquid Derivatives",
                 description: "Collection of liquidity staking derivatives, issued by NexTon",
                 image: "https://raw.githubusercontent.com/Cosmodude/Nexton/main/Nexton_Logo.jpg",
                 social_links: [ "https://twitter.com/NextonNode", "https://www.nexton.solutions/", "https://t.me/nextonglobal" ],
@@ -28,7 +28,7 @@ export async function run(provider: NetworkProvider) {
         ),
         nftItemCode: await compile("NftItem"),
         royaltyParams: {
-            royaltyFactor: Math.floor(Math.random() * 500), 
+            royaltyFactor: 50, 
             royaltyBase: 1000,
             royaltyAddress: myAddress
         }
