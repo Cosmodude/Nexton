@@ -10,7 +10,7 @@ import { buildCollectionContentCell } from './collectionContent/onChain';
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 let NextonOwner = Address.parse("UQABinqGRk8nJQcyRJqRI_ae4Wr9QW4SPoDQaTEy7TSmn0Yd");
 export async function run(provider: NetworkProvider) {
-    const randomSeed= Math.floor(Math.random() * 10000);
+    const randomSeed = Math.floor(Math.random() * 10000);
     const ui = provider.ui();
 
     // Deploying Collection !!!
