@@ -1,5 +1,5 @@
 # NexTon (BlockWave Labs) Contracts
-Author: Vladislav Lenskii: https://github.com/Cosmodude
+Author: Cosmodude: https://github.com/Cosmodude
 
 Created using Blueprint framework: https://github.com/ton-org/blueprint
 
