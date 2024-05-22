@@ -172,12 +172,12 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
     receive(msg: OwnerWithdraw) {
         self.requireOwner();
-        nativeThrowUnless(1000, msg.amount <= myBalance()); 
+        nativeThrowUnless(1000, msg.amount <= myBalance() - MIN_CONTRACT_BALANCE); 
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
         send(SendParameters{
             to: sender(),
             value: msg.amount,
-            mode: SendIgnoreErrors + SendPayGasSeparately + SendRemainingValue,
+            mode: SendIgnoreErrors + SendRemainingValue,
             body: "Assets withdrawn".asComment()
         });
     }
