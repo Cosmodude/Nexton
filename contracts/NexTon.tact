@@ -163,7 +163,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         send(SendParameters{
             to: owner,
             value: reward + principal,
-            mode: SendIgnoreErrors + SendRemainingValue,
+            mode: SendIgnoreErrors | SendRemainingValue,
             body: "Nexton reward".asComment()
         });
 
@@ -177,7 +177,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         send(SendParameters{
             to: sender(),
             value: msg.amount,
-            mode: SendIgnoreErrors + SendRemainingValue,
+            mode: SendIgnoreErrors | SendRemainingValue,
             body: "Assets withdrawn".asComment()
         });
     }
@@ -198,7 +198,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         send(SendParameters{
             to: self.nFTContractAddress,
             value: ton("0.04"),
-            mode: SendPayGasSeparately + SendIgnoreErrors,
+            mode: SendPayGasSeparately | SendIgnoreErrors,
             body: body.toCell()
         });
         self.itemCounter = self.itemCounter + 1;
