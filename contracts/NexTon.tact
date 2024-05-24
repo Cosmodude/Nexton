@@ -213,11 +213,11 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         return itemInit;
     }
 
+    // GET methods
+
     get fun NftAddressByIndex(itemIndex: Int): Address {
         return contractAddress(self.getNftItemInit(itemIndex));        
     }
-
-    // GET methods
 
     get fun collectionAddress(): Address{
         return self.nFTContractAddress;
