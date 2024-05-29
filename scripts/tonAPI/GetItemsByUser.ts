@@ -7,10 +7,10 @@ const env = load({
 
 const TONAPI_URL = "https://tonapi.io/";
 
-const userAddress = "EQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dYvk";
-const collectionAddress = "EQAVGhk_3rUA3ypZAZ1SkVGZIaDt7UdvwA4jsSGRKRo-MRDN";
+const userAddress = "UQABinqGRk8nJQcyRJqRI_ae4Wr9QW4SPoDQaTEy7TSmn0Yd";
+const collectionAddress = "EQCA2hrbnf38nvjWuGh4eaZ2OUNjufYvOjeH9ttf6TQIeH0G";
 
-async function fetchItemsByAddress(collectionAddress: string, userAddress: string) {
+export async function fetchItemsByAddress(collectionAddress: string, userAddress: string) {
     let data: any;
 
     try {
@@ -34,4 +34,5 @@ async function fetchItemsByAddress(collectionAddress: string, userAddress: strin
     }
 }
 
+// example 
 fetchItemsByAddress(collectionAddress, userAddress).then(data => console.log(data))
