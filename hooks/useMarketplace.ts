@@ -1,4 +1,4 @@
-import { NFT_MARKETPLACE_CONTRACT_CODE_CELL, NftMarketplace, NftMarketplaceData } from "../wrappers/NftMarketPlace";
+import { NFT_MARKETPLACE_CONTRACT_CODE_CELL, NftMarketplace, NftMarketplaceData } from "../wrappers/NftMarketplace";
 import { Address, Cell, StateInit, TonClient, beginCell } from "@ton/ton";
 import { MsgWithMode } from "../wrappers/utils";
 import { NftAuctionV2Data } from "../wrappers/NftAuctionV2";
