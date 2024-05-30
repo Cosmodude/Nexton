@@ -1,13 +1,23 @@
 import { toNano } from '@ton/core';
-import { NftMarketplace } from '../wrappers/NftMarketplace';
-import { compile, NetworkProvider } from '@ton/blueprint';
+import { NftMarketplaceData } from '../wrappers/NftMarketplace';
+import { NetworkProvider } from '@ton/blueprint';
+import { deployMarketplace } from '../hooks/useMarketplace';
+import { TonClient } from '@ton/ton';
+import { mnemonicToWalletKey } from '@ton/crypto';
 
 export async function run(provider: NetworkProvider) {
-    const nftMarketplace = provider.open(NftMarketplace.createFromConfig({}, await compile('NftMarketplace')));
+    const mnemonic = "...";
+    const keyPair = await mnemonicToWalletKey(mnemonic.split(" "));
+    const config: NftMarketplaceData = {
+        seqno: 0,
+        subwallet: 112,
+        publicKey: keyPair.publicKey
+    }
 
-    await nftMarketplace.sendDeploy(provider.sender(), toNano('0.05'));
-
-    await provider.waitForDeploy(nftMarketplace.address);
-
-    // run methods on `nftMarketplace`
+    await deployMarketplace(
+        provider.api() as TonClient,
+        provider.sender(),
+        toNano('0.1'),
+        config
+    );
 }
