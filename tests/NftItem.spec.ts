@@ -5,7 +5,7 @@ import { NftItem } from '../wrappers/NftItem';
 import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
 import { randomAddress } from '@ton/test-utils';
-import { toSha256, toTextCell } from '../scripts/collectionContent/onChain';
+import { toSha256, toTextCell } from '../scripts/contentUtils/onChain';
 
 describe('NftItem', () => {
     let code: Cell;
