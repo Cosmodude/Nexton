@@ -1,7 +1,7 @@
 import { Address, toNano, Dictionary} from '@ton/core';
 import { NftItem } from '../wrappers/NftItem';
 import { NetworkProvider, sleep } from '@ton/blueprint';
-import { toSha256 } from '../scripts/collectionContent/onChain';
+import { toSha256 } from './contentUtils/onChain';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();

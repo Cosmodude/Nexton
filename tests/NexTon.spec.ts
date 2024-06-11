@@ -3,7 +3,7 @@ import { Address, toNano, fromNano, Cell, Slice, beginCell, TupleItemInt, Contra
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
-import { buildCollectionContentCell, itemContent, setItemContentCell, toSha256 } from '../scripts/collectionContent/onChain';
+import { buildCollectionContentCell, itemContent, setItemContentCell, toSha256 } from '../scripts/contentUtils/onChain';
 import '@ton/test-utils';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';

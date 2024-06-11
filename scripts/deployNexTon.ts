@@ -5,7 +5,7 @@ import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { compile, NetworkProvider } from '@ton/blueprint';
 import { randomAddress } from '@ton/test-utils';
-import { buildCollectionContentCell } from './collectionContent/onChain';
+import { buildCollectionContentCell } from './contentUtils/onChain';
 
 let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 let NextonOwner = Address.parse("UQABinqGRk8nJQcyRJqRI_ae4Wr9QW4SPoDQaTEy7TSmn0Yd");
