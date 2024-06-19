@@ -1,0 +1,36 @@
+#pragma version ^0.4.0;
+
+#include "../imports/stdlib.fc";
+
+cell pack_provide_wallet(int query_id, slice owner_address) inline {
+    return begin_cell()
+        .store_uint(op::minter::provide_wallet_address, 32)
+        .store_uint(query_id, 64)
+        .store_slice(owner_address)
+        .store_int(false, 1) ;; include_address
+        .end_cell();
+}
+
+cell pack_simple_jetton_transfer(int query_id, int jetton_amount, slice to_address,
+                                slice response_address, int fwd_amount) inline {
+    return begin_cell()
+        .store_uint(op::wallet::transfer, 32)
+        .store_uint(query_id, 64)
+        .store_coins(jetton_amount)
+        .store_slice(to_address)
+        .store_slice(response_address)
+        .store_int(false, 1)        ;; custom_payload
+        .store_coins(fwd_amount)    ;; fwd_amount
+        .store_int(false, 1)        ;; either fwd_body
+        .end_cell();
+}
+
+cell pack_nft_mint_message(int query_id, int item_value, cell nft_message) inline {
+    return begin_cell()
+        .store_uint(op::nft::mint, 32)
+        .store_uint(query_id, 64)
+        .store_int(0, 64) ;; item_index
+        .store_coins(item_value)  ;; ton to send to the item
+        .store_ref(nft_message)
+        .end_cell();
+}
