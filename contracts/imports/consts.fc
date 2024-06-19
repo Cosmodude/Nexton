@@ -1,0 +1,44 @@
+#pragma version ^0.4.0;
+
+const int op::main::constructor                 = 0xe1;
+
+const int op::minter::provide_wallet_address      = 0x2c76b973; ;; TEP89
+const int op::minter::set_wallet_address          = 0xd1735400; ;; TEP89
+
+const int op::wallet::transfer                    = 0x0f8a7ea5; ;; TEP74 260734629
+
+const int op::jetton::transfer_notification    = 0x7362d09c; ;; TEP74 ; 1935855772
+const int op::jetton::internal_transfer        = 0x178d4519; ;; TEP74 260734629
+const int op::jetton::excesses                 = 0xd53276db;
+const int op::jetton::burn                     = 0x595f07bc; ;; TEP74 260734629
+
+const int op::nft::mint                         = 0x01;
+
+
+;; other
+const int CONTRACT::TARGET = 100000000; ;; 0.1 ton
+
+const int ERR::CONSRTUCTOR      = 1000;
+const int ERR::ADDR_FORMAT      = 998;
+const int ERR::ACCESS           = 1002;
+
+const int ERR::NOT_ENOUGH       = 500;
+
+const int MAIN::TARGET  = 500000000; ;; 0.5 ton
+
+const int CONF::JETTON_FWD_AMOUNT    = 1;
+const int CONF::MAX_GAS             = 50000000;  ;; 0.05 ton
+const int CONF::WC                  = 0;
+const int CONF::NFT_MINT_AMOUNT     = 23000000;  ;; 0.023 ton
+const int CONF::NFT_ITEM_AMOUNT     = 15000000;  ;; 0.015 ton
+
+const int MSG::SENDER_PAYS_FEES  = 1;
+const int MSG::IGNORE_ERRORS     = 2;
+const int MSG::DESTROY_IF_ZERO   = 32;
+const int MSG::REMAINING_GAS     = 64;
+const int MSG::ALL_NOT_RESERVED  = 128;
+
+const int TIME::MINUTE           = 60;
+const int TIME::HOUR             = 3600;
+const int TIME::DAY              = 86400;
+const int TIME::YEAR             = 31536000;
