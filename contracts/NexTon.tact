@@ -71,7 +71,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
     receive(){} // Receive TONCoins
     
-    receive(msg: UserDeposit){
+    receive(msg: TonDeposit){
         self.requireNotStopped();
         let ctx: Context = context();
         require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 1 Ton");
@@ -113,7 +113,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.itemCounter = self.itemCounter - 1;
     }
 
-    receive(msg: UserClaim){
+    receive(msg: TonClaim){
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
