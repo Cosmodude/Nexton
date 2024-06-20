@@ -8,7 +8,7 @@ message(0x7362d09c) JettonDeposit{
     queryId: Int as uint64;
     jetton_amount: Int as coins;
     from_address: Address;
-    either_forward_payload: Slice;
+    either_forward_payload: Slice as remaining;
 }
 
 message(0x1) MintNFT{
