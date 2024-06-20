@@ -3,9 +3,12 @@ message TonDeposit{
     //leverage: Int as uint32 = 1;
 }
 
+// op::transfer_notification
 message(0x7362d09c) JettonDeposit{
     queryId: Int as uint64;
-   
+    jetton_amount: Int as coins;
+    from_address: Address;
+    either_forward_payload: Slice;
 }
 
 message(0x1) MintNFT{
