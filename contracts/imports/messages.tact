@@ -1,6 +1,11 @@
-message UserDeposit{
+message TonDeposit{
     queryId: Int as uint64;
     //leverage: Int as uint32 = 1;
+}
+
+message(0x7362d09c) JettonDeposit{
+    queryId: Int as uint64;
+   
 }
 
 message(0x1) MintNFT{
@@ -26,7 +31,7 @@ struct ItemClaimPayload {
     content: Cell;
 }
 
-message(0x636c616) UserClaim{
+message(0x636c616) TonClaim{
     queryId: Int as uint64;
     payload: ItemClaimPayload;
 }
