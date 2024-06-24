@@ -43,12 +43,55 @@ struct ItemClaimPayload {
 // Jetton
 //
 
-// op::transfer_notification
-message(0x7362d09c) JettonDeposit{
+// SendJettons; op::transfer
+message(0xf8a7ea5) TokenTransfer {
     queryId: Int as uint64;
-    jetton_amount: Int as coins;
-    from_address: Address;
-    either_forward_payload: Slice as remaining;
+    amount: Int as coins;
+    destination: Address;
+    response_destination: Address;
+    custom_payload: Cell?;
+    forward_ton_amount: Int as coins;
+    forward_payload: Slice as remaining; // Comment Text message when Transfer the jetton
+}
+
+// JettonDeposit; op::transfer_notification
+message(0x7362d09c) TransferNotification {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+    forward_payload: Slice as remaining; // Comment Text message when Transfer the jetton 
+}
+
+// between wallets 
+message(0x178d4519) TokenTransferInternal {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+    response_destination: Address;
+    forward_ton_amount: Int as coins;
+    forward_payload: Slice as remaining; // Comment Text message when Transfer the jetton
+}
+
+
+// MessageForBurning; op::burn 
+message(0x595f07bc) TokenBurn {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    owner: Address;
+    response_destination: Address;
+}
+
+// op::burn_notification
+message(0x7bdd97de) TokenBurnNotification {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    owner: Address;
+    response_destination: Address?;
+}
+
+// 0xd53276db -- Cashback to the original Sender
+message(0xd53276db) TokenExcesses {
+    queryId: Int as uint64;
 }
 
 //
