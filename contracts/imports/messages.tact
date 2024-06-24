@@ -1,15 +1,20 @@
+// 
+// Nexton
+// 
+
 message TonDeposit{
     queryId: Int as uint64;
     //leverage: Int as uint32 = 1;
 }
 
-// op::transfer_notification
-message(0x7362d09c) JettonDeposit{
+message(0x636c616) TonClaim{
     queryId: Int as uint64;
-    jetton_amount: Int as coins;
-    from_address: Address;
-    either_forward_payload: Slice as remaining;
+    payload: ItemClaimPayload;
 }
+
+//
+// NFT 
+// 
 
 message(0x1) MintNFT{
     queryId: Int as uint64;
@@ -34,10 +39,21 @@ struct ItemClaimPayload {
     content: Cell;
 }
 
-message(0x636c616) TonClaim{
+// 
+// Jetton
+//
+
+// op::transfer_notification
+message(0x7362d09c) JettonDeposit{
     queryId: Int as uint64;
-    payload: ItemClaimPayload;
+    jetton_amount: Int as coins;
+    from_address: Address;
+    either_forward_payload: Slice as remaining;
 }
+
+//
+// Admin 
+//
 
 message OwnerWithdraw{
     queryId: Int as uint64;
