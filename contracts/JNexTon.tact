@@ -1,12 +1,12 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
-import "./imports/messages";
+import "./imports/nextonMessages";
 import "./imports/stdlib.fc";
 import "./imports/consts.fc";
 
 const PROTOCOL_FEE: Int = ton("0.1");
-const MIN_USER_DEPOSIT: Int = ton("1");  // inform the frontend
+const MIN_USER_DEPOSIT: Int = ton("1"); 
 const MIN_CONTRACT_BALANCE: Int = ton("0.2");
 const DEFAULT_LOCK_PERIOD: Int = 5184000; // 60 days
 // 60 days = 5184000; 90 days = 7776000; 180 days = 15552000; 365 days = 31536000
@@ -17,11 +17,6 @@ native equal_slices(s2: Slice, s1: Slice): Int;
 
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
-
-struct Attribute{
-    trait_type: String;
-    value: Int;
-}
 
 struct DictLoadRes{
     slice: Slice;
@@ -44,8 +39,10 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     owner: Address;
     stopped: Bool = false;
     nftItemCode: Cell;
+    jettonWalletCode: Cell;
 
     nFTContractAddress: Address;  // NFT Collection Address
+    jettonMinterAddress: Address;  // Jetton Minter Address
 
     usersPrincipal: Int as coins = 0;
     latestStakeBlock: Int as uint256;
@@ -54,11 +51,12 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     apr: Int = 1000; // 10% per year
     itemContent: map<Int as uint256, Cell>;
     
-    init(nftItemCode: Cell, _nft: Address) {
+    init(nftItemCode: Cell, _nft: Address, jettonWalletCode: Cell, _jetton: Address) {
         self.owner = sender();
         self.nftItemCode = nftItemCode;
-        //self.sPContractAddress = _liquidStaking;
         self.nFTContractAddress = _nft;
+        self.jettonWalletCode = jettonWalletCode;
+        self.jettonMinterAddress = _jetton;
         self.latestStakeBlock = 0;  
         self.lockPeriod = DEFAULT_LOCK_PERIOD;
 
@@ -71,28 +69,22 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     // Receive functions
 
     receive(){} // Receive TONCoins
-    
-    receive()
 
-    receive(msg: UserDeposit){
+    // todo add atributes using stringBuilder
+    receive(msg: TransferNotification){
         self.requireNotStopped();
         let ctx: Context = context();
-        require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is 1 Ton");
+        // todo: send jettons back if 
+        require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is X jettons");
 
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
+        self.latestStakeBlock = now(); // returns the current unix time in seconds
 
-        let attributes: Attribute = Attribute{ trait_type: "principal", value: ctx.value - PROTOCOL_FEE };
-        self.latestStakeBlock = now(); // returns the current BlockNumber
-
-        self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
+        self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(msg.amount - PROTOCOL_FEE).endCell());
         // self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
-        // this needs to be calculated in contract for safety
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod, 256).endCell());
-        self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod + now(), 256).endCell());
-
-        //let atribute: Builder = beginCell().storeUint(0, 8).storeSlice("[{'trait_type': 'principal','value': '}]".asSlice()).storeSlice(ctx.value - PROTOCOL_FEE / 1000000000).storeSlice("'}]".asSlice());
-        //self.itemContent.set(sha256("attributes"), atribute.endCell());
-
+        self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod + self.latestStakeBlock, 256).endCell());
+        
         let itemMessage: Cell = 
             beginCell()
             .storeAddress(ctx.sender)  //itemOwnerAddress
@@ -116,11 +108,11 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.itemCounter = self.itemCounter - 1;
     }
 
-    receive(msg: UserClaim){
+    receive(msg: TonClaim){
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
-        require(self.NftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
+        require(self.nftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
 
         let owner: Address = msg.payload.owner;
@@ -216,10 +208,42 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         return itemInit;
     }
 
+
+// cell calculate_jetton_wallet_state_init(slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
+//   return begin_cell()
+//           .store_uint(0, 2)
+//           .store_dict(jetton_wallet_code)
+//           .store_dict(pack_jetton_wallet_data(0, owner_address, jetton_master_address, jetton_wallet_code))
+//           .store_uint(0, 1)
+//          .end_cell();
+// }
+
+// cell pack_jetton_wallet_data(int balance, slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
+//    return  begin_cell()
+//             .store_coins(balance)
+//             .store_slice(owner_address)
+//             .store_slice(jetton_master_address)
+//             .store_ref(jetton_wallet_code)
+//            .end_cell();
+// }
+
+    fun getJettonWalletInit(owner: Address): StateInit {
+        let data: Cell = beginCell().storeCoins(0).storeSlice(owner.asSlice()).storeSlice(self.jettonMinterAddress.asSlice()).storeRef(self.jettonWalletCode).endCell();
+        let walletInit: StateInit = StateInit{
+            data: data,
+            code: self.nftItemCode
+        }; 
+        return walletInit;
+    }
+
     // GET methods
 
-    get fun NftAddressByIndex(itemIndex: Int): Address {
+    get fun nftAddressByIndex(itemIndex: Int): Address {
         return contractAddress(self.getNftItemInit(itemIndex));        
+    }
+
+    get fun walletAddressByOwner(owner: Address): Address {
+        return contractAddress(self.getJettonWalletInit(owner));        
     }
 
     get fun collectionAddress(): Address{
