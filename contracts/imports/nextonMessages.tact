@@ -15,7 +15,7 @@ struct ClaimPayload {
 
 message(0x636c616) TonClaim{
     queryId: Int as uint64;
-    payload: OwnershipAssignedPayload;
+    payload: ClaimPayload;
 }
 
 //
