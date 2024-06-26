@@ -73,11 +73,27 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     // todo add atributes using stringBuilder
     receive(msg: TransferNotification){
         self.requireNotStopped();
-        let ctx: Context = context();
-        // todo: send jettons back if 
-        require(ctx.value >= MIN_USER_DEPOSIT, "Too small deposit amount, min deposit is X jettons");
-
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
+
+        let ctx: Context = context();
+        if(msg.amount < MIN_USER_DEPOSIT){
+            send(SendParameters{
+                to: ctx.sender,
+                value: msg.amount,
+                mode: SendIgnoreErrors | SendRemainingValue,
+                body: TokenTransfer {
+                    queryId: msg.queryId,
+                    amount: msg.amount,
+                    destination: msg.from,
+                    response_destination: msg.from,
+                    custom_payload: null,
+                    forward_ton_amount: 1,
+                    forward_payload: "Too small jettons deposit amount".asComment().asSlice()
+                }.toCell()
+            });
+            return;
+        }
+
         self.latestStakeBlock = now(); // returns the current unix time in seconds
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(msg.amount - PROTOCOL_FEE).endCell());
