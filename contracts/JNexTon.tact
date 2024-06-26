@@ -75,18 +75,18 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     // todo add atributes using stringBuilder
     receive(msg: TransferNotification){
         self.requireNotStopped();
+        let ctx: Context = context();
         let myJettonWallet: Address = self.walletAddressByOwner(myAddress());
         require(myJettonWallet == ctx.sender, "Invalid notification sender!");
 
-        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
+        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
 
-        let ctx: Context = context();
         if(msg.amount < MIN_USER_DEPOSIT){
             send(SendParameters{
                 to: ctx.sender,
                 value: 1,
                 mode: SendIgnoreErrors | SendRemainingValue,
-                body: TokenTransfer {
+                body: JettonTransfer {
                     queryId: msg.queryId,
                     amount: msg.amount,
                     destination: msg.from,
@@ -132,8 +132,9 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
-        require(self.nftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
-        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
+         let ctx: Context = context();
+        require(self.nftAddressByIndex(itemIndex) == ctx.sender, "Invalid sender! Sent not from the nft item!"); // Safety check
+        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
 
         let owner: Address = msg.payload.owner;
 
@@ -164,7 +165,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         nativeThrowUnless(912, principal > 0);
 
         self.usersPrincipal = self.usersPrincipal - principal;
-        
+
         //reading lockPeriod
         let lockPeriodRes: DictGetRes = contDict.dict.udictGetRef(256, sha256("lockPeriod"));
         nativeThrowUnless(913, lockPeriodRes.success == -1);
