@@ -7,9 +7,15 @@ message TonDeposit{
     //leverage: Int as uint32 = 1;
 }
 
+struct ClaimPayload {
+    itemIndex: Int as uint64;
+    owner: Address;
+    content: Cell;
+}
+
 message(0x636c616) TonClaim{
     queryId: Int as uint64;
-    payload: ItemClaimPayload;
+    payload: OwnershipAssignedPayload;
 }
 
 //
@@ -23,20 +29,14 @@ message(0x1) MintNFT{
     NFTMessage: Cell;
 }
 
-struct ItemTransferPayload {
+struct OwnershipAssignedPayload {
     owner: Address;
     body: Slice;
 }
 
-message(0x05138d91) ItemTransfer{
+message(0x05138d91) OwnershipAssigned{
     queryId: Int as uint64;
-    payload: ItemTransferPayload;
-}
-
-struct ItemClaimPayload {
-    itemIndex: Int as uint64;
-    owner: Address;
-    content: Cell;
+    payload: OwnershipAssignedPayload;
 }
 
 // 
