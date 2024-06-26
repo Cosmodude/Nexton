@@ -73,7 +73,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     // todo add atributes using stringBuilder
     receive(msg: TransferNotification){
         self.requireNotStopped();
-        nativeReserve(MIN_CONTRACT_BALANCE, 0);
+        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
 
         let ctx: Context = context();
         if(msg.amount < MIN_USER_DEPOSIT){
