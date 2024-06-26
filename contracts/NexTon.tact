@@ -17,11 +17,6 @@ native equal_slices(s2: Slice, s1: Slice): Int;
 @name(store_dict)
 extends native storeDict(self: Builder, c: Cell): Builder;
 
-struct Attribute{
-    trait_type: String;
-    value: Int;
-}
-
 struct DictLoadRes{
     slice: Slice;
     dict: Cell;
@@ -78,17 +73,13 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
         nativeReserve(MIN_CONTRACT_BALANCE, 0);
 
-        let attributes: Attribute = Attribute{ trait_type: "principal", value: ctx.value - PROTOCOL_FEE };
         self.latestStakeBlock = now(); // returns the current BlockNumber
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(ctx.value - PROTOCOL_FEE).endCell());
         // self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
-        // this needs to be calculated in contract for safety
+
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod, 256).endCell());
         self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod + now(), 256).endCell());
-
-        //let atribute: Builder = beginCell().storeUint(0, 8).storeSlice("[{'trait_type': 'principal','value': '}]".asSlice()).storeSlice(ctx.value - PROTOCOL_FEE / 1000000000).storeSlice("'}]".asSlice());
-        //self.itemContent.set(sha256("attributes"), atribute.endCell());
 
         let itemMessage: Cell = 
             beginCell()
