@@ -13,7 +13,7 @@ struct ClaimPayload {
     content: Cell;
 }
 
-message(0x636c616) TonClaim{
+message(0x636c616) ClaimNotification{
     queryId: Int as uint64;
     payload: ClaimPayload;
 }

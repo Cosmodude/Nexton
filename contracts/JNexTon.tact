@@ -75,11 +75,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.requireNotStopped();
         nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
 
+        let walletAddress: Address = self.walletAddressByOwner(msg.from);
+        require(walletAddress == ctx.sender, "Invalid notification sender!");
+
         let ctx: Context = context();
         if(msg.amount < MIN_USER_DEPOSIT){
             send(SendParameters{
                 to: ctx.sender,
-                value: msg.amount,
+                value: 1,
                 mode: SendIgnoreErrors | SendRemainingValue,
                 body: TokenTransfer {
                     queryId: msg.queryId,
@@ -97,7 +100,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.latestStakeBlock = now(); // returns the current unix time in seconds
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(msg.amount - PROTOCOL_FEE).endCell());
-        // self.itemContent.set(sha256("leverageRatio"), beginCell().storeUint(0, 8).storeUint(msg.leverage, 8).endCell());
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod, 256).endCell());
         self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod + self.latestStakeBlock, 256).endCell());
         
@@ -124,7 +126,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.itemCounter = self.itemCounter - 1;
     }
 
-    receive(msg: TonClaim){
+    receive(msg: ClaimNotification){
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
@@ -247,7 +249,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         let data: Cell = beginCell().storeCoins(0).storeSlice(owner.asSlice()).storeSlice(self.jettonMinterAddress.asSlice()).storeRef(self.jettonWalletCode).endCell();
         let walletInit: StateInit = StateInit{
             data: data,
-            code: self.nftItemCode
+            code: self.jettonWalletCode
         }; 
         return walletInit;
     }
