@@ -10,7 +10,7 @@ const MIN_USER_DEPOSIT: Int = ton("1");
 const MIN_CONTRACT_BALANCE: Int = ton("0.2");
 const DEFAULT_LOCK_PERIOD: Int = 5184000; // 60 days
 // 60 days = 5184000; 90 days = 7776000; 180 days = 15552000; 365 days = 31536000
-const BASE_DEVISOR: Int = 10000;  // 10000 = 100%
+const APR_BASE_DEVISOR: Int = 10000;  // 10000 = 100%
 
 @name(equal_slices)
 native equal_slices(s2: Slice, s1: Slice): Int;
@@ -44,6 +44,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     nFTContractAddress: Address;  // NFT Collection Address
     jettonMinterAddress: Address;  // Jetton Minter Address
 
+    //myWallet: Address;      // Jetton Wallet address for this contract 
     usersPrincipal: Int as coins = 0;
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
@@ -51,6 +52,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     apr: Int = 1000; // 10% per year
     itemContent: map<Int as uint256, Cell>;
     
+    // add wallet discovery (?)
     init(nftItemCode: Cell, _nft: Address, jettonWalletCode: Cell, _jetton: Address) {
         self.owner = sender();
         self.nftItemCode = nftItemCode;
@@ -73,10 +75,10 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     // todo add atributes using stringBuilder
     receive(msg: TransferNotification){
         self.requireNotStopped();
-        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
+        let myJettonWallet: Address = self.walletAddressByOwner(myAddress());
+        require(myJettonWallet == ctx.sender, "Invalid notification sender!");
 
-        let walletAddress: Address = self.walletAddressByOwner(msg.from);
-        require(walletAddress == ctx.sender, "Invalid notification sender!");
+        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
 
         let ctx: Context = context();
         if(msg.amount < MIN_USER_DEPOSIT){
@@ -131,7 +133,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
         require(self.nftAddressByIndex(itemIndex) == sender(), "Invalid sender! Sent not from the nft item!"); // Safety check
-        nativeReserve(MIN_CONTRACT_BALANCE, 0);
+        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - msg.value), 0);
 
         let owner: Address = msg.payload.owner;
 
@@ -161,6 +163,8 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         let principal: Int = principalS.loadCoins();
         nativeThrowUnless(912, principal > 0);
 
+        self.usersPrincipal = self.usersPrincipal - principal;
+        
         //reading lockPeriod
         let lockPeriodRes: DictGetRes = contDict.dict.udictGetRef(256, sha256("lockPeriod"));
         nativeThrowUnless(913, lockPeriodRes.success == -1);
@@ -171,16 +175,25 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         let lockPeriod: Int = lockPeriodS.loadUint(256);
         nativeThrowUnless(915, lockPeriod > 0);
 
-        let reward: Int = principal * lockPeriod * self.apr / 31536000 / BASE_DEVISOR; // 31536000 = seconds in a year
+        let reward: Int = principal * lockPeriod * self.apr / 31536000 / APR_BASE_DEVISOR; // 31536000 = seconds in a year
+
+        let myJettonWallet: Address = self.walletAddressByOwner(myAddress());
 
         send(SendParameters{
-            to: owner,
-            value: reward + principal,
-            mode: SendIgnoreErrors | SendRemainingValue,
-            body: "Nexton reward".asComment()
+                to: myJettonWallet,
+                value: 1,
+                mode: SendIgnoreErrors | SendRemainingValue,
+                body: JettonTransfer {
+                    queryId: msg.queryId,
+                    amount: reward + principal,
+                    destination: owner,
+                    response_destination: owner,
+                    custom_payload: null,
+                    forward_ton_amount: 1,
+                    forward_payload: "Nexton reward".asComment().asSlice()
+                }.toCell()
         });
 
-        self.usersPrincipal = self.usersPrincipal - principal;
     }
 
     receive(msg: OwnerWithdraw) {
