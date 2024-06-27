@@ -311,6 +311,14 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         return self.nFTContractAddress;
     }
 
+    get fun jettonAddress(): Address{
+        return self.jettonMinterAddress;
+    }
+
+    get fun myJettonWallet(): Address{
+        return self.myWallet!!;
+    }
+
     get fun staked(): Int{
         return self.usersPrincipal;
     }
