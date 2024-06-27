@@ -4,6 +4,13 @@ Author: Cosmodude: https://github.com/Cosmodude
 Created using Blueprint framework: https://github.com/ton-org/blueprint
 
 Contracts were written in TACT and FunC
+
+## Deployments
+
+Nexton: https://tonviewer.com/EQDKglq77JhCczSQCYfsl3nI7SXaeiHspd5kMXuJn8UOJk2n
+
+Nft Collection: https://tonviewer.com/EQCA2hrbnf38nvjWuGh4eaZ2OUNjufYvOjeH9ttf6TQIeH0G
+
 ## Project structure
 
 -   `contracts` - source code of all the smart contracts of the project, their dependencies and references.
@@ -39,6 +46,3 @@ MIT
     - tact video tutorial https://www.youtube.com/watch?v=5Muo79ZsOIg
     - Official docs https://docs.tact-lang.org/
                     https://tact-lang.org/
-
-Updated NexTon: EQCfzomgaD0jPvqC2isSLu1b3S8NGme4B8R0EKCDHJlWIMO9
-Updated fakeItem 
