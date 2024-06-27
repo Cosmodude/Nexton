@@ -44,7 +44,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     nFTContractAddress: Address;  // NFT Collection Address
     jettonMinterAddress: Address;  // Jetton Minter Address
 
-    //myWallet: Address;      // Jetton Wallet address for this contract 
+    myWallet: Address;      // Jetton Wallet address for this contract 
     usersPrincipal: Int as coins = 0;
     latestStakeBlock: Int as uint256;
     itemCounter: Int as uint64 = 0;   // next_item_index
@@ -62,13 +62,40 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.latestStakeBlock = 0;  
         self.lockPeriod = DEFAULT_LOCK_PERIOD;
 
+    // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
+    // cell body = pack_provide_wallet(msg::query_id, my_address());
+
+    // send_raw_message(delib::int_msg(jetton_a, false, transfer_val, body, null()), MSG::SENDER_PAYS_FEES);
+    // ;; only in case jetton A and B are different 
+
         self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).storeSlice("Nexton Staking Derivative".asSlice()).endCell());
         self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).storeSlice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
         self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).storeSlice("https://raw.githubusercontent.com/Nex-TON/Nexton_Contracts/main/NewItem_Image.jpg".asSlice()).endCell());
         self.itemContent.set(sha256("social_links"), beginCell().storeUint(0, 8).storeSlice("['https://twitter.com/NextonNode', 'https://www.nexton.solutions/', 'https://t.me/nextonglobal' ]".asSlice()).endCell());
+        send(SendParameters{
+                to: self.jettonMinterAddress,
+                value: ton("0.05"),
+                mode: SendIgnoreErrors | SendPayGasSeparately,
+                body: ProvideWallet {
+                    queryId: 1,
+                    ownerAddress: myAddress(),
+                    includeAddress: false
+                }.toCell()
+        });
     }
 
     // Receive functions
+
+    receive(msg: SetWalletAddress) {
+        require(sender() == self.jettonMinterAddress);
+        self.myWallet = msg.wallet;
+        send(SendParameters{
+                to: self.owner,
+                value: 1,
+                mode: SendIgnoreErrors | SendRemainingValue,
+                body: "Jetton Wallet Address Set".asComment()
+        });
+    }
 
     receive(){} // Receive TONCoins
 
