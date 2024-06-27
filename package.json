@@ -7,7 +7,7 @@
         "test": "blueprint build && jest --verbose"
     },
     "devDependencies": {
-        "@ton/blueprint": "^0.16.0",
+        "@ton/blueprint": "^0.21.0",
         "@ton/core": "~0",
         "@ton/crypto": "^3.2.0",
         "@ton/sandbox": "^0.15.0",
