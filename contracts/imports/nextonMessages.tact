@@ -62,6 +62,17 @@ message(0x7362d09c) TransferNotification {
     forward_payload: Slice as remaining; // Comment Text message when Transfer the jetton 
 }
 
+message(0x2c76b973) ProvideWallet {
+    queryId: Int as uint64;
+    ownerAddress: Address;
+    includeAddress: Bool;
+}
+
+message(0xd1735400) SetWalletAddress {
+    queryId: Int as uint64;
+    walletAddress: Address;
+}
+
 // between wallets 
 message(0x178d4519) JettonTransferInternal {
     queryId: Int as uint64;
