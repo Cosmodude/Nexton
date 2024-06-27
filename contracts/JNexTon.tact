@@ -44,7 +44,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     nFTContractAddress: Address;  // NFT Collection Address
     jettonMinterAddress: Address;  // Jetton Minter Address
 
-    myWallet: Address;      // Jetton Wallet address for this contract 
+    myWallet: Address?;      // Jetton Wallet address for this contract 
     apr: Int = 1000; // 10% per year
     itemContent: map<Int as uint256, Cell>;
     itemCounter: Int as uint64 = 0;   // next_item_index
@@ -62,6 +62,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.jettonMinterAddress = _jetton;
         self.latestStakeBlock = 0;  
         self.lockPeriod = DEFAULT_LOCK_PERIOD;
+        self.myWallet = null;
 
     // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
     // cell body = pack_provide_wallet(msg::query_id, my_address());
@@ -75,7 +76,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.itemContent.set(sha256("social_links"), beginCell().storeUint(0, 8).storeSlice("['https://twitter.com/NextonNode', 'https://www.nexton.solutions/', 'https://t.me/nextonglobal' ]".asSlice()).endCell());
         send(SendParameters{
                 to: self.jettonMinterAddress,
-                value: ton("0.05"),
+                value: ton("0.05") + context().readForwardFee(),
                 mode: SendIgnoreErrors | SendPayGasSeparately,
                 body: ProvideWallet {
                     queryId: 1,
@@ -86,10 +87,10 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     }
 
     // Receive functions
-
+    // todo test
     receive(msg: SetWalletAddress) {
-        require(sender() == self.jettonMinterAddress);
-        self.myWallet = msg.wallet;
+        require(sender() == self.jettonMinterAddress, "Wrong Wallet Address sender");
+        self.myWallet = msg.walletAddress;
         send(SendParameters{
                 to: self.owner,
                 value: 1,
