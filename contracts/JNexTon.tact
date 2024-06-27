@@ -45,12 +45,13 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     jettonMinterAddress: Address;  // Jetton Minter Address
 
     myWallet: Address;      // Jetton Wallet address for this contract 
-    usersPrincipal: Int as coins = 0;
-    latestStakeBlock: Int as uint256;
-    itemCounter: Int as uint64 = 0;   // next_item_index
-    lockPeriod: Int as uint256 = 0;
     apr: Int = 1000; // 10% per year
     itemContent: map<Int as uint256, Cell>;
+    itemCounter: Int as uint64 = 0;   // next_item_index
+
+    usersPrincipal: Int as coins = 0;
+    latestStakeBlock: Int as uint256;
+    lockPeriod: Int as uint256 = 0;
     
     // add wallet discovery (?)
     init(nftItemCode: Cell, _nft: Address, jettonWalletCode: Cell, _jetton: Address) {
