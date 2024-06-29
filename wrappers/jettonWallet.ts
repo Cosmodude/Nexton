@@ -66,5 +66,64 @@ export class JettonWallet implements Contract {
         });
 
     }
-    
+    /*
+      burn#595f07bc query_id:uint64 amount:(VarUInteger 16)
+                    response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+                    = InternalMsgBody;
+    */
+    static burnMessage(jetton_amount: bigint,
+                       responseAddress:Address,
+                       customPayload: Cell) {
+        return beginCell().storeUint(0x595f07bc, 32).storeUint(0, 64) // op, queryId
+                          .storeCoins(jetton_amount).storeAddress(responseAddress)
+                          .storeMaybeRef(customPayload)
+               .endCell();
+    }
+
+    async sendBurn(provider: ContractProvider, via: Sender, value: bigint,
+                          jetton_amount: bigint,
+                          responseAddress:Address,
+                          customPayload: Cell) {
+        await provider.internal(via, {
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: JettonWallet.burnMessage(jetton_amount, responseAddress, customPayload),
+            value:value
+        });
+
+    }
+    /*
+      withdraw_tons#107c49ef query_id:uint64 = InternalMsgBody;
+    */
+    static withdrawTonsMessage() {
+        return beginCell().storeUint(0x6d8e5e3c, 32).storeUint(0, 64) // op, queryId
+               .endCell();
+    }
+
+    async sendWithdrawTons(provider: ContractProvider, via: Sender) {
+        await provider.internal(via, {
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: JettonWallet.withdrawTonsMessage(),
+            value:toNano('0.1')
+        });
+
+    }
+    /*
+      withdraw_jettons#10 query_id:uint64 wallet:MsgAddressInt amount:Coins = InternalMsgBody;
+    */
+    static withdrawJettonsMessage(from:Address, amount:bigint) {
+        return beginCell().storeUint(0x768a50b2, 32).storeUint(0, 64) // op, queryId
+                          .storeAddress(from)
+                          .storeCoins(amount)
+                          .storeMaybeRef(null)
+               .endCell();
+    }
+
+    async sendWithdrawJettons(provider: ContractProvider, via: Sender, from:Address, amount:bigint) {
+        await provider.internal(via, {
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: JettonWallet.withdrawJettonsMessage(from, amount),
+            value:toNano('0.1')
+        });
+
+    }
 }
