@@ -34,7 +34,7 @@ struct DictGetRes{
 @name(udict_get_ref?)
 extends native udictGetRef(self: Cell, kl: Int, k: Int): DictGetRes;
 
-contract NexTon with Deployable, OwnableTransferable, Resumable{
+contract JNexTon with Deployable, OwnableTransferable, Resumable{
     const MinTonForStorage: Int = ton("0.2");
     owner: Address;
     stopped: Bool = false;
@@ -53,7 +53,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
     latestStakeBlock: Int as uint256;
     lockPeriod: Int as uint256 = 0;
     
-    // add wallet discovery (?)
     init(nftItemCode: Cell, _nft: Address, jettonWalletCode: Cell, _jetton: Address) {
         self.owner = sender();
         self.nftItemCode = nftItemCode;
