@@ -55,10 +55,20 @@ import { NetworkProvider } from '@ton/blueprint';
 const myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
 const nftCollection: Address = Address.parse("EQCB47QNaFJ_Rok3GpoPjf98cKuYY1kQwgqeqdOyYJFrywUK");
 
-export async function run(provider: NetworkProvider) {
-    const transfer = await sendJetton(toNano("1"), myAddress.toString(), undefined , provider);
+export async function run() {
+    let sender
+    // const transfer = await sendJetton(toNano("1"), myAddress.toString(), undefined , provider);
+    const mnemonic = env.MNEMONIC.split(' ')
+    const keys = await mnemonicToKeys(mnemonic)
+    const wallet = returnTonWallet(keys.publicKey);
+    console.log(wallet.address.toString());
+    // console.log("Deposited!");
+    // console.log(transfer);
+    const openedWallet = client.open(wallet)
+    sender = openedWallet.sender(keys.secretKey)
+    // const hash = await sender.send({
+    //     value: toNano("1"),
+    //     to: Address.parse("UQABinqGRk8nJQcyRJqRI_ae4Wr9QW4SPoDQaTEy7TSmn0Yd"),
+    // })
 
-    console.log("Deposited!");
-    console.log(transfer);
-
-}
+}   
