@@ -1,7 +1,7 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "@stdlib/stoppable";
-import "./imports/messages";
+import "./imports/nextonMessages";
 import "./imports/stdlib.fc";
 
 const PROTOCOL_FEE: Int = ton("0.1");
@@ -104,7 +104,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.itemCounter = self.itemCounter - 1;
     }
 
-    receive(msg: TonClaim){
+    receive(msg: ClaimNotification){
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
