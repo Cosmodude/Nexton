@@ -168,8 +168,15 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         send(SendParameters{
             to: sender(),
             value: msg.amount,
-            mode: SendIgnoreErrors | SendRemainingValue,
+            mode: SendIgnoreErrors | SendPayGasSeparately,
             body: "Assets withdrawn".asComment()
+        });
+
+        send(SendParameters{
+            to: sender(),
+            value: 0,
+            mode: SendIgnoreErrors | SendRemainingValue,
+            body: "Excess gas returned".asComment()
         });
     }
 
