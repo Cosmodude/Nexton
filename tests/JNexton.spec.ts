@@ -1,9 +1,11 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { toNano, Address, Cell } from '@ton/core';
 import '@ton/test-utils';
-import { JNexton } from '../wrappers/JNexton';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
+import { JNexTon } from '../wrappers/JNexton';
+import { JettonWallet } from '../wrappers/jettonWallet';
+import { JettonMinter } from '../wrappers/jettonMinter';
 import { buildCollectionContentCell, toSha256 } from '../scripts/contentUtils/onChain';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';
@@ -16,9 +18,10 @@ describe('JNexton', () => {
     }, 10000);
 
     let blockchain: Blockchain;
-    let jNexton: SandboxContract<JNexton>;
+    let jNexton: SandboxContract<JNexTon>;
     let nftCollection: SandboxContract<NftCollection>;
     let nftItem: SandboxContract<NftItem>;
+    let jettonMinter: SandboxContract<JettonMinter>;
     let deployer: SandboxContract<TreasuryContract>;
 
     let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
@@ -30,13 +33,14 @@ describe('JNexton', () => {
         userDeposit: toNano("2") + toNano("0.1"),
         protocolFee: toNano("0.1"),
     }
-    
+
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
-
+        
+        // create nft collection
         nftCollection = blockchain.openContract(await NftCollection.createFromConfig({
             ownerAddress: deployer.address,
             nextItemIndex: 0,
@@ -53,9 +57,35 @@ describe('JNexton', () => {
             }
         }, code));
 
-        jNexton = blockchain.openContract(await JNexton.fromInit());
+        const nftCollectionDeployResult = await nftCollection.sendDeploy(deployer.getSender(), toNano('0.1'));
 
-        deployer = await blockchain.treasury('deployer');
+        expect(nftCollectionDeployResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: nftCollection.address,
+            deploy: true,
+            success: true,
+        });
+
+        jettonMinter = blockchain.openContract(await JettonMinter.createFromConfig({
+            admin: deployer.address,
+            content: buildCollectionContentCell({
+                name: "Jetton name",
+                description: "Jetton description",
+                image: "https://hipo.finance/hton.png"
+            }),
+            wallet_code: await compile("JettonWallet"),
+        }, await compile("JettonMinter")));
+
+        const jettonMinterDeployResult = await jettonMinter.sendDeploy(deployer.getSender(), toNano('0.1'));    
+
+        expect(jettonMinterDeployResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: jettonMinter.address,
+            deploy: true,
+            success: true,
+        });
+
+        jNexton = blockchain.openContract(await JNexTon.fromInit(await compile("NftItem"), nftCollection.address, await compile("JettonWallet"), jettonMinter.address));
 
         const deployResult = await jNexton.send(
             deployer.getSender(),
