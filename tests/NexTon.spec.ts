@@ -1,9 +1,9 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { Address, toNano, fromNano, Cell, Slice, beginCell, TupleItemInt, ContractProvider, Dictionary } from '@ton/core';
+import { Address, toNano, fromNano, Cell, TupleItemInt,  Dictionary, beginCell } from '@ton/core';
 import { NexTon } from '../wrappers/NexTon';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
-import { buildCollectionContentCell, itemContent, setItemContentCell, toSha256 } from '../scripts/contentUtils/onChain';
+import { buildCollectionContentCell, toSha256 } from '../scripts/contentUtils/onChain';
 import '@ton/test-utils';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';
@@ -129,7 +129,7 @@ describe('NexTon', () => {
             value: nextonSetup.userDeposit
             }, 
             {   
-                $$type: 'UserDeposit',
+                $$type: 'TonDeposit',
                 
                 queryId: BigInt(Date.now()),
             }
@@ -204,7 +204,7 @@ describe('NexTon', () => {
                 value: nextonSetup.userDeposit
             }, 
             {   
-                $$type: 'UserDeposit',
+                $$type: 'TonDeposit',
                 queryId: BigInt(Date.now()),
             }
         )
@@ -277,7 +277,7 @@ describe('NexTon', () => {
     it("Should allow owner withdraw only to owner", async () =>{
 
         const user = await blockchain.treasury('user');
-
+    
         await nexton.send(
             deployer.getSender(),
             {
@@ -289,6 +289,7 @@ describe('NexTon', () => {
         const nextonBalance = await nexton.getBalance();
         expect(nextonBalance).toBeGreaterThan(toNano("100"));
 
+        const withdrawAmount = toNano("50");
         const userWithdraw = await nexton.send(
             user.getSender(),
             {
@@ -297,7 +298,7 @@ describe('NexTon', () => {
             {
                 $$type: 'OwnerWithdraw',
                 queryId: BigInt(Date.now()),
-                amount: toNano("50")
+                amount: withdrawAmount
             }
         )
 
@@ -315,15 +316,23 @@ describe('NexTon', () => {
             {
                 $$type: 'OwnerWithdraw',
                 queryId: BigInt(Date.now()),
-                amount: toNano("50")
+                amount: withdrawAmount
             }
         )
+
+        // need to account for gas
+        expect(ownerWithdraw.transactions).toHaveTransaction({   
+            from: nexton.address,
+            to: deployer.address,
+            inMessageBounced: false,
+            value:  withdrawAmount
+        });
 
         expect(ownerWithdraw.transactions).toHaveTransaction({   
             from: nexton.address,
             to: deployer.address,
             inMessageBounced: false,
-            value: toNano("50.1")
+            body: beginCell().storeUint(0,32).storeStringTail("Excess gas returned").endCell()
         });
 
     })
