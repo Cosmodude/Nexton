@@ -64,19 +64,13 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         self.lockPeriod = DEFAULT_LOCK_PERIOD;
         self.myWallet = null;
 
-    // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
-    // cell body = pack_provide_wallet(msg::query_id, my_address());
-
-    // send_raw_message(delib::int_msg(jetton_a, false, transfer_val, body, null()), MSG::SENDER_PAYS_FEES);
-    // ;; only in case jetton A and B are different 
-
         self.itemContent.set(sha256("name"), beginCell().storeUint(0, 8).storeSlice("Nexton Staking Derivative".asSlice()).endCell());
         self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).storeSlice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
         self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).storeSlice("https://raw.githubusercontent.com/Nex-TON/Nexton_Contracts/main/NewItem_Image.jpg".asSlice()).endCell());
         self.itemContent.set(sha256("social_links"), beginCell().storeUint(0, 8).storeSlice("['https://twitter.com/NextonNode', 'https://www.nexton.solutions/', 'https://t.me/nextonglobal' ]".asSlice()).endCell());
         send(SendParameters{
                 to: self.jettonMinterAddress,
-                value: ton("0.05") + context().readForwardFee(),
+                value: ton("0.05") + context().readForwardFee(), // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
                 mode: SendIgnoreErrors | SendPayGasSeparately,
                 body: ProvideWallet {
                     queryId: 1,
@@ -226,6 +220,7 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
     }
 
+    // todo update
     receive(msg: OwnerWithdraw) {
         self.requireOwner();
         nativeThrowUnless(1000, msg.amount <= myBalance() - MIN_CONTRACT_BALANCE); 
@@ -269,25 +264,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
         return itemInit;
     }
 
-
-// cell calculate_jetton_wallet_state_init(slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
-//   return begin_cell()
-//           .store_uint(0, 2)
-//           .store_dict(jetton_wallet_code)
-//           .store_dict(pack_jetton_wallet_data(0, owner_address, jetton_master_address, jetton_wallet_code))
-//           .store_uint(0, 1)
-//          .end_cell();
-// }
-
-// cell pack_jetton_wallet_data(int balance, slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
-//    return  begin_cell()
-//             .store_coins(balance)
-//             .store_slice(owner_address)
-//             .store_slice(jetton_master_address)
-//             .store_ref(jetton_wallet_code)
-//            .end_cell();
-// }
-
     fun getJettonWalletInit(owner: Address): StateInit {
         let data: Cell = beginCell().storeCoins(0).storeSlice(owner.asSlice()).storeSlice(self.jettonMinterAddress.asSlice()).storeRef(self.jettonWalletCode).endCell();
         let walletInit: StateInit = StateInit{
@@ -329,10 +305,6 @@ contract NexTon with Deployable, OwnableTransferable, Resumable{
 
     get fun lockPeriod(): Int{
         return self.lockPeriod;
-    }
-
-    get fun balance(): Int {
-        return myBalance();
     }
 
     get fun apr(): Int{
