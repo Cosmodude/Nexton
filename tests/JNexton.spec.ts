@@ -23,6 +23,7 @@ describe('JNexton', () => {
     let nftItem: SandboxContract<NftItem>;
     let jettonMinter: SandboxContract<JettonMinter>;
     let deployer: SandboxContract<TreasuryContract>;
+    let user: SandboxContract<TreasuryContract>;
 
     let myAddress: Address = Address.parse("kQAXUIBw-EDVtnCxd65Z2M21KTDr07RoBL6BYf-TBCd6dTBu");
     
@@ -30,7 +31,7 @@ describe('JNexton', () => {
     const nextonSetup = {
         ownerAddress: myAddress,
         lockPeriod: 5184000,
-        userDeposit: toNano("2") + toNano("0.1"),
+        userDeposit: BigInt(1e6),
         protocolFee: toNano("0.1"),
     }
 
@@ -39,7 +40,7 @@ describe('JNexton', () => {
 
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
-        
+        user = await blockchain.treasury('user');
         // create nft collection
         nftCollection = blockchain.openContract(await NftCollection.createFromConfig({
             ownerAddress: deployer.address,
@@ -84,6 +85,21 @@ describe('JNexton', () => {
             deploy: true,
             success: true,
         });
+
+        const mintTx = await jettonMinter.sendMint(
+            deployer.getSender(),
+            user.address,
+            0n,
+            BigInt(2e6),
+            toNano('0.1'),
+            toNano('0.3'),
+        );
+
+        const userWalletAddr = await jettonMinter.getWalletAddress(user.address);
+
+        const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
+
+        expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit * 2n);
 
         jNexton = blockchain.openContract(await JNexTon.fromInit(await compile("NftItem"), nftCollection.address, await compile("JettonWallet"), jettonMinter.address));
 
