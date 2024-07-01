@@ -180,14 +180,14 @@ describe('NexTon', () => {
         const pr = principalCell?.beginParse()!!;
         pr.loadUint(8);
         const principal = pr.loadCoins();
-        console.log("principal ", principal);
+        // console.log("principal ", principal);
         expect(principal).toEqual(nextonSetup.userDeposit - nextonSetup.protocolFee);
 
         const le = lockEndCell?.beginParse()!!;
         le.loadUint(8)
         const lockEnd = le.loadUint(256)
-        console.log("Now ", Math.floor(Date.now() / 1000));
-        console.log("lockEnd ", lockEnd);
+        // console.log("Now ", Math.floor(Date.now() / 1000));
+        // console.log("lockEnd ", lockEnd);
         expect(Math.floor(Date.now() / 1000) + Number(nextonSetup.lockPeriod)).toEqual(lockEnd);
         
     });
@@ -266,7 +266,7 @@ describe('NexTon', () => {
 
         // const userBalance = await user.getBalance()
         // expect(userBalance).toEqual(toNano("0.2"));
-        console.log(await claimMessage.events);
+        // console.log(await claimMessage.events);
 
         const nextonBalance = await nexton.getBalance();
 
