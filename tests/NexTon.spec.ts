@@ -123,7 +123,7 @@ describe('NexTon', () => {
         
         const user = await blockchain.treasury('user');
 
-        const mintMessage = await nexton.send(
+        const depositMessage = await nexton.send(
             user.getSender(), 
             {
             value: nextonSetup.userDeposit
@@ -142,13 +142,13 @@ describe('NexTon', () => {
 
         const itemAddress =  await nftCollection.getItemAddressByIndex(index);
 
-        expect(mintMessage.transactions).toHaveTransaction({
+        expect(depositMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
             to: itemAddress,
             inMessageBounced: false
         });
         //console.log(mintMessage.events);
-        expect(mintMessage.events.at(-1)?.type).toMatch("account_created");
+        expect(depositMessage.events.at(-1)?.type).toMatch("account_created");
         expect(await nexton.getNftCounter()).toEqual(1n);
 
         //console.log(await mintMessage.transactions);
