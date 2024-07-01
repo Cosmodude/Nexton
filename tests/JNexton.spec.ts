@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { toNano, Address, Cell } from '@ton/core';
+import { toNano, Address, Cell, Dictionary } from '@ton/core';
 import '@ton/test-utils';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
@@ -46,7 +46,7 @@ describe('JNexton', () => {
             ownerAddress: deployer.address,
             nextItemIndex: 0,
             collectionContent: buildCollectionContentCell({
-                name: "Collection name",
+                name: "JCollection name",
                 description: "Collection description",
                 image: "https://hipo.finance/hton.png"
             }),
@@ -106,7 +106,7 @@ describe('JNexton', () => {
         const deployResult = await jNexton.send(
             deployer.getSender(),
             {
-                value: toNano('0.05'),
+                value: toNano('0.5'),
             },
             {
                 $$type: 'Deploy',
@@ -120,6 +120,52 @@ describe('JNexton', () => {
             deploy: true,
             success: true,
         });
+
+        console.log("Deployed JNexton ", deployResult.events)
+        console.log("JettonMinter ", jettonMinter.address)
+        console.log("deployer ", deployer.address)
+        // expect(deployResult.transactions).toHaveTransaction({
+        //     from: jNexton.address,
+        //     to: jettonMinter.address,
+        // });
+
+        const jNextonOwner = await jNexton.getOwner();
+
+        await jNexton.send(
+            deployer.getSender(),
+            {
+                value: toNano("50")
+            },
+            null
+        )
+
+        expect(jNextonOwner).toEqualAddress(deployer.address);
+
+        await nftCollection.sendChangeOwner(deployer.getSender(),{
+            value: toNano("0.02"),
+            newOwnerAddress: jNexton.address,
+            queryId: BigInt(Date.now())
+        });
+
+        // checkng nft collection data
+        const collectionData = await nftCollection.getCollectionData();
+        const contentS = collectionData.collectionContent.beginParse();
+        const outPrefix = contentS.loadUint(8);
+        expect(outPrefix).toEqual(0);
+        const metadataDict = contentS.loadDict(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
+        
+        const collectionNameS = await metadataDict.get(toSha256("name"))?.beginParse();
+        const inPrefix = collectionNameS?.loadUint(8);
+        expect(inPrefix).toEqual(0);
+        const collectionName = collectionNameS?.loadStringTail();
+        expect(collectionData.ownerAddress).toEqualAddress(jNexton.address);
+        expect(collectionName).toMatch("JCollection name");
+        expect(collectionData.nextItemId).toEqual(0n);
+
+        // checking jNexton data
+        expect(await jNexton.getJettonAddress()).toEqualAddress(jettonMinter.address);
+        expect(await jNexton.getCollectionAddress()).toEqualAddress(nftCollection.address);
+        // expect(await jNexton.getMyJettonWallet()).toEqualAddress(await jettonMinter.getWalletAddress(jNexton.address));
     });
 
     it('should deploy', async () => {
