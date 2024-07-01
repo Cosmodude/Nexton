@@ -67,10 +67,11 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         self.itemContent.set(sha256("description"), beginCell().storeUint(0, 8).storeSlice("Holds information about the user's stake in the Nexton platform pool".asSlice()).endCell());
         self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).storeSlice("https://raw.githubusercontent.com/Nex-TON/Nexton_Contracts/main/NewItem_Image.jpg".asSlice()).endCell());
         self.itemContent.set(sha256("social_links"), beginCell().storeUint(0, 8).storeSlice("['https://twitter.com/NextonNode', 'https://www.nexton.solutions/', 'https://t.me/nextonglobal' ]".asSlice()).endCell());
+        
         send(SendParameters{
                 to: self.jettonMinterAddress,
                 value: ton("0.05") + context().readForwardFee(), // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
-                mode: SendIgnoreErrors | SendPayGasSeparately,
+                mode: SendIgnoreErrors | SendRemainingValue,
                 body: ProvideWallet {
                     queryId: 1,
                     ownerAddress: myAddress(),
@@ -82,6 +83,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
     // Receive functions
     // todo test
     receive(msg: SetWalletAddress) {
+        require(self.myWallet == null, "Wallet Address already set");
         require(sender() == self.jettonMinterAddress, "Wrong Wallet Address sender");
         self.myWallet = msg.walletAddress;
         send(SendParameters{
