@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { toNano, Address, Cell, Dictionary } from '@ton/core';
+import { toNano, Address, Cell, Dictionary, beginCell, TupleItemInt } from '@ton/core';
 import '@ton/test-utils';
 import { NftCollection } from '../wrappers/NftCollection';
 import { NftItem } from '../wrappers/NftItem';
@@ -172,4 +172,83 @@ describe('JNexton', () => {
         // the check is done inside beforeEach
         // blockchain and jNexton are ready to use
     });
+
+    it('Should Deposit and Mint NFT with set metadata', async() => {
+
+        //console.log("User Depositing!!!");
+        
+        //const user = await blockchain.treasury('user');
+
+        const userWalletAddr = await jettonMinter.getWalletAddress(user.address);
+
+        const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
+
+        const depositMessage = await userWallet.sendTransfer(
+            user.getSender(),
+            toNano("0.05"),
+            nextonSetup.userDeposit,
+            jNexton.address,
+            user.address,
+            beginCell().storeStringTail("Deposited to JNexton").endCell(),
+            toNano("0.3"),
+            beginCell().endCell(),
+        );
+        
+        const index: TupleItemInt = {
+            type: "int",
+            value: 0n
+        }
+
+        const itemAddress =  await nftCollection.getItemAddressByIndex(index);
+
+        expect(depositMessage.transactions).toHaveTransaction({
+            from: nftCollection.address,
+            to: itemAddress,
+            inMessageBounced: false
+        });
+        //console.log(mintMessage.events);
+        expect(depositMessage.events.at(-1)?.type).toMatch("account_created");
+        expect(await jNexton.getNftCounter()).toEqual(1n);
+
+        //console.log(await mintMessage.transactions);
+        nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
+        expect(nftItem.address).toEqualAddress(itemAddress);
+
+        //console.log(nftItem.address, itemAddress)
+        const itemData = await nftItem.getItemData();
+        expect(itemData.index).toEqual(0n);
+        const itemContentSlice = itemData.itemContent.beginParse();
+        //console.log("refs ", itemContentSlice.remainingRefs);
+        expect(itemContentSlice.remainingRefs).toEqual(1);
+
+        const outPrefix = itemContentSlice.loadUint(8);
+        expect(outPrefix).toEqual(0);
+        
+        const dict = itemContentSlice.loadDict((Dictionary.Keys.BigUint(256)), Dictionary.Values.Cell());
+        const nameCell = dict.get(toSha256("name"));
+        const nameS = nameCell?.beginParse();
+        nameS?.loadUint(8);
+        const name = nameS?.loadStringTail();
+        expect(name).toMatch("Nexton Staking Derivative");
+        // const descriptionCell = dict.get(toSha256("description"));
+        // const imageCell = dict.get(toSha256("image"));
+        const principalCell = dict.get(toSha256("principal"));
+        // const leverageCell = dict.get(toSha256("leverage"));
+        //const lockPeriodCell = dict.get(toSha256("lockPeriod"));
+        const lockEndCell = dict.get(toSha256("lockEnd"));
+        const pr = principalCell?.beginParse()!!;
+        pr.loadUint(8);
+        const principal = pr.loadCoins();
+        // console.log("principal ", principal);
+        expect(principal).toEqual(nextonSetup.userDeposit - nextonSetup.protocolFee);
+
+        const le = lockEndCell?.beginParse()!!;
+        le.loadUint(8)
+        const lockEnd = le.loadUint(256)
+        // console.log("Now ", Math.floor(Date.now() / 1000));
+        // console.log("lockEnd ", lockEnd);
+        expect(Math.floor(Date.now() / 1000) + Number(nextonSetup.lockPeriod)).toEqual(lockEnd);
+        
+    });
+
 });
