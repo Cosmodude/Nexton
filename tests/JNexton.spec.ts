@@ -9,6 +9,7 @@ import { JettonMinter } from '../wrappers/jettonMinter';
 import { buildCollectionContentCell, toSha256 } from '../scripts/contentUtils/onChain';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';
+import { waitForDebugger } from 'inspector';
 
 describe('JNexton', () => {
     let code: Cell;
@@ -31,8 +32,9 @@ describe('JNexton', () => {
     const nextonSetup = {
         ownerAddress: myAddress,
         lockPeriod: 5184000,
-        userDeposit: BigInt(1e6),
+        userDeposit: toNano("50"),
         protocolFee: toNano("0.1"),
+        minDeposit: toNano("1"),
     }
 
     beforeEach(async () => {
@@ -90,15 +92,20 @@ describe('JNexton', () => {
             deployer.getSender(),
             user.address,
             0n,
-            BigInt(2e6),
+            nextonSetup.userDeposit * 2n,
             toNano('0.1'),
             toNano('0.3'),
         );
 
         const userWalletAddr = await jettonMinter.getWalletAddress(user.address);
 
-        const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
+        expect(mintTx.transactions).toHaveTransaction({
+            from: jettonMinter.address,
+            to: userWalletAddr,    
+        });
 
+        const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
+        console.log(await userWallet.getJettonBalance())
         expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit * 2n);
 
         jNexton = blockchain.openContract(await JNexTon.fromInit(await compile("NftItem"), nftCollection.address, await compile("JettonWallet"), jettonMinter.address));
@@ -125,7 +132,7 @@ describe('JNexton', () => {
         console.log("JettonMinter ", jettonMinter.address)
         console.log("deployer ", deployer.address)
 
-        // todo
+        //todo
         // expect(deployResult.transactions).toHaveTransaction({
         //     from: jNexton.address,
         //     to: jettonMinter.address,
@@ -187,12 +194,12 @@ describe('JNexton', () => {
 
         const depositMessage = await userWallet.sendTransfer(
             user.getSender(),
-            toNano("0.5"),
+            toNano("0.3"),
             nextonSetup.userDeposit,
             jNexton.address,
             user.address,
             beginCell().storeStringTail("Deposited to JNexton").endCell(),
-            toNano("0.3"),
+            toNano("0.1"),
             beginCell().endCell(),
         );
         
@@ -208,7 +215,7 @@ describe('JNexton', () => {
             to: itemAddress,
             inMessageBounced: false
         });
-        //console.log(mintMessage.events);
+
         expect(depositMessage.events.at(-1)?.type).toMatch("account_created");
         expect(await jNexton.getNftCounter()).toEqual(1n);
 
