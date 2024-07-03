@@ -102,8 +102,8 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
     receive(msg: TransferNotification){
         self.requireNotStopped();
         let ctx: Context = context();
-        let myJettonWallet: Address = self.walletAddressByOwner(myAddress());
-        require(myJettonWallet == ctx.sender, "Invalid notification sender!");
+        // let myJettonWallet: Address = self.walletAddressByOwner(myAddress());
+        require(self.myWallet == ctx.sender, "Invalid transfer notification sender!");
 
         nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
 
@@ -204,10 +204,8 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
 
         let reward: Int = principal * lockPeriod * self.apr / 31536000 / APR_BASE_DEVISOR; // 31536000 = seconds in a year
 
-        let myJettonWallet: Address = self.walletAddressByOwner(myAddress());
-
         send(SendParameters{
-                to: myJettonWallet,
+                to: self.myWallet,
                 value: 1,
                 mode: SendIgnoreErrors | SendRemainingValue,
                 body: JettonTransfer {
