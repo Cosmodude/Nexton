@@ -44,7 +44,7 @@ message(0x05138d91) OwnershipAssigned{
 //
 
 // SendJettons; op::transfer
-message(0xf8a7ea5) JettonTransfer {
+message(0xf8a7ea5) JettonTransfer { // 260734629
     queryId: Int as uint64;
     amount: Int as coins;
     destination: Address;
@@ -55,7 +55,7 @@ message(0xf8a7ea5) JettonTransfer {
 }
 
 // JettonDeposit; op::transfer_notification
-message(0x7362d09c) TransferNotification {
+message(0x7362d09c) TransferNotification { // 1935855772
     queryId: Int as uint64;
     amount: Int as coins;
     from: Address;
@@ -74,7 +74,7 @@ message(0xd1735400) SetWalletAddress {
 }
 
 // between wallets 
-message(0x178d4519) JettonTransferInternal {
+message(0x178d4519) JettonTransferInternal { // 395134233
     queryId: Int as uint64;
     amount: Int as coins;
     from: Address;
@@ -101,7 +101,7 @@ message(0x7bdd97de) JettonBurnNotification {
 }
 
 // 0xd53276db -- Cashback to the original Sender
-message(0xd53276db) TonExcesses {
+message(0xd53276db) TonExcesses { // 3576854235
     queryId: Int as uint64;
 }
 
