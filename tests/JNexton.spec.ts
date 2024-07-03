@@ -194,7 +194,7 @@ describe('JNexton', () => {
 
         const depositMessage = await userWallet.sendTransfer(
             user.getSender(),
-            toNano("0.3"),
+            toNano("0.15"),
             nextonSetup.userDeposit,
             jNexton.address,
             user.address,
@@ -260,4 +260,48 @@ describe('JNexton', () => {
         
     });
 
+    it('Should return jettons to user in case of too low stake', async() => {
+
+        //console.log("User Depositing!!!");
+        
+        //const user = await blockchain.treasury('user');
+
+        const userWalletAddr = await jettonMinter.getWalletAddress(user.address);
+
+        const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
+
+        const depositMessage = await userWallet.sendTransfer(
+            user.getSender(),
+            toNano("0.15"),
+            nextonSetup.minDeposit - toNano("0.1"),
+            jNexton.address,
+            user.address,
+            beginCell().storeStringTail("Deposited to JNexton").endCell(),
+            toNano("0.1"),
+            beginCell().endCell(),
+        );
+        
+        const jNextonWalletAddr = await jettonMinter.getWalletAddress(jNexton.address);
+
+        const jNextonWallet = blockchain.openContract(await JettonWallet.createFromAddress(jNextonWalletAddr));
+
+        expect(depositMessage.transactions).toHaveTransaction({
+            from: jNexton.address,
+            to: jNextonWallet.address,
+            inMessageBounced: false
+        });
+
+        expect(depositMessage.transactions).toHaveTransaction({
+            from: jNextonWallet.address,
+            to: userWallet.address,
+            inMessageBounced: false
+        });
+
+        expect(depositMessage.transactions).toHaveTransaction({
+            from: userWallet.address,
+            to: user.address,
+            value: 1n
+        });
+        
+    });
 });
