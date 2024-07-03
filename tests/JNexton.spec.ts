@@ -124,6 +124,8 @@ describe('JNexton', () => {
         console.log("Deployed JNexton ", deployResult.events)
         console.log("JettonMinter ", jettonMinter.address)
         console.log("deployer ", deployer.address)
+
+        // todo
         // expect(deployResult.transactions).toHaveTransaction({
         //     from: jNexton.address,
         //     to: jettonMinter.address,
@@ -165,7 +167,7 @@ describe('JNexton', () => {
         // checking jNexton data
         expect(await jNexton.getJettonAddress()).toEqualAddress(jettonMinter.address);
         expect(await jNexton.getCollectionAddress()).toEqualAddress(nftCollection.address);
-        // expect(await jNexton.getMyJettonWallet()).toEqualAddress(await jettonMinter.getWalletAddress(jNexton.address));
+        expect(await jNexton.getMyJettonWallet()).toEqualAddress(await jettonMinter.getWalletAddress(jNexton.address));
     });
 
     it('should deploy', async () => {
@@ -185,7 +187,7 @@ describe('JNexton', () => {
 
         const depositMessage = await userWallet.sendTransfer(
             user.getSender(),
-            toNano("0.05"),
+            toNano("0.5"),
             nextonSetup.userDeposit,
             jNexton.address,
             user.address,
