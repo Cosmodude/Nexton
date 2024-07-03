@@ -68,16 +68,18 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         self.itemContent.set(sha256("image"), beginCell().storeUint(0, 8).storeSlice("https://raw.githubusercontent.com/Nex-TON/Nexton_Contracts/main/NewItem_Image.jpg".asSlice()).endCell());
         self.itemContent.set(sha256("social_links"), beginCell().storeUint(0, 8).storeSlice("['https://twitter.com/NextonNode', 'https://www.nexton.solutions/', 'https://t.me/nextonglobal' ]".asSlice()).endCell());
         
-        send(SendParameters{
-                to: self.jettonMinterAddress,
-                value: ton("0.05") + context().readForwardFee(), // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
-                mode: SendIgnoreErrors | SendRemainingValue,
-                body: ProvideWallet {
-                    queryId: 1,
-                    ownerAddress: myAddress(),
-                    includeAddress: false
-                }.toCell()
-        });
+        self.myWallet = self.walletAddressByOwner(myAddress());
+
+        // send(SendParameters{
+        //         to: self.jettonMinterAddress,
+        //         value: ton("0.05") + context().readForwardFee(), // int  transfer_val = CONF::MAX_GAS + msg::fwd_fee;
+        //         mode: SendIgnoreErrors | SendRemainingValue,
+        //         body: ProvideWallet {
+        //             queryId: 1,
+        //             ownerAddress: myAddress(),
+        //             includeAddress: false
+        //         }.toCell()
+        // });
     }
 
     // Receive functions
