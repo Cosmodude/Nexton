@@ -9,7 +9,7 @@ import { JettonMinter } from '../wrappers/jettonMinter';
 import { buildCollectionContentCell, toSha256 } from '../scripts/contentUtils/onChain';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';
-import { waitForDebugger } from 'inspector';
+
 
 describe('JNexton', () => {
     let code: Cell;
@@ -107,7 +107,7 @@ describe('JNexton', () => {
         });
 
         const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
-        console.log(await userWallet.getJettonBalance())
+        //console.log(await userWallet.getJettonBalance())
         expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit * 2n);
 
         // jNexton Deploy
@@ -131,9 +131,9 @@ describe('JNexton', () => {
             success: true,
         });
 
-        console.log("Deployed JNexton ", deployResult.events)
-        console.log("JettonMinter ", jettonMinter.address)
-        console.log("deployer ", deployer.address)
+        // console.log("Deployed JNexton ", deployResult.events)
+        // console.log("JettonMinter ", jettonMinter.address)
+        // console.log("deployer ", deployer.address)
 
         //todo
         // expect(deployResult.transactions).toHaveTransaction({
@@ -307,6 +307,63 @@ describe('JNexton', () => {
         });
         
         expect(await jNextonWallet.getJettonBalance()).toEqual(0n);
-        expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit);
+        const userBalance = await userWallet.getJettonBalance();
+        //console.log("User balance ", userBalance);
+        //console.log("User deposit ", nextonSetup.userDeposit);
+        expect(userBalance).toEqual(nextonSetup.userDeposit * 2n);
     });
+
+    //it('Should return jettons to user in case of too low stake', async() => {
+
+        // //console.log("User Depositing!!!");
+        
+        // //const user = await blockchain.treasury('user');
+
+        // const userWalletAddr = await jettonMinter.getWalletAddress(user.address);
+
+        // const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(userWalletAddr));
+
+        // const depositMessage = await userWallet.sendTransfer(
+        //     user.getSender(),
+        //     toNano("0.15"),
+        //     nextonSetup.minDeposit - toNano("0.1"),
+        //     jNexton.address,
+        //     user.address,
+        //     beginCell().storeStringTail("Deposited to JNexton").endCell(),
+        //     toNano("0.1"),
+        //     beginCell().endCell(),
+        // );
+        
+        // const jNextonWalletAddr = await jettonMinter.getWalletAddress(jNexton.address);
+
+        // const jNextonWallet = blockchain.openContract(await JettonWallet.createFromAddress(jNextonWalletAddr));
+
+        // expect(depositMessage.transactions).toHaveTransaction({
+        //     from: jNexton.address,
+        //     to: jNextonWallet.address,
+        //     inMessageBounced: false
+        // });
+
+        // expect(depositMessage.transactions).toHaveTransaction({
+        //     from: jNextonWallet.address,
+        //     to: userWallet.address,
+        //     inMessageBounced: false
+        // });
+
+        // expect(depositMessage.transactions).toHaveTransaction({
+        //     from: userWallet.address,
+        //     to: user.address,
+        //     value: 1n
+        // });
+        
+        // expect(await jNextonWallet.getJettonBalance()).toEqual(0n);
+        // expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit);
+    //});
+
+    it("Should return nftItem address by index", async () =>{
+        const res = await jNexton.getNftAddressByIndex(0n);
+        const itemData = await nftItem.getItemData()
+        expect(itemData.index).toEqual(0n);
+        expect(nftItem.address).toEqualAddress(res);
+    })
 });
