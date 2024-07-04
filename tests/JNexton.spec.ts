@@ -43,6 +43,7 @@ describe('JNexton', () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
         user = await blockchain.treasury('user');
+
         // create nft collection
         nftCollection = blockchain.openContract(await NftCollection.createFromConfig({
             ownerAddress: deployer.address,
@@ -69,6 +70,7 @@ describe('JNexton', () => {
             success: true,
         });
 
+        // Jetton setup
         jettonMinter = blockchain.openContract(await JettonMinter.createFromConfig({
             admin: deployer.address,
             content: buildCollectionContentCell({
@@ -108,6 +110,7 @@ describe('JNexton', () => {
         console.log(await userWallet.getJettonBalance())
         expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit * 2n);
 
+        // jNexton Deploy
         jNexton = blockchain.openContract(await JNexTon.fromInit(await compile("NftItem"), nftCollection.address, await compile("JettonWallet"), jettonMinter.address));
 
         const deployResult = await jNexton.send(
@@ -303,5 +306,7 @@ describe('JNexton', () => {
             value: 1n
         });
         
+        expect(await jNextonWallet.getJettonBalance()).toEqual(0n);
+        expect(await userWallet.getJettonBalance()).toEqual(nextonSetup.userDeposit);
     });
 });
