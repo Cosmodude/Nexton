@@ -320,7 +320,7 @@ describe('JNexton', () => {
             value: 1n
         });
         
-        expect(await jNextonWallet.getJettonBalance()).toEqual(0n);
+        expect(await jNextonWallet.getJettonBalance()).toEqual(nextonSetup.fundingAmount);
         const userBalance = await userWallet.getJettonBalance();
         //console.log("User balance ", userBalance);
         //console.log("User deposit ", nextonSetup.userDeposit);
