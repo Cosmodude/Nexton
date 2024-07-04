@@ -9,6 +9,7 @@ import { JettonMinter } from '../wrappers/jettonMinter';
 import { buildCollectionContentCell, toSha256 } from '../scripts/contentUtils/onChain';
 import { randomAddress } from '@ton/test-utils';
 import { compile } from '@ton/blueprint';
+import { getTupleItemInt } from '../scripts/utils/tuples';
 
 
 describe('JNexton', () => {
@@ -35,6 +36,7 @@ describe('JNexton', () => {
         userDeposit: toNano("50"),
         protocolFee: toNano("0.1"),
         minDeposit: toNano("1"),
+        fundingAmount: toNano("50"),
     }
 
     beforeEach(async () => {
@@ -153,6 +155,22 @@ describe('JNexton', () => {
 
         expect(jNextonOwner).toEqualAddress(deployer.address);
 
+        const fundTx = await jettonMinter.sendMint(
+            deployer.getSender(),
+            jNexton.address,
+            0n,
+            nextonSetup.fundingAmount,
+            toNano('0.1'),
+            toNano('0.3'),
+        );
+
+        const jNextonWalletAddr = await jettonMinter.getWalletAddress(jNexton.address);
+
+        expect(mintTx.transactions).toHaveTransaction({
+            from: jettonMinter.address,
+            to: jNextonWalletAddr,    
+        });
+
         await nftCollection.sendChangeOwner(deployer.getSender(),{
             value: toNano("0.02"),
             newOwnerAddress: jNexton.address,
@@ -206,12 +224,8 @@ describe('JNexton', () => {
             beginCell().endCell(),
         );
         
-        const index: TupleItemInt = {
-            type: "int",
-            value: 0n
-        }
 
-        const itemAddress =  await nftCollection.getItemAddressByIndex(index);
+        const itemAddress =  await nftCollection.getItemAddressByIndex(getTupleItemInt(0n));
 
         expect(depositMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
@@ -313,29 +327,23 @@ describe('JNexton', () => {
         expect(userBalance).toEqual(nextonSetup.userDeposit * 2n);
     });
 
-    it("Should Deposit and Claim User reward", async () =>{
+    it("Should let User Claim reward", async () =>{
         
         // console.log("User Depositing!!!");
         
-        const user = await blockchain.treasury('user');
+        const userWallet = blockchain.openContract(await JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(user.address)));
+        const depositMessage = await userWallet.sendTransfer(
+            user.getSender(),
+            toNano("0.15"),
+            nextonSetup.userDeposit,
+            jNexton.address,
+            user.address,
+            beginCell().storeStringTail("Deposited to JNexton").endCell(),
+            toNano("0.1"),
+            beginCell().endCell(),
+        );
 
-        const depositMessage = await jNexton.send(
-            user.getSender(), 
-            {
-                value: nextonSetup.userDeposit
-            }, 
-            {   
-                $$type: 'TonDeposit',
-                queryId: BigInt(Date.now()),
-            }
-        )
-        //console.log(await depositMessage.events);
-        const index: TupleItemInt = {
-            type: "int",
-            value: 0n
-        }
-
-        const itemAddress =  await nftCollection.getItemAddressByIndex(index);
+        const itemAddress =  await nftCollection.getItemAddressByIndex(getTupleItemInt(0n));
 
         expect(depositMessage.transactions).toHaveTransaction({
             from: nftCollection.address,
@@ -349,7 +357,7 @@ describe('JNexton', () => {
         const itemData = await nftItem.getItemData();
         expect(itemData.index).toEqual(0n);
 
-        blockchain.now = depositMessage.transactions[1].now;
+        blockchain.now = depositMessage.transactions[3].now;
 
         blockchain.now += nextonSetup.lockPeriod;
 
@@ -389,7 +397,9 @@ describe('JNexton', () => {
         // expect(userBalance).toEqual(toNano("0.2"));
         // console.log(await claimMessage.events);
 
-        const nextonBalance = await jNexton.getBalance();
+        const jNextonWalletAddr = await jettonMinter.getWalletAddress(jNexton.address);
+        const jNextonWallet = blockchain.openContract(await JettonWallet.createFromAddress(jNextonWalletAddr));
+        const nextonBalance = await jNextonWallet.getJettonBalance();
 
         console.log("Nexton Balance after claim: ", fromNano(nextonBalance));
     });
