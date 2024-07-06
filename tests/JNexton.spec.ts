@@ -398,21 +398,22 @@ describe('JNexton', () => {
         const itemOwner = await itemD.itemOwner;
         expect(itemOwner).toEqualAddress(jNexton.address);
 
+        // check contract data
         const usersPrinciple = await jNexton.getStaked();
         expect(usersPrinciple).toEqual(0n);
 
+        // check user balance
         const userBalance = await userWallet.getJettonBalance();
         //console.log(userBalance)
-        const expectedReturn = (nextonSetup.userDeposit - nextonSetup.protocolFee) * 1000n * BigInt(nextonSetup.lockPeriod) / (10000n * 31536000n);
-        const expectedBalance = nextonSetup.userDeposit * 2n - nextonSetup.protocolFee + expectedReturn;
+        const expectedReward = (nextonSetup.userDeposit - nextonSetup.protocolFee) * 1000n * BigInt(nextonSetup.lockPeriod) / (10000n * 31536000n);
+        const expectedBalance = nextonSetup.userDeposit * 2n - nextonSetup.protocolFee + expectedReward;
         //console.log(nextonSetup.userDeposit - nextonSetup.protocolFee + (nextonSetup.userDeposit - nextonSetup.protocolFee) * 1000n * BigInt(nextonSetup.lockPeriod) / (10000n * 31536000n))
         expect(userBalance).toEqual(expectedBalance);
 
-        // const jNextonWalletAddr = await jettonMinter.getWalletAddress(jNexton.address);
-        // const jNextonWallet = blockchain.openContract(await JettonWallet.createFromAddress(jNextonWalletAddr));
-        // const nextonBalance = await jNextonWallet.getJettonBalance();
-
-        // console.log("Nexton Balance after claim: ", fromNano(nextonBalance));
+        // check nexton wallet balance
+        const jNextonWallet = blockchain.openContract(await JettonWallet.createFromAddress(jNextonWalletAddr));
+        const jNextonBalance = await jNextonWallet.getJettonBalance();
+        expect(jNextonBalance).toEqual(nextonSetup.fundingAmount + nextonSetup.protocolFee - expectedReward);
     });
 
 
