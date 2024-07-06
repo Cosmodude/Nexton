@@ -50,7 +50,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
     itemCounter: Int as uint64 = 0;   // next_item_index
 
     usersPrincipal: Int as coins = 0;
-    latestStakeBlock: Int as uint256;
+    latestStakeBlockTime: Int as uint256;
     lockPeriod: Int as uint256 = 0;
     
     init(nftItemCode: Cell, _nft: Address, jettonWalletCode: Cell, _jetton: Address) {
@@ -59,7 +59,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         self.nFTContractAddress = _nft;
         self.jettonWalletCode = jettonWalletCode;
         self.jettonMinterAddress = _jetton;
-        self.latestStakeBlock = 0;  
+        self.latestStakeBlockTime = 0;  
         self.lockPeriod = DEFAULT_LOCK_PERIOD;
         self.myWallet = null;
 
@@ -121,11 +121,11 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
             return;
         }
 
-        self.latestStakeBlock = now(); // returns the current unix time in seconds
+        self.latestStakeBlockTime = now(); // returns the current unix time in seconds
 
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(msg.amount - PROTOCOL_FEE).endCell());
         self.itemContent.set(sha256("lockPeriod"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod, 256).endCell());
-        self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod + self.latestStakeBlock, 256).endCell());
+        self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(self.lockPeriod + self.latestStakeBlockTime, 256).endCell());
         
         let itemMessage: Cell = 
             beginCell()
@@ -154,7 +154,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         self.requireNotStopped();
         let itemIndex: Int = msg.payload.itemIndex;
         require(self.itemCounter > itemIndex, "Claiming not exisitng NFT");
-         let ctx: Context = context();
+        let ctx: Context = context();
         require(self.nftAddressByIndex(itemIndex) == ctx.sender, "Invalid sender! Sent not from the nft item!"); // Safety check
         nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
 
@@ -202,7 +202,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
 
         send(SendParameters{
                 to: self.myWallet!!,
-                value: 1,
+                value: 0,
                 mode: SendIgnoreErrors | SendRemainingValue,
                 body: JettonTransfer {
                     queryId: msg.queryId,
