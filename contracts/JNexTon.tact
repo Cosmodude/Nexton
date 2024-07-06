@@ -141,7 +141,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         };
         self.mintNFT(messageBody);
 
-        self.usersPrincipal = self.usersPrincipal + ctx.value - PROTOCOL_FEE;
+        self.usersPrincipal = self.usersPrincipal + msg.amount - PROTOCOL_FEE;
         self.itemContent.set(sha256("principal"), beginCell().storeUint(0, 8).storeCoins(0).endCell());
         self.itemContent.set(sha256("lockEnd"), beginCell().storeUint(0, 8).storeUint(0, 256).endCell());
     }
@@ -159,7 +159,6 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
 
         let owner: Address = msg.payload.owner;
-
         // reading content 
         let contentS: Slice = msg.payload.content.beginParse();
         nativeThrowUnless(905, contentS.loadUint(8) == 0);
