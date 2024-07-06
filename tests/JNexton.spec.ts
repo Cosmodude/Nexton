@@ -365,10 +365,10 @@ describe('JNexton', () => {
             user.getSender(),
             {
                 queryId: Date.now(),
-                value: toNano("0.2"),
+                value: toNano("0.23"),
                 newOwner: jNexton.address,
                 responseAddress: randomAddress(), // doesn't matter
-                fwdAmount: toNano("0.1")
+                fwdAmount: toNano("0.2")
             }
         )
     
@@ -378,20 +378,22 @@ describe('JNexton', () => {
             inMessageBounced: false,
         });
 
-        // expect(claimMessage.transactions).toHaveTransaction({
-        //     from: jNexton.address,
-        //     to: user.address,
-        //     inMessageBounced: false,
-        // });
+        const jNextonWalletAddr = await jNexton.getMyJettonWallet();
+
+        expect(claimMessage.transactions).toHaveTransaction({
+            from: jNexton.address,
+            to: jNextonWalletAddr,
+            inMessageBounced: false,
+        });
 
         // //console.log(claimMessage.transactions);
 
-        // const itemD = await nftItem.getItemData();
-        // const itemOwner = await itemD.itemOwner;
-        // expect(itemOwner).toEqualAddress(jNexton.address);
+        const itemD = await nftItem.getItemData();
+        const itemOwner = await itemD.itemOwner;
+        expect(itemOwner).toEqualAddress(jNexton.address);
 
-        // const usersPrinciple = await jNexton.getStaked();
-        // expect(usersPrinciple).toEqual(0n);
+        const usersPrinciple = await jNexton.getStaked();
+        expect(usersPrinciple).toEqual(0n);
 
         // // const userBalance = await user.getBalance()
         // // expect(userBalance).toEqual(toNano("0.2"));
@@ -410,5 +412,11 @@ describe('JNexton', () => {
         const itemData = await nftItem.getItemData()
         expect(itemData.index).toEqual(0n);
         expect(nftItem.address).toEqualAddress(res);
+    })
+
+    it("Should return jetton wallet by address", async () =>{
+        const res = await jNexton.getWalletAddressByOwner(user.address);
+        const walletAddr = await jettonMinter.getWalletAddress(user.address);
+        expect(res).toEqualAddress(walletAddr);
     })
 });
