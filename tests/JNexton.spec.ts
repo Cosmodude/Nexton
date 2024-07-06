@@ -235,6 +235,7 @@ describe('JNexton', () => {
 
         expect(depositMessage.events.at(-1)?.type).toMatch("account_created");
         expect(await jNexton.getNftCounter()).toEqual(1n);
+        expect(await jNexton.getStaked()).toEqual(nextonSetup.userDeposit - nextonSetup.protocolFee);
 
         //console.log(await mintMessage.transactions);
         nftItem = blockchain.openContract(NftItem.createFromAddress(itemAddress));
