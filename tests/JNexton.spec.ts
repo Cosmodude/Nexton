@@ -387,6 +387,11 @@ describe('JNexton', () => {
             inMessageBounced: false,
         });
 
+        expect(claimMessage.transactions).toHaveTransaction({
+            from: jNextonWalletAddr,
+            to: userWallet.address,
+        });
+
         // //console.log(claimMessage.transactions);
 
         const itemD = await nftItem.getItemData();
@@ -396,9 +401,12 @@ describe('JNexton', () => {
         const usersPrinciple = await jNexton.getStaked();
         expect(usersPrinciple).toEqual(0n);
 
-        // // const userBalance = await user.getBalance()
-        // // expect(userBalance).toEqual(toNano("0.2"));
-        // // console.log(await claimMessage.events);
+        const userBalance = await userWallet.getJettonBalance();
+        //console.log(userBalance)
+        const expectedReturn = (nextonSetup.userDeposit - nextonSetup.protocolFee) * 1000n * BigInt(nextonSetup.lockPeriod) / (10000n * 31536000n);
+        const expectedBalance = nextonSetup.userDeposit * 2n - nextonSetup.protocolFee + expectedReturn;
+        //console.log(nextonSetup.userDeposit - nextonSetup.protocolFee + (nextonSetup.userDeposit - nextonSetup.protocolFee) * 1000n * BigInt(nextonSetup.lockPeriod) / (10000n * 31536000n))
+        expect(userBalance).toEqual(expectedBalance);
 
         // const jNextonWalletAddr = await jettonMinter.getWalletAddress(jNexton.address);
         // const jNextonWallet = blockchain.openContract(await JettonWallet.createFromAddress(jNextonWalletAddr));
