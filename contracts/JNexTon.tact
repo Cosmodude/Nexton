@@ -216,16 +216,25 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
 
     }
 
-    // todo update
+    // todo: test
     receive(msg: OwnerWithdraw) {
         self.requireOwner();
-        nativeThrowUnless(1000, msg.amount <= myBalance() - MIN_CONTRACT_BALANCE); 
-        nativeReserve(MIN_CONTRACT_BALANCE, 0);
+        let ctx: Context = context();
+        nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
+        require(ctx.value >= ton("0.02"), "Not enough Ton to proccess withdraw");
         send(SendParameters{
-            to: sender(),
-            value: msg.amount,
+            to: self.myJettonWallet,
+            value: 0,
             mode: SendIgnoreErrors | SendRemainingValue,
-            body: "Assets withdrawn".asComment()
+            body: JettonTransfer {
+                queryId: msg.queryId,
+                amount: msg.amount,
+                destination: ctx.sender,
+                response_destination: ctx.sender,
+                custom_payload: null,
+                forward_ton_amount: 1,
+                forward_payload: "Owner Withdraw".asComment().asSlice()
+            }.toCell()
         });
     }
 
