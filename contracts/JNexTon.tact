@@ -223,7 +223,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         nativeReserve(max(MIN_CONTRACT_BALANCE, myBalance() - ctx.value), 0);
         require(ctx.value >= ton("0.02"), "Not enough Ton to proccess withdraw");
         send(SendParameters{
-            to: self.myJettonWallet,
+            to: self.myWallet!!,
             value: 0,
             mode: SendIgnoreErrors | SendRemainingValue,
             body: JettonTransfer {
