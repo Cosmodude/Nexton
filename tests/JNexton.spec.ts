@@ -137,18 +137,18 @@ describe('JNexton', () => {
         // console.log("JettonMinter ", jettonMinter.address)
         // console.log("deployer ", deployer.address)
 
-        //todo
-        // expect(deployResult.transactions).toHaveTransaction({
-        //     from: jNexton.address,
-        //     to: jettonMinter.address,
-        // });
+        // console.log(deployResult.events);
+        expect(deployResult.transactions).toHaveTransaction({
+            from: jNexton.address,
+            to: jettonMinter.address,
+        });
 
         const jNextonOwner = await jNexton.getOwner();
 
         await jNexton.send(
             deployer.getSender(),
             {
-                value: toNano("50")
+                value: toNano("5")
             },
             null
         )
