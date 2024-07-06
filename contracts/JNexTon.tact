@@ -132,7 +132,7 @@ contract JNexTon with Deployable, OwnableTransferable, Resumable{
         
         let itemMessage: Cell = 
             beginCell()
-            .storeAddress(ctx.sender)  //itemOwnerAddress
+            .storeAddress(msg.from)  //itemOwnerAddress
             .storeAddress(myAddress())  // setting nexton_aadress for nft_item
             .storeRef(beginCell().storeUint(0,8).storeDict(self.itemContent.asCell()!!).endCell())
             .endCell();
