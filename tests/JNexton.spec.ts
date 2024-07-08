@@ -419,7 +419,9 @@ describe('JNexton', () => {
     it("Should allow owner withdraw only to owner", async () =>{
 
         const user = await blockchain.treasury('user');
-    
+        const jNextonWalletAddr = await jNexton.getMyJettonWallet();
+        const deployerWalletAddr = await jettonMinter.getWalletAddress(deployer.address);
+
         await jNexton.send(
             deployer.getSender(),
             {
@@ -449,28 +451,31 @@ describe('JNexton', () => {
         const ownerWithdraw = await jNexton.send(
             deployer.getSender(),
             {
-                value: toNano("0.1")
+                value: toNano("0.3")
             },
             {
                 $$type: 'OwnerWithdraw',
                 queryId: BigInt(Date.now()),
-                amount: withdrawAmount
+                amount: nextonSetup.userDeposit
             }
         )
-
-        // need to account for gas
+        
         expect(ownerWithdraw.transactions).toHaveTransaction({   
-            from: nexton.address,
-            to: deployer.address,
+            from: jNexton.address,
+            to: jNextonWalletAddr,
             inMessageBounced: false,
-            value:  withdrawAmount
+        });
+        
+        expect(ownerWithdraw.transactions).toHaveTransaction({   
+            from: jNextonWalletAddr,
+            to: deployerWalletAddr,
+            inMessageBounced: false,
         });
 
         expect(ownerWithdraw.transactions).toHaveTransaction({   
-            from: nexton.address,
+            from: deployerWalletAddr,
             to: deployer.address,
             inMessageBounced: false,
-            body: beginCell().storeUint(0,32).storeStringTail("Excess gas returned").endCell()
         });
 
     })
