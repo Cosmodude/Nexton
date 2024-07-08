@@ -480,6 +480,58 @@ describe('JNexton', () => {
 
     })
 
+    it("Should let owner set apr and only owner", async () =>{
+        const oldApr = await jNexton.getApr();
+        expect(oldApr).toEqual(1000n);
+        const newApr = 2000n;
+        const ownerSetApr = await jNexton.send(
+            deployer.getSender(),
+            {
+                value: toNano("0.1")
+            },
+            {
+                $$type: 'SetApr',
+                queryId: BigInt(Date.now()),
+                apr: newApr
+            }
+        )
+        expect(ownerSetApr.transactions).toHaveTransaction({    
+            from: deployer.address,
+            to: jNexton.address,
+            inMessageBounced: false,
+            value: toNano("0.1")
+        });
+        const updatedApr = await jNexton.getApr();
+        expect(updatedApr).toEqual(newApr);
+
+        const user = await blockchain.treasury('user');
+
+        const userSetApr = await jNexton.send(
+            user.getSender(),
+            {
+                value: toNano("0.1")
+            },
+            {
+                $$type: 'SetApr',
+                queryId: BigInt(Date.now()),
+                apr: newApr
+            }
+        )
+        expect(userSetApr.transactions).toHaveTransaction({    
+            from: jNexton.address,
+            to: user.address,
+            inMessageBounced: true
+        });
+    })
+
+    it("Should return nftItem address by index", async () =>{
+        const res = await jNexton.getNftAddressByIndex(0n);
+        expect((await nftItem.getItemData()).index).toEqual(0n);
+        // console.log("NftItem Address: ", nftItem.address);
+        // console.log("Returned Address: ", res);
+        expect(nftItem.address).toEqualAddress(res);
+    })
+
 
     it("Should return nftItem address by index", async () =>{
         const res = await jNexton.getNftAddressByIndex(0n);
