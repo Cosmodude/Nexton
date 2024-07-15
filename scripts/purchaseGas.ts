@@ -6,7 +6,7 @@ const fightJettonAddr = Address.parse("EQCsqvWl5zT1dG6JTU7Vpp3mGRZTy_WQ5hkTVLIyj
 const operation = 0x6cd3e4b0;
 
 export async function run(provider: NetworkProvider) {
-    const res = await sendBuyGas(provider, fightJettonAddr, toNano('1');
+    const res = await sendBuyGas(provider, fightJettonAddr, toNano('1'));
 }
 
 async function sendBuyGas(provider: NetworkProvider, jetton: Address, value: bigint) {
